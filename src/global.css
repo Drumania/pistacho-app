@@ -22,6 +22,7 @@ html {
   box-sizing: border-box;
   font-size: var(--font-size);
   font-family: var(--font-family);
+  overflow-x: hidden;
 }
 
 *,
@@ -197,34 +198,57 @@ nav {
 }
 
 /* widget-zone */
-.widget-zone {
+.widget-content {
+  height: 100%;
+  background: var(--panel, #fff);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: var(--shadow, 0 0 10px rgba(0, 0, 0, 0.1));
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  user-select: none;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  align-items: flex-start;
+}
+
+.widget-handle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #888;
+  margin-bottom: 0.5rem;
+  cursor: grab;
+}
+
+/* .widget-zone {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  grid-auto-rows: 250px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
-  padding-top: var(--gap, 1rem);
+  padding-top: var(--gap);
 }
 
 .widget-wrapper {
+  min-height: 250px;
+  background: transparent;
+}
+
+.widget {
   height: 100%;
+  background-color: var(--panel);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
 }
 
 .widget-wrapper.tall {
   grid-row: span 2;
 }
 
-.widget {
-  background-color: var(--panel, #fff);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  transition: transform 0.25s ease, box-shadow 0.2s ease;
-  cursor: grab;
-}
+.widget-wrapper.placeholder .widget {
+  border: 2px dashed #ccc;
+  background: transparent;
+} */
 
 /* misc */
 .color-pistacho {
