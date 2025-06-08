@@ -52,8 +52,10 @@ export default function GroupDashboard() {
   return (
     <div className="container-fluid" ref={containerRef}>
       <div className="row mb-3">
-        <div className="col-8">
-          <h2>Dashboard for group: {groupId}</h2>
+        <div className="col-8 ps-4">
+          <h5>
+            Dashboard for: <strong>{groupId}</strong>
+          </h5>
         </div>
         <div className="col-4 text-end">
           <button
