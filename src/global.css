@@ -204,13 +204,13 @@ nav {
   border-radius: 0.5rem;
   padding: 1rem;
   box-shadow: var(--shadow, 0 0 10px rgba(0, 0, 0, 0.1));
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  user-select: none;
   overflow: hidden;
   transition: all 0.2s ease;
   align-items: flex-start;
+}
+
+.wc-edit {
+  border: 1px dashed var(--pistacho-color);
 }
 
 .widget-handle {
@@ -275,7 +275,7 @@ nav {
 }
 
 .btn-pistacho-outline {
-  padding: 0 var(--m-gap);
+  padding: 0 var(--gap);
   border-radius: 20px;
   height: 40px;
   line-height: 40px;
