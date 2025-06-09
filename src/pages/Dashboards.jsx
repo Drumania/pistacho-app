@@ -8,7 +8,7 @@ import CalendarWidget from "@/widgets/CalendarWidget/CalendarWidget";
 import PomodoroWidget from "@/widgets/PomodoroWidget/PomodoroWidget";
 import DateWidget from "@/widgets/DateWidget/DateWidget";
 import WorldClocksWidget from "@/widgets/WorldClocksWidget/WorldClocksWidget";
-import ClubWorldCupWidget from "../widgets/ClubWorldCupWidget/ClubWorldCupWidget ";
+import ClubWorldCupWidget from "../widgets/ClubWorldCupWidget/ClubWorldCupWidget";
 
 const initialWidgets = [
   { key: "TodoWidget", w: 2, h: 2, component: <TodoWidget /> },
