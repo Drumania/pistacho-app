@@ -1,4 +1,4 @@
-export default function TodoWidget() {
+export default function ToDoWidget() {
   return (
     <div>
       <h5 className="mb-3">To-Do List</h5>
