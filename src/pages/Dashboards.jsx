@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+import db from "@/firebase/firestore";
 import TodoWidget from "@/widgets/TodoWidget/TodoWidget";
 import CalendarWidget from "@/widgets/CalendarWidget/CalendarWidget";
 import PomodoroWidget from "@/widgets/PomodoroWidget/PomodoroWidget";
@@ -34,6 +35,10 @@ export default function GroupDashboard() {
       h: w.h,
     }))
   );
+
+  useEffect(() => {
+    console.log("Firestore conectado:", db);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
