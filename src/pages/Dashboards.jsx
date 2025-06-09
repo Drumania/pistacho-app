@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import ToDoWidget from "@/widgets/ToDoWidget/ToDoWidget";
+import TodoWidget from "@/widgets/TodoWidget/TodoWidget";
 import CalendarWidget from "@/widgets/CalendarWidget/CalendarWidget";
 import PomodoroWidget from "@/widgets/PomodoroWidget/PomodoroWidget";
 import DateWidget from "@/widgets/DateWidget/DateWidget";
@@ -11,7 +11,7 @@ import WorldClocksWidget from "@/widgets/WorldClocksWidget/WorldClocksWidget";
 import ClubWorldCupWidget from "../widgets/ClubWorldCupWidget/ClubWorldCupWidget";
 
 const initialWidgets = [
-  { key: "ToDoWidget", w: 2, h: 2, component: <ToDoWidget /> },
+  { key: "TodoWidget", w: 2, h: 2, component: <TodoWidget /> },
   { key: "CalendarWidget", w: 1, h: 1, component: <CalendarWidget /> },
   { key: "DateWidget", w: 2, h: 1, component: <DateWidget /> },
   { key: "PomodoroWidget", w: 2, h: 2, component: <PomodoroWidget /> },
