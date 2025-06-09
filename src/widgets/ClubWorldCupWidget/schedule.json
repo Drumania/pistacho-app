@@ -1,0 +1,361 @@
+{
+  "Sábado 14 de junio": [
+    {
+      "time": "21:00",
+      "team1": "Al Ahly",
+      "team2": "Inter Miami"
+    }
+  ],
+  "Domingo 15 de junio": [
+    {
+      "time": "13:00",
+      "team1": "PSG",
+      "team2": "Atlético de Madrid"
+    },
+    {
+      "time": "16:00",
+      "team1": "Palmeiras",
+      "team2": "Porto"
+    },
+    {
+      "time": "19:00",
+      "team1": "Bayern Múnich",
+      "team2": "Auckland City"
+    },
+    {
+      "time": "23:00",
+      "team1": "Botafogo",
+      "team2": "Seattle Sounders"
+    }
+  ],
+  "Lunes 16 de junio": [
+    {
+      "time": "16:00",
+      "team1": "Chelsea",
+      "team2": "Los Angeles FC"
+    },
+    {
+      "time": "19:00",
+      "team1": "Boca Juniors",
+      "team2": "Benfica"
+    },
+    {
+      "time": "22:00",
+      "team1": "Flamengo",
+      "team2": "Esperance"
+    }
+  ],
+  "Martes 17 de junio": [
+    {
+      "time": "13:00",
+      "team1": "Fluminense",
+      "team2": "Borussia Dortmund"
+    },
+    {
+      "time": "16:00",
+      "team1": "River Plate",
+      "team2": "Urawa Red Diamons"
+    },
+    {
+      "time": "19:00",
+      "team1": "Ulsan Hyundai",
+      "team2": "Mamelodi Sundowns"
+    },
+    {
+      "time": "22:00",
+      "team1": "Monterrey",
+      "team2": "Inter de Milán"
+    }
+  ],
+  "Miércoles 18 de junio": [
+    {
+      "time": "13:00",
+      "team1": "Manchester City",
+      "team2": "Wydad"
+    },
+    {
+      "time": "16:00",
+      "team1": "Real Madrid",
+      "team2": "Al Hilal"
+    },
+    {
+      "time": "19:00",
+      "team1": "Pachuca",
+      "team2": "Salzburgo"
+    },
+    {
+      "time": "22:00",
+      "team1": "Al Ain",
+      "team2": "Juventus"
+    }
+  ],
+  "Jueves 19 de junio": [
+    {
+      "time": "13:00",
+      "team1": "Inter Miami",
+      "team2": "Porto"
+    },
+    {
+      "time": "16:00",
+      "team1": "Seattle Sounders",
+      "team2": "Atlético de Madrid"
+    },
+    {
+      "time": "19:00",
+      "team1": "Palmeiras",
+      "team2": "Al Ahly"
+    },
+    {
+      "time": "22:00",
+      "team1": "Botafogo",
+      "team2": "PSG"
+    }
+  ],
+  "Viernes 20 de junio": [
+    {
+      "time": "13:00",
+      "team1": "Benfica",
+      "team2": "Auckland City"
+    },
+    {
+      "time": "15:00",
+      "team1": "Flamengo",
+      "team2": "Chelsea"
+    },
+    {
+      "time": "19:00",
+      "team1": "Los Angeles FC",
+      "team2": "Esperance"
+    },
+    {
+      "time": "22:00",
+      "team1": "Bayern Múnich",
+      "team2": "Boca Juniors"
+    }
+  ],
+  "Sábado 21 de junio": [
+    {
+      "time": "13:00",
+      "team1": "Inter de Milán",
+      "team2": "Urawa Red Diamons"
+    },
+    {
+      "time": "16:00",
+      "team1": "Mamelodi Sundowns",
+      "team2": "Borussia Dortmund"
+    },
+    {
+      "time": "19:00",
+      "team1": "Fluminense",
+      "team2": "Ulsan Hyundai"
+    },
+    {
+      "time": "22:00",
+      "team1": "River Plate",
+      "team2": "Monterrey"
+    }
+  ],
+  "Domingo 22 de junio": [
+    {
+      "time": "13:00",
+      "team1": "Juventus",
+      "team2": "Wydad"
+    },
+    {
+      "time": "16:00",
+      "team1": "Real Madrid",
+      "team2": "Pachuca"
+    },
+    {
+      "time": "19:00",
+      "team1": "Salzburgo",
+      "team2": "Al Hilal"
+    },
+    {
+      "time": "22:00",
+      "team1": "Manchester City",
+      "team2": "Al Ain"
+    }
+  ],
+  "Lunes 23 de junio": [
+    {
+      "time": "16:00",
+      "team1": "Atlético de Madrid",
+      "team2": "Botafogo"
+    },
+    {
+      "time": "16:00",
+      "team1": "Seattle Sounders",
+      "team2": "PSG"
+    },
+    {
+      "time": "22:00",
+      "team1": "Inter Miami",
+      "team2": "Palmeiras"
+    },
+    {
+      "time": "22:00",
+      "team1": "Porto",
+      "team2": "Al Ahly"
+    }
+  ],
+  "Martes 24 de junio": [
+    {
+      "time": "16:00",
+      "team1": "Auckland City",
+      "team2": "Boca Juniors"
+    },
+    {
+      "time": "16:00",
+      "team1": "Benfica",
+      "team2": "Bayern Múnich"
+    },
+    {
+      "time": "22:00",
+      "team1": "Esperance",
+      "team2": "Chelsea"
+    },
+    {
+      "time": "22:00",
+      "team1": "Los Angeles FC",
+      "team2": "Flamengo"
+    }
+  ],
+  "Miércoles 25 de junio": [
+    {
+      "time": "16:00",
+      "team1": "Borussia Dortmund",
+      "team2": "Ulsan Hyundai"
+    },
+    {
+      "time": "16:00",
+      "team1": "Mamelodi Sundowns",
+      "team2": "Fluminense"
+    },
+    {
+      "time": "22:00",
+      "team1": "Inter de Milán",
+      "team2": "River Plate"
+    },
+    {
+      "time": "22:00",
+      "team1": "Urawa Red Diamons",
+      "team2": "Monterrey"
+    }
+  ],
+  "Jueves 26 de junio": [
+    {
+      "time": "16:00",
+      "team1": "Juventus",
+      "team2": "Manchester City"
+    },
+    {
+      "time": "16:00",
+      "team1": "Wydad",
+      "team2": "Al Ain"
+    },
+    {
+      "time": "22:00",
+      "team1": "Salzburgo",
+      "team2": "Real Madrid"
+    },
+    {
+      "time": "22:00",
+      "team1": "Al Hilal",
+      "team2": "Pachuca"
+    }
+  ],
+  "Sábado 28 de junio": [
+    {
+      "time": "13:00",
+      "team1": "1° Grupo A",
+      "team2": "2° Grupo B"
+    },
+    {
+      "time": "17:00",
+      "team1": "1° Grupo C",
+      "team2": "2° Grupo D"
+    }
+  ],
+  "Domingo 29 de junio": [
+    {
+      "time": "13:00",
+      "team1": "1° Grupo B",
+      "team2": "2° Grupo A"
+    },
+    {
+      "time": "17:00",
+      "team1": "1° Grupo D",
+      "team2": "2° Grupo C"
+    }
+  ],
+  "Lunes 30 de junio": [
+    {
+      "time": "16:00",
+      "team1": "1° Grupo E",
+      "team2": "2° Grupo F"
+    },
+    {
+      "time": "22:00",
+      "team1": "1° Grupo G",
+      "team2": "2° Grupo H"
+    }
+  ],
+  "Martes 1 de julio": [
+    {
+      "time": "16:00",
+      "team1": "1° Grupo H",
+      "team2": "2° Grupo G"
+    },
+    {
+      "time": "22:00",
+      "team1": "1° Grupo F",
+      "team2": "2° Grupo E"
+    }
+  ],
+  "Viernes 4 de julio": [
+    {
+      "time": "16:00",
+      "team1": "Ganador 53",
+      "team2": "Ganador 54"
+    },
+    {
+      "time": "22:00",
+      "team1": "Ganador 49",
+      "team2": "Ganador 50"
+    }
+  ],
+  "Sábado 5 de julio": [
+    {
+      "time": "13:00",
+      "team1": "Ganador 51",
+      "team2": "Ganador 52"
+    },
+    {
+      "time": "17:00",
+      "team1": "Ganador 55",
+      "team2": "Ganador 56"
+    }
+  ],
+  "Martes 8 de julio": [
+    {
+      "time": "16:00",
+      "team1": "Ganador 57",
+      "team2": "Ganador 58"
+    }
+  ],
+  "Miércoles 9 de julio": [
+    {
+      "time": "16:00",
+      "team1": "Ganador 59",
+      "team2": "Ganador 60"
+    }
+  ],
+  "Domingo 13 de julio": [
+    {
+      "time": "16:00",
+      "team1": "Ganador 61",
+      "team2": "Ganador 62"
+    }
+  ]
+}

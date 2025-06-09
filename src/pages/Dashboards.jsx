@@ -8,6 +8,7 @@ import CalendarWidget from "@/widgets/CalendarWidget/CalendarWidget";
 import PomodoroWidget from "@/widgets/PomodoroWidget/PomodoroWidget";
 import DateWidget from "@/widgets/DateWidget/DateWidget";
 import WorldClocksWidget from "@/widgets/WorldClocksWidget/WorldClocksWidget";
+import ClubWorldCupWidget from "../widgets/ClubWorldCupWidget/ClubWorldCupWidget ";
 
 const initialWidgets = [
   { key: "TodoWidget", w: 2, h: 2, component: <TodoWidget /> },
@@ -15,6 +16,7 @@ const initialWidgets = [
   { key: "DateWidget", w: 2, h: 1, component: <DateWidget /> },
   { key: "PomodoroWidget", w: 2, h: 2, component: <PomodoroWidget /> },
   { key: "worldclocks", w: 2, h: 1, component: <WorldClocksWidget /> },
+  { key: "ClubWorldCupWidget", w: 1, h: 2, component: <ClubWorldCupWidget /> },
 ];
 
 export default function GroupDashboard() {

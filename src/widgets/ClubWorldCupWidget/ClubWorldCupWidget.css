@@ -1,0 +1,34 @@
+.club-widget {
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.header {
+  display: flex;
+  overflow-x: auto;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.date-tab {
+  white-space: nowrap;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.date-tab.active {
+  background: var(--pistacho-color);
+  color: var(--black-color);
+}
+
+.date-format {
+  display: flex;
+
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
