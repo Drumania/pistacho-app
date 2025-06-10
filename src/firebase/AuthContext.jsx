@@ -23,7 +23,12 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         await firebaseUser.reload();
-        setUser(auth.currentUser); // reload asegura que photoURL y displayName estén
+        const isAdmin = firebaseUser.uid === "rdJo2357x0WO6QFlMh7cY6i0aBK2";
+
+        setUser({
+          ...auth.currentUser,
+          admin: isAdmin,
+        });
       } else {
         setUser(null);
       }

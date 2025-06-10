@@ -4,6 +4,7 @@ import Home from "@/pages/Home";
 import GroupDashboard from "@/pages/Dashboards";
 import AuthPage from "@/pages/AuthPage";
 import SettingsPage from "@/pages/SettingsPage";
+import AdminToolsPage from "@/pages/AdminToolsPage";
 import { useAuth } from "@/firebase/AuthContext";
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/g/:groupId" element={<GroupDashboard />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/admintools" element={<AdminToolsPage />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
       )}

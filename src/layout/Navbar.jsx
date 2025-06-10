@@ -35,14 +35,14 @@ export default function Navbar() {
               className="p-button-text p-0"
               onClick={(e) => panelRef.current.toggle(e)}
             />
-            {console.log(user)}
+
             <OverlayPanel ref={panelRef}>
               <ul className="user-panel mb-0">
                 {user && user.admin && (
                   <>
                     <li>
                       <Link
-                        to="/admin" // You can change this path to your admin tools page
+                        to="/admintools" // You can change this path to your admin tools page
                         className="dropdown-item d-flex align-items-center gap-2"
                       >
                         <i className="bi bi-shield-lock"></i> Admin Tools
