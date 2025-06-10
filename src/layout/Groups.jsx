@@ -1,13 +1,26 @@
 import { useEffect, useState, useRef } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
+
 import { Avatar } from "primereact/avatar";
 import { AvatarGroup } from "primereact/avatargroup";
-import { Badge } from "primereact/badge";
+
+import NewGroupDialog from "@/components/NewGroupDialog";
+import { getUserAvatar } from "@/utils/getUserAvatar";
+import { useAuth } from "@/firebase/AuthContext";
+
+const db = getFirestore();
 
 export default function Groups() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const scrollRef = useRef(null);
-  const [showArrows, setShowArrows] = useState(false);
 
+  const [showArrows, setShowArrows] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [groups, setGroups] = useState([]);
+  console.log("user: ", user);
+  // Scroll arrows
   const scroll = (dir) => {
     if (scrollRef.current) {
       const offset = dir === "left" ? -200 : 200;
@@ -15,6 +28,7 @@ export default function Groups() {
     }
   };
 
+  // Verifica overflow horizontal
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -25,9 +39,29 @@ export default function Groups() {
 
     checkOverflow();
     window.addEventListener("resize", checkOverflow);
-
     return () => window.removeEventListener("resize", checkOverflow);
   }, []);
+
+  // Cargar grupos del usuario
+  useEffect(() => {
+    const loadGroups = async () => {
+      if (!user?.uid) return;
+
+      const ref = collection(db, "user_groups", user.uid, "groups");
+      const snap = await getDocs(ref);
+
+      const list = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setGroups(list);
+    };
+
+    loadGroups();
+  }, [user]);
+
+  if (!user) return null;
 
   return (
     <section className="container-fluid my-1">
@@ -39,10 +73,25 @@ export default function Groups() {
         )}
 
         <div className="nav-groups-container" ref={scrollRef}>
+          {/* Botón para crear nuevo grupo */}
           <div className="wrap-btn">
-            <button className="btn-pistacho-outline">+ New Group</button>
+            <button
+              className="btn-pistacho-outline"
+              onClick={() => setShowDialog(true)}
+            >
+              + New Group
+            </button>
           </div>
 
+          {/* Diálogo de creación */}
+          <NewGroupDialog
+            visible={showDialog}
+            user={user}
+            onHide={() => setShowDialog(false)}
+            onCreate={(data) => navigate(`/g/${data.slug}`)}
+          />
+
+          {/* Grupo personal "Me" */}
           <NavLink
             to="/g/me"
             className={({ isActive }) =>
@@ -50,112 +99,26 @@ export default function Groups() {
             }
           >
             <AvatarGroup>
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-                size="small"
-                shape="circle"
-              />
+              <Avatar image={getUserAvatar(user)} size="small" shape="circle" />
             </AvatarGroup>
             <span className="ng-name">Me</span>
           </NavLink>
 
-          <NavLink
-            to="/g/martin_y_bel"
-            className={({ isActive }) =>
-              `nav-groups ${isActive ? "active " : ""}`
-            }
-          >
-            <AvatarGroup>
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png"
-                size="small"
-                shape="circle"
-              />
-            </AvatarGroup>
-
-            <span className="ng-name">
-              Martin y Bel <Badge value="4" severity="danger" />
-            </span>
-          </NavLink>
-
-          <NavLink
-            to="/g/red_cash"
-            className={({ isActive }) =>
-              `nav-groups ${isActive ? "active" : ""}`
-            }
-          >
-            <AvatarGroup>
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/onyamalimba.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/ionibowcher.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/xuxuefeng.png"
-                size="small"
-                shape="circle"
-              />
-              {/* <Avatar label="+2" shape="circle" size="small" /> */}
-            </AvatarGroup>
-            <span className="ng-name">Red Ca$h</span>
-          </NavLink>
-
-          <NavLink
-            to="/g/padel"
-            className={({ isActive }) =>
-              `nav-groups ${isActive ? "active" : ""}`
-            }
-          >
-            <AvatarGroup>
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/onyamalimba.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/ionibowcher.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/xuxuefeng.png"
-                size="small"
-                shape="circle"
-              />
-              <Avatar label="+2" shape="circle" size="small" />
-            </AvatarGroup>
-            <span className="ng-name">Padel Jueves</span>
-          </NavLink>
+          {/* Grupos del usuario */}
+          {groups.map((g) => (
+            <NavLink
+              key={g.groupId}
+              to={`/g/${g.slug}`}
+              className={({ isActive }) =>
+                `nav-groups ${isActive ? "active" : ""}`
+              }
+            >
+              <AvatarGroup>
+                <Avatar label={g.name.charAt(0)} size="small" shape="circle" />
+              </AvatarGroup>
+              <span className="ng-name">{g.name}</span>
+            </NavLink>
+          ))}
         </div>
 
         {showArrows && (

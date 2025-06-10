@@ -103,6 +103,24 @@ nav {
   }
 }
 
+.user-panel {
+  padding: 10px;
+  min-width: 200px;
+  background: var(--panel-hover);
+
+  & li {
+    line-height: 40px;
+    border: var(--line-color);
+    color: var(--text-color);
+    background: var(--panel-hover);
+  }
+
+  & .p-overlaypanel:after,
+  .p-overlaypanel:before {
+    display: none;
+  }
+}
+
 /* nav groups */
 
 .nav-scroll-wrapper {
@@ -287,6 +305,61 @@ nav {
 
 .btn-pistacho-outline:hover {
   border: 1px solid var(--pistacho-color);
+}
+
+/* Estilo personalizado del modal */
+.new-group-dialog {
+  background-color: var(--panel);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  color: var(--text-color);
+}
+
+.new-group-dialog .p-dialog-header {
+  background-color: var(--panel);
+  border-bottom: 1px solid var(--line-color);
+  color: var(--white-color);
+  font-weight: 600;
+  padding: var(--gap);
+}
+
+.new-group-dialog .p-dialog-content {
+  background-color: var(--panel);
+  padding: var(--gap);
+}
+
+.new-group-dialog .p-dialog-footer {
+  background-color: var(--panel);
+  border-top: 1px solid var(--line-color);
+}
+
+.new-group-dialog label {
+  color: var(--text-color);
+}
+
+.new-group-dialog input {
+  background-color: var(--bg-color);
+  border: 1px solid var(--line-color);
+  border-radius: var(--border-radius);
+  color: var(--white-color);
+  padding: 8px;
+}
+
+.new-group-dialog input:focus {
+  border-color: var(--pistacho-color);
+  outline: none;
+}
+
+.new-group-dialog .p-button {
+  background-color: var(--pistacho-color);
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  color: #fff;
+}
+
+.new-group-dialog .p-button:hover {
+  background-color: var(--dark-pistacho-color);
 }
 
 /* primereact fixs */
