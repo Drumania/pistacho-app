@@ -37,10 +37,6 @@ export default function GroupDashboard() {
   );
 
   useEffect(() => {
-    console.log("Firestore conectado:", db);
-  }, []);
-
-  useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth - 20);

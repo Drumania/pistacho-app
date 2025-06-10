@@ -362,6 +362,40 @@ nav {
   background-color: var(--dark-pistacho-color);
 }
 
+/* admin-panel */
+.admin-panel {
+  background-color: #121212;
+  color: #f1f1f1;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.admin-panel .p-datatable {
+  background-color: transparent;
+  color: inherit;
+}
+
+.admin-panel .p-datatable .p-datatable-thead > tr > th {
+  background-color: #1f1f1f;
+  color: var(--pistacho-color);
+  font-weight: 600;
+  border: none;
+}
+
+.admin-panel .p-datatable .p-datatable-tbody > tr {
+  background-color: #1a1a1a;
+  color: #f1f1f1;
+  border: none;
+}
+
+.admin-panel .p-button.p-button-text {
+  color: #a0ff7f;
+}
+
+.admin-panel .p-button.text-danger {
+  color: #ff7f7f !important;
+}
+
 /* primereact fixs */
 .p-avatar-group .p-avatar {
   border: 0;

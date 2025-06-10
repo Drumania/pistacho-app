@@ -25,7 +25,7 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
   const [loading, setLoading] = useState(false);
 
   const steps = [{ label: "Create" }, { label: "Info" }, { label: "Done" }];
-
+  console.log("clg: ", user);
   const handleCreateGroup = async () => {
     if (!name || !user?.uid) return;
 
@@ -54,9 +54,10 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
       });
 
       // Agregar relación en user_groups
-      await setDoc(doc(db, "user_groups", `${user.uid}_${groupRef.id}`), {
-        uid: user.uid,
+      await setDoc(doc(db, "user_groups", user.uid, "groups", groupRef.id), {
         groupId: groupRef.id,
+        slug,
+        name,
         role: "admin",
         joined_at: serverTimestamp(),
       });

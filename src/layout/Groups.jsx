@@ -84,6 +84,7 @@ export default function Groups() {
           </div>
 
           {/* Diálogo de creación */}
+
           <NewGroupDialog
             visible={showDialog}
             user={user}
