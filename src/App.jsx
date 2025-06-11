@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "@/layout/Layout";
-import GroupDashboard from "@/pages/Dashboards";
+import GroupDashboard from "@/pages/Dashboards/Dashboards";
 import LoginPage from "@/pages/LoginPage";
 import SettingsPage from "@/pages/SettingsPage";
 import AdminToolsPage from "@/pages/AdminToolsPage";

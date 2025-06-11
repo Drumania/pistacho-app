@@ -4,13 +4,15 @@ import Groups from "@/layout/Groups";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import db from "@/firebase/firestore";
+
+import EditGroup from "./EditGroup";
+
 import TodoWidget from "@/widgets/TodoWidget/TodoWidget";
 import CalendarWidget from "@/widgets/CalendarWidget/CalendarWidget";
 import PomodoroWidget from "@/widgets/PomodoroWidget/PomodoroWidget";
 import DateWidget from "@/widgets/DateWidget/DateWidget";
 import WorldClocksWidget from "@/widgets/WorldClocksWidget/WorldClocksWidget";
-import ClubWorldCupWidget from "../widgets/ClubWorldCupWidget/ClubWorldCupWidget";
+import ClubWorldCupWidget from "../../widgets/ClubWorldCupWidget/ClubWorldCupWidget";
 
 const initialWidgets = [
   { key: "TodoWidget", w: 2, h: 2, component: <TodoWidget /> },
@@ -26,6 +28,12 @@ export default function GroupDashboard() {
   const containerRef = useRef();
   const [containerWidth, setContainerWidth] = useState(1200);
   const [editMode, setEditMode] = useState(false);
+
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [groupData, setGroupData] = useState({
+    slug: groupId,
+    name: "My Group",
+  });
 
   const [layout, setLayout] = useState(
     initialWidgets.map((w, i) => ({
@@ -57,16 +65,22 @@ export default function GroupDashboard() {
     <div className="container-fluid" ref={containerRef}>
       <Groups />
       <div className="row my-3">
-        <div className="col-8 ps-4">
-          <h5>
-            Dashboard for: <strong>{groupId}</strong>
-          </h5>
-        </div>
-        <div className="col-4 text-end">
+        <h5 className="col-6 ps-4">
+          Dashboard for: <strong>{groupId}</strong>
+        </h5>
+        <div className="col-6 text-end">
+          <button
+            className="btn-pistacho-outline"
+            onClick={() => setShowEditDialog(true)}
+          >
+            <i className="bi bi-gear" />
+            <span className="ms-2 d-none d-md-inline">Settings Group</span>
+          </button>
           <button
             className="btn-pistacho-outline me-2"
             onClick={() => setEditMode((prev) => !prev)}
           >
+            <i className="bi bi-bounding-box-circles me-2"></i>
             {editMode ? "Done" : "Edit Dashboard"}
           </button>
           <button className="btn-pistacho">Add Widget</button>
@@ -102,6 +116,17 @@ export default function GroupDashboard() {
           );
         })}
       </GridLayout>
+
+      <EditGroup
+        visible={showEditDialog}
+        onHide={() => setShowEditDialog(false)}
+        groupData={groupData}
+        onSave={(updated) => {
+          console.log("Nuevo nombre del grupo:", updated.name);
+          // acá podrías guardar en firestore si querés
+          setGroupData(updated);
+        }}
+      />
     </div>
   );
 }
