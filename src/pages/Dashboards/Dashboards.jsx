@@ -6,41 +6,16 @@ import "react-resizable/css/styles.css";
 
 import Groups from "@/layout/Groups";
 import EditGroup from "./EditGroup";
-
-import TodoWidget from "@/widgets/TodoWidget/TodoWidget";
-import CalendarWidget from "@/widgets/CalendarWidget/CalendarWidget";
-import PomodoroWidget from "@/widgets/PomodoroWidget/PomodoroWidget";
-import DateWidget from "@/widgets/DateWidget/DateWidget";
-import WorldClocksWidget from "@/widgets/WorldClocksWidget/WorldClocksWidget";
-import ClubWorldCupWidget from "@/widgets/ClubWorldCupWidget/ClubWorldCupWidget";
+import AddWidgetDialog from "./AddWidgetDialog";
 
 import db from "@/firebase/firestore";
 import {
   collection,
   getDocs,
-  addDoc,
   updateDoc,
+  deleteDoc,
   doc,
-  serverTimestamp,
 } from "firebase/firestore";
-
-const availableWidgets = {
-  TodoWidget,
-  CalendarWidget,
-  PomodoroWidget,
-  DateWidget,
-  WorldClocksWidget,
-  ClubWorldCupWidget,
-};
-
-const WIDGET_OPTIONS = [
-  { key: "TodoWidget", label: "To-do List" },
-  { key: "CalendarWidget", label: "Calendar" },
-  { key: "PomodoroWidget", label: "Pomodoro" },
-  { key: "DateWidget", label: "Date" },
-  { key: "WorldClocksWidget", label: "World Clocks" },
-  { key: "ClubWorldCupWidget", label: "Club World Cup" },
-];
 
 export default function Dashboards() {
   const { groupId } = useParams();
@@ -49,14 +24,13 @@ export default function Dashboards() {
   const [editMode, setEditMode] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddWidgetDialog, setShowAddWidgetDialog] = useState(false);
-
   const [groupData, setGroupData] = useState({
     slug: groupId,
     name: "My Group",
   });
-
   const [layout, setLayout] = useState([]);
   const [widgetInstances, setWidgetInstances] = useState([]);
+  const [components, setComponents] = useState({});
 
   useEffect(() => {
     const handleResize = () => {
@@ -77,6 +51,7 @@ export default function Dashboards() {
     const snapshot = await getDocs(collection(db, `groups/${groupId}/widgets`));
     const widgets = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setWidgetInstances(widgets);
+
     setLayout(
       widgets.map((w) => ({
         i: w.id,
@@ -86,6 +61,19 @@ export default function Dashboards() {
         h: w.layout.h,
       }))
     );
+
+    const componentsMap = {};
+    for (const widget of widgets) {
+      try {
+        const mod = await import(
+          /* @vite-ignore */ `/src/widgets/${widget.key}/${widget.key}.jsx`
+        );
+        componentsMap[widget.id] = mod.default;
+      } catch (err) {
+        console.error("Error importing widget:", widget.key, err);
+      }
+    }
+    setComponents(componentsMap);
   };
 
   const handleLayoutChange = async (newLayout) => {
@@ -97,21 +85,10 @@ export default function Dashboards() {
     }
   };
 
-  const addNewWidget = async (key) => {
-    const newWidget = {
-      key,
-      layout: { x: 0, y: Infinity, w: 1, h: 1 },
-      settings: {},
-      createdAt: serverTimestamp(),
-      createdBy: "system", // reemplazá por el UID del usuario logueado
-    };
-    await addDoc(collection(db, `groups/${groupId}/widgets`), newWidget);
-    fetchWidgets();
-  };
-
   return (
     <div className="container-fluid" ref={containerRef}>
       <Groups />
+
       <div className="row my-3">
         <h5 className="col-6 ps-4">
           Dashboard for: <strong>{groupId}</strong>
@@ -157,7 +134,17 @@ export default function Dashboards() {
       >
         {layout.map((l) => {
           const widget = widgetInstances.find((w) => w.id === l.i);
-          const WidgetComponent = availableWidgets[widget?.key];
+          const WidgetComponent = components[widget?.id];
+
+          const handleDelete = async () => {
+            await deleteDoc(doc(db, `groups/${groupId}/widgets/${widget.id}`));
+            fetchWidgets();
+          };
+
+          const handleSettings = () => {
+            console.log("Settings for", widget.id);
+          };
+
           return (
             <div key={l.i}>
               <div
@@ -165,11 +152,31 @@ export default function Dashboards() {
                   editMode ? "widget-content wc-edit" : "widget-content"
                 }
               >
-                {editMode && <div className="widget-handle">≡</div>}
+                {editMode && (
+                  <div className="d-flex justify-content-between align-items-center px-2 pb-1">
+                    <div className="widget-handle">≡</div>
+                    <div>
+                      <button
+                        className="btn btn-sm btn-light me-2"
+                        onClick={handleSettings}
+                        title="Edit settings"
+                      >
+                        <i className="bi bi-gear" />
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={handleDelete}
+                        title="Delete widget"
+                      >
+                        <i className="bi bi-trash" />
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {WidgetComponent ? (
                   <WidgetComponent {...widget.settings} />
                 ) : (
-                  <div>Not found</div>
+                  <div className="p-2 text-muted">Widget not found</div>
                 )}
               </div>
             </div>
@@ -186,44 +193,12 @@ export default function Dashboards() {
         }}
       />
 
-      {/* <div
-        className="modal fade show d-block"
-        tabIndex="-1"
-        role="dialog"
-        style={{
-          display: showAddWidgetDialog ? "block" : "none",
-          backgroundColor: "rgba(0,0,0,0.5)",
-        }}
-      >
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Add a Widget</h5>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setShowAddWidgetDialog(false)}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <div className="list-group">
-                {WIDGET_OPTIONS.map((widget) => (
-                  <button
-                    key={widget.key}
-                    className="list-group-item list-group-item-action"
-                    onClick={() => {
-                      addNewWidget(widget.key);
-                      setShowAddWidgetDialog(false);
-                    }}
-                  >
-                    {widget.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
+      <AddWidgetDialog
+        visible={showAddWidgetDialog}
+        onHide={() => setShowAddWidgetDialog(false)}
+        groupId={groupId}
+        onWidgetAdded={fetchWidgets}
+      />
     </div>
   );
 }

@@ -13,16 +13,6 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
-import { Dropdown } from "primereact/dropdown";
-
-const PREDEFINED_WIDGETS = [
-  { key: "TodoWidget", label: "To-do List", icon: "bi bi-check2-square" },
-  { key: "CalendarWidget", label: "Calendar", icon: "bi bi-calendar-event" },
-  { key: "PomodoroWidget", label: "Pomodoro", icon: "bi bi-alarm" },
-  { key: "DateWidget", label: "Date", icon: "bi bi-clock" },
-  { key: "WorldClocksWidget", label: "World Clocks", icon: "bi bi-globe" },
-  { key: "ClubWorldCupWidget", label: "Club World Cup", icon: "bi bi-trophy" },
-];
 
 export default function WidgetManager() {
   const [widgets, setWidgets] = useState([]);
@@ -31,8 +21,8 @@ export default function WidgetManager() {
     key: "",
     label: "",
     icon: "",
-    w: 2,
-    h: 2,
+    w: 1,
+    h: 1,
   });
   const [error, setError] = useState("");
 
@@ -58,15 +48,16 @@ export default function WidgetManager() {
       key: widget.id,
       label: widget.label,
       icon: widget.icon,
-      w: widget.defaultLayout?.w || 2,
-      h: widget.defaultLayout?.h || 2,
+      w: widget.defaultLayout?.w || 1,
+      h: widget.defaultLayout?.h || 1,
+      isEdit: true,
     });
     setDialogVisible(true);
   };
 
   const handleSave = async () => {
     setError("");
-    const { key, label, icon, w, h } = formData;
+    const { key, label, icon, w, h, isEdit } = formData;
 
     if (!key || !label || !icon) {
       setError("All fields are required.");
@@ -76,8 +67,7 @@ export default function WidgetManager() {
     const ref = doc(db, "widgets", key);
     const existing = await getDoc(ref);
 
-    // validación si ya existe y no es edición
-    if (!existing.exists() || formData.isEdit) {
+    if (!existing.exists() || isEdit) {
       await setDoc(ref, {
         label,
         icon,
@@ -117,7 +107,7 @@ export default function WidgetManager() {
           icon="bi bi-plus"
           className="btn-pistacho"
           onClick={() => {
-            setFormData({ key: "", label: "", icon: "", w: 2, h: 2 });
+            setFormData({ key: "", label: "", icon: "", w: 1, h: 1 });
             setDialogVisible(true);
             setError("");
           }}
@@ -127,6 +117,8 @@ export default function WidgetManager() {
       <DataTable value={widgets} paginator rows={10} className="mt-3">
         <Column field="id" header="Key" />
         <Column field="label" header="Label" />
+        <Column field="defaultLayout.w" header="W" />
+        <Column field="defaultLayout.h" header="H" />
         <Column
           field="enabled"
           header="Enabled"
@@ -140,38 +132,20 @@ export default function WidgetManager() {
       </DataTable>
 
       <Dialog
-        header={formData.key ? "Edit Widget" : "Add Widget"}
+        header={formData.isEdit ? "Edit Widget" : "Add Widget"}
         visible={dialogVisible}
         onHide={() => setDialogVisible(false)}
         className="p-fluid"
       >
-        {!formData.key && (
+        {!formData.isEdit && (
           <div className="field">
-            <label htmlFor="widget-type">Widget Type</label>
-            <Dropdown
-              id="widget-type"
-              options={PREDEFINED_WIDGETS}
-              optionLabel="label"
-              placeholder="Select a widget"
-              value={
-                PREDEFINED_WIDGETS.find((w) => w.key === formData.key) || null
+            <label htmlFor="key">Widget Key</label>
+            <InputText
+              id="key"
+              value={formData.key}
+              onChange={(e) =>
+                setFormData({ ...formData, key: e.target.value })
               }
-              onChange={(e) => {
-                const selected = e.value;
-                setFormData({
-                  key: selected.key,
-                  label: selected.label,
-                  icon: selected.icon,
-                  w: 2,
-                  h: 2,
-                });
-              }}
-              itemTemplate={(option) => (
-                <div className="d-flex align-items-center gap-2">
-                  <i className={`${option.icon}`} />
-                  <span>{option.label}</span>
-                </div>
-              )}
             />
           </div>
         )}

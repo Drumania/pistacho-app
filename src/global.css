@@ -437,6 +437,11 @@ nav {
   padding: 20px;
 }
 
+.p-inputtext {
+  background-color: var(--black-color);
+  padding: 10px;
+}
+
 .p-dialog .p-dialog-header,
 .p-dialog .p-dialog-content {
   background-color: transparent;

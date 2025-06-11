@@ -84,7 +84,7 @@ export default function AdminTools() {
     <div className="admin-panel container-fluid">
       <h4 className="mb-4 ps-2 pt-3">Admin Panel</h4>
       <TabView>
-        <TabPanel header="Users">
+        <TabPanel header="Users" className="m-3">
           <DataTable value={users} paginator rows={10} className="mt-3">
             <Column field="id" header="ID" />
             <Column field="displayName" header="Name" />
@@ -102,7 +102,7 @@ export default function AdminTools() {
           </DataTable>
         </TabPanel>
 
-        <TabPanel header="Groups">
+        <TabPanel header="Groups" className="m-3">
           <DataTable value={groups} paginator rows={10} className="mt-3">
             <Column field="id" header="ID" />
             <Column field="name" header="Group Name" />
@@ -115,7 +115,7 @@ export default function AdminTools() {
           </DataTable>
         </TabPanel>
 
-        <TabPanel header="Widgets">
+        <TabPanel header="Widgets" className="m-3">
           <WidgetManager />
         </TabPanel>
       </TabView>
