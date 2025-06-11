@@ -378,7 +378,7 @@ nav {
 
 /* admin-panel */
 .admin-panel {
-  background-color: #121212;
+  background-color: var(--black-color);
   color: #f1f1f1;
   border-radius: 10px;
   padding: 1rem;
@@ -390,14 +390,14 @@ nav {
 }
 
 .admin-panel .p-datatable .p-datatable-thead > tr > th {
-  background-color: #1f1f1f;
+  background-color: var(--black-color);
   color: var(--pistacho-color);
   font-weight: 600;
   border: none;
 }
 
 .admin-panel .p-datatable .p-datatable-tbody > tr {
-  background-color: #1a1a1a;
+  background-color: var(--black-color);
   color: #f1f1f1;
   border: none;
 }
@@ -418,4 +418,26 @@ nav {
 .p-avatar-group .p-avatar + .p-avatar {
   margin-left: -1rem;
   background-color: var(--panel-hover);
+}
+
+.p-datatable .p-paginator-bottom {
+  background-color: transparent;
+  border: none;
+  padding: 10px 0;
+}
+
+.p-dialog {
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  max-height: 90%;
+  transform: scale(1);
+  position: relative;
+  background: var(--bg-color) !important;
+  padding: 20px;
+}
+
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content {
+  background-color: transparent;
 }

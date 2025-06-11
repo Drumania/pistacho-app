@@ -11,6 +11,7 @@ import {
   doc,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
+import WidgetManager from "@/components/admin/WidgetManager";
 
 export default function AdminTools() {
   const [users, setUsers] = useState([]);
@@ -80,42 +81,42 @@ export default function AdminTools() {
   );
 
   return (
-    <div className="admin-panel">
-      <h2 className="mb-3">Admin Tools</h2>
+    <div className="admin-panel container-fluid">
+      <h4 className="mb-4 ps-2 pt-3">Admin Panel</h4>
       <TabView>
-        <TabPanel header="Users" className="p-3">
-          <div className="p-3">
-            <DataTable value={users} paginator rows={10} className="mt-3">
-              <Column field="id" header="ID" />
-              <Column field="displayName" header="Name" />
-              <Column field="email" header="Email" />
-              <Column
-                field="admin"
-                header="Admin"
-                body={(row) => (row.admin ? "✅" : "")}
-              />
-              <Column
-                header="Actions"
-                body={userActionsTemplate}
-                style={{ width: "120px" }}
-              />
-            </DataTable>
-          </div>
+        <TabPanel header="Users">
+          <DataTable value={users} paginator rows={10} className="mt-3">
+            <Column field="id" header="ID" />
+            <Column field="displayName" header="Name" />
+            <Column field="email" header="Email" />
+            <Column
+              field="admin"
+              header="Admin"
+              body={(row) => (row.admin ? "✅" : "")}
+            />
+            <Column
+              header="Actions"
+              body={userActionsTemplate}
+              style={{ width: "120px" }}
+            />
+          </DataTable>
         </TabPanel>
 
-        <TabPanel header="Groups" className="p-3">
-          <div className="p-3">
-            <DataTable value={groups} paginator rows={10} className="mt-3">
-              <Column field="id" header="ID" />
-              <Column field="name" header="Group Name" />
-              <Column field="created_by" header="Created By" />
-              <Column
-                header="Actions"
-                body={groupActionsTemplate}
-                style={{ width: "80px" }}
-              />
-            </DataTable>
-          </div>
+        <TabPanel header="Groups">
+          <DataTable value={groups} paginator rows={10} className="mt-3">
+            <Column field="id" header="ID" />
+            <Column field="name" header="Group Name" />
+            <Column field="created_by" header="Created By" />
+            <Column
+              header="Actions"
+              body={groupActionsTemplate}
+              style={{ width: "80px" }}
+            />
+          </DataTable>
+        </TabPanel>
+
+        <TabPanel header="Widgets">
+          <WidgetManager />
         </TabPanel>
       </TabView>
     </div>

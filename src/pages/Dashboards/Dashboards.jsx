@@ -1,10 +1,10 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import Groups from "@/layout/Groups";
+import { useParams } from "react-router-dom";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
+import Groups from "@/layout/Groups";
 import EditGroup from "./EditGroup";
 
 import TodoWidget from "@/widgets/TodoWidget/TodoWidget";
@@ -12,38 +12,51 @@ import CalendarWidget from "@/widgets/CalendarWidget/CalendarWidget";
 import PomodoroWidget from "@/widgets/PomodoroWidget/PomodoroWidget";
 import DateWidget from "@/widgets/DateWidget/DateWidget";
 import WorldClocksWidget from "@/widgets/WorldClocksWidget/WorldClocksWidget";
-import ClubWorldCupWidget from "../../widgets/ClubWorldCupWidget/ClubWorldCupWidget";
+import ClubWorldCupWidget from "@/widgets/ClubWorldCupWidget/ClubWorldCupWidget";
 
-const initialWidgets = [
-  { key: "TodoWidget", w: 2, h: 2, component: <TodoWidget /> },
-  { key: "CalendarWidget", w: 1, h: 1, component: <CalendarWidget /> },
-  { key: "DateWidget", w: 2, h: 1, component: <DateWidget /> },
-  { key: "PomodoroWidget", w: 2, h: 2, component: <PomodoroWidget /> },
-  { key: "worldclocks", w: 2, h: 1, component: <WorldClocksWidget /> },
-  { key: "ClubWorldCupWidget", w: 1, h: 2, component: <ClubWorldCupWidget /> },
+import db from "@/firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
+
+const availableWidgets = {
+  TodoWidget,
+  CalendarWidget,
+  PomodoroWidget,
+  DateWidget,
+  WorldClocksWidget,
+  ClubWorldCupWidget,
+};
+
+const WIDGET_OPTIONS = [
+  { key: "TodoWidget", label: "To-do List" },
+  { key: "CalendarWidget", label: "Calendar" },
+  { key: "PomodoroWidget", label: "Pomodoro" },
+  { key: "DateWidget", label: "Date" },
+  { key: "WorldClocksWidget", label: "World Clocks" },
+  { key: "ClubWorldCupWidget", label: "Club World Cup" },
 ];
 
-export default function GroupDashboard() {
+export default function Dashboards() {
   const { groupId } = useParams();
   const containerRef = useRef();
   const [containerWidth, setContainerWidth] = useState(1200);
   const [editMode, setEditMode] = useState(false);
-
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showAddWidgetDialog, setShowAddWidgetDialog] = useState(false);
+
   const [groupData, setGroupData] = useState({
     slug: groupId,
     name: "My Group",
   });
 
-  const [layout, setLayout] = useState(
-    initialWidgets.map((w, i) => ({
-      i: w.key,
-      x: i % 4,
-      y: Math.floor(i / 4) * w.h,
-      w: w.w,
-      h: w.h,
-    }))
-  );
+  const [layout, setLayout] = useState([]);
+  const [widgetInstances, setWidgetInstances] = useState([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,9 +69,44 @@ export default function GroupDashboard() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleLayoutChange = (newLayout) => {
+  useEffect(() => {
+    fetchWidgets();
+  }, [groupId]);
+
+  const fetchWidgets = async () => {
+    const snapshot = await getDocs(collection(db, `groups/${groupId}/widgets`));
+    const widgets = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setWidgetInstances(widgets);
+    setLayout(
+      widgets.map((w) => ({
+        i: w.id,
+        x: w.layout.x,
+        y: w.layout.y,
+        w: w.layout.w,
+        h: w.layout.h,
+      }))
+    );
+  };
+
+  const handleLayoutChange = async (newLayout) => {
     setLayout(newLayout);
-    // Acá podés guardar en Firebase si querés
+    for (const w of newLayout) {
+      await updateDoc(doc(db, `groups/${groupId}/widgets/${w.i}`), {
+        layout: { x: w.x, y: w.y, w: w.w, h: w.h },
+      });
+    }
+  };
+
+  const addNewWidget = async (key) => {
+    const newWidget = {
+      key,
+      layout: { x: 0, y: Infinity, w: 1, h: 1 },
+      settings: {},
+      createdAt: serverTimestamp(),
+      createdBy: "system", // reemplazá por el UID del usuario logueado
+    };
+    await addDoc(collection(db, `groups/${groupId}/widgets`), newWidget);
+    fetchWidgets();
   };
 
   return (
@@ -85,7 +133,12 @@ export default function GroupDashboard() {
               <i className="bi bi-columns-gap" title="Edit Dashboard" />
             )}
           </button>
-          <button className="btn-pistacho">Add Widget</button>
+          <button
+            className="btn-pistacho"
+            onClick={() => setShowAddWidgetDialog(true)}
+          >
+            Add Widget
+          </button>
         </div>
       </div>
 
@@ -99,11 +152,12 @@ export default function GroupDashboard() {
         draggableHandle=".widget-handle"
         isDraggable={editMode}
         isResizable={editMode}
-        compactType={null} // desactiva autoajuste vertical
-        preventCollision={true} // evita que se empujen los demás widgets
+        compactType={null}
+        preventCollision={true}
       >
         {layout.map((l) => {
-          const widget = initialWidgets.find((w) => w.key === l.i);
+          const widget = widgetInstances.find((w) => w.id === l.i);
+          const WidgetComponent = availableWidgets[widget?.key];
           return (
             <div key={l.i}>
               <div
@@ -112,7 +166,11 @@ export default function GroupDashboard() {
                 }
               >
                 {editMode && <div className="widget-handle">≡</div>}
-                {widget?.component || <div>Componente no encontrado</div>}
+                {WidgetComponent ? (
+                  <WidgetComponent {...widget.settings} />
+                ) : (
+                  <div>Not found</div>
+                )}
               </div>
             </div>
           );
@@ -124,11 +182,48 @@ export default function GroupDashboard() {
         onHide={() => setShowEditDialog(false)}
         groupData={groupData}
         onSave={(updated) => {
-          console.log("Nuevo nombre del grupo:", updated.name);
-          // acá podrías guardar en firestore si querés
           setGroupData(updated);
         }}
       />
+
+      {/* <div
+        className="modal fade show d-block"
+        tabIndex="-1"
+        role="dialog"
+        style={{
+          display: showAddWidgetDialog ? "block" : "none",
+          backgroundColor: "rgba(0,0,0,0.5)",
+        }}
+      >
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Add a Widget</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowAddWidgetDialog(false)}
+              ></button>
+            </div>
+            <div className="modal-body">
+              <div className="list-group">
+                {WIDGET_OPTIONS.map((widget) => (
+                  <button
+                    key={widget.key}
+                    className="list-group-item list-group-item-action"
+                    onClick={() => {
+                      addNewWidget(widget.key);
+                      setShowAddWidgetDialog(false);
+                    }}
+                  >
+                    {widget.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> */}
     </div>
   );
 }
