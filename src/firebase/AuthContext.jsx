@@ -10,6 +10,8 @@ import {
   updateProfile,
 } from "firebase/auth";
 import app from "./config";
+import { getDoc, doc } from "firebase/firestore";
+import db from "@/firebase/firestore";
 
 const AuthContext = createContext();
 const auth = getAuth(app);
@@ -18,27 +20,32 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Escucha cambios de sesión + forza reload para traer bien el user
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         await firebaseUser.reload();
-        const isAdmin = firebaseUser.uid === "rdJo2357x0WO6QFlMh7cY6i0aBK2";
 
-        setUser({
-          ...auth.currentUser,
-          admin: isAdmin,
-        });
+        const ref = doc(db, "users", firebaseUser.uid);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+          const userData = snap.data();
+          setUser({ ...firebaseUser, ...userData });
+        } else {
+          // El usuario está en Auth pero no en Firestore: no lo mezclamos
+          setUser(null);
+        }
       } else {
         setUser(null);
       }
+
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Funciones de auth
+  // Funciones públicas
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
@@ -74,5 +81,4 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Hook personalizado
 export const useAuth = () => useContext(AuthContext);

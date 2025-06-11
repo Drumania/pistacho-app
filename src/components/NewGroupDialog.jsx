@@ -9,6 +9,8 @@ import {
   serverTimestamp,
   doc,
   setDoc,
+  updateDoc,
+  getDoc,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import slugify from "slugify";
@@ -25,15 +27,15 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
   const [loading, setLoading] = useState(false);
 
   const steps = [{ label: "Create" }, { label: "Info" }, { label: "Done" }];
-  console.log("clg: ", user);
+
   const handleCreateGroup = async () => {
     if (!name || !user?.uid) return;
-
     setLoading(true);
 
     try {
       const slug = await generateGroupSlug(name);
 
+      // 1. Crear el grupo
       const groupRef = await addDoc(collection(db, "groups"), {
         name,
         slug,
@@ -41,27 +43,39 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
         owner: {
           uid: user.uid,
           email: user.email,
-          name: user.name || user.displayName || "",
+          name: user.displayName || "",
+          photoURL: user.photoURL || "",
         },
         members: [
           {
             uid: user.uid,
             email: user.email,
-            name: user.name || user.displayName || "",
+            name: user.displayName || "",
+            photoURL: user.photoURL || "",
             role: "admin",
           },
         ],
       });
 
-      // Agregar relación en user_groups
-      await setDoc(doc(db, "user_groups", user.uid, "groups", groupRef.id), {
-        groupId: groupRef.id,
-        slug,
-        name,
-        role: "admin",
-        joined_at: serverTimestamp(),
-      });
+      // 2. Agregar ese grupo al usuario (en su array `groups`)
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
 
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const newGroups = userData.groups || [];
+
+        newGroups.push({
+          id: groupRef.id,
+          slug,
+          name,
+          role: "admin",
+        });
+
+        await updateDoc(userRef, { groups: newGroups });
+      }
+
+      // 3. Continuar con pasos
       setStep(1);
       if (onCreate) onCreate({ slug, id: groupRef.id });
     } catch (error) {

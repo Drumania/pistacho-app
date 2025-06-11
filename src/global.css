@@ -169,6 +169,20 @@ nav {
   color: #333;
 }
 
+/* panels */
+.panels {
+  padding: var(--gap);
+  border-radius: 30px;
+  background-color: var(--panel);
+}
+
+.auth-card {
+  background-color: #1e1e1e;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 0 20px rgba(0, 255, 150, 0.05);
+}
+
 /* c/ gropu */
 .nav-groups {
   display: flex;

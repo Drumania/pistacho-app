@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import Groups from "@/layout/Groups";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -54,7 +55,8 @@ export default function GroupDashboard() {
 
   return (
     <div className="container-fluid" ref={containerRef}>
-      <div className="row mb-3">
+      <Groups />
+      <div className="row my-3">
         <div className="col-8 ps-4">
           <h5>
             Dashboard for: <strong>{groupId}</strong>
