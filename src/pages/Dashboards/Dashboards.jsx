@@ -73,15 +73,17 @@ export default function GroupDashboard() {
             className="btn-pistacho-outline"
             onClick={() => setShowEditDialog(true)}
           >
-            <i className="bi bi-gear" />
-            <span className="ms-2 d-none d-md-inline">Settings Group</span>
+            <i className="bi bi-gear" title="Settings Group" />
           </button>
           <button
-            className="btn-pistacho-outline me-2"
+            className="btn-pistacho-outline mx-2"
             onClick={() => setEditMode((prev) => !prev)}
           >
-            <i className="bi bi-bounding-box-circles me-2"></i>
-            {editMode ? "Done" : "Edit Dashboard"}
+            {editMode ? (
+              <i className="bi bi-check-lg" title="Done" />
+            ) : (
+              <i className="bi bi-columns-gap" title="Edit Dashboard" />
+            )}
           </button>
           <button className="btn-pistacho">Add Widget</button>
         </div>
