@@ -25,6 +25,7 @@ export default function Dashboards() {
   const containerRef = useRef();
   const [containerWidth, setContainerWidth] = useState(1200);
   const [editMode, setEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddWidgetDialog, setShowAddWidgetDialog] = useState(false);
   const [groupData, setGroupData] = useState({
@@ -51,6 +52,8 @@ export default function Dashboards() {
   }, [groupId]);
 
   const fetchWidgets = async () => {
+    setIsLoading(true);
+
     const snapshot = await getDocs(collection(db, `groups/${groupId}/widgets`));
     const widgets = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setWidgetInstances(widgets);
@@ -77,6 +80,7 @@ export default function Dashboards() {
     }
 
     setComponents(componentsMap);
+    setIsLoading(false);
   };
 
   const handleLayoutChange = async (newLayout) => {
@@ -122,71 +126,80 @@ export default function Dashboards() {
         </div>
       </div>
 
-      <GridLayout
-        className="layout"
-        layout={layout}
-        cols={4}
-        rowHeight={250}
-        width={containerWidth}
-        onLayoutChange={handleLayoutChange}
-        draggableHandle=".widget-handle"
-        isDraggable={editMode}
-        isResizable={editMode}
-        compactType={null}
-        preventCollision={true}
-      >
-        {layout.map((l) => {
-          const widget = widgetInstances.find((w) => w.id === l.i);
-          const WidgetComponent = components[widget?.id];
+      {isLoading ? (
+        <div className="text-center my-5">
+          <div className="spinner-border text-light" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : (
+        <GridLayout
+          className="layout"
+          layout={layout}
+          cols={4}
+          rowHeight={250}
+          width={containerWidth}
+          onLayoutChange={handleLayoutChange}
+          draggableHandle=".widget-handle"
+          isDraggable={editMode}
+          isResizable={editMode}
+          compactType={null}
+          preventCollision={true}
+        >
+          {layout.map((l) => {
+            const widget = widgetInstances.find((w) => w.id === l.i);
+            const WidgetComponent = components[widget?.id];
 
-          const handleDelete = async () => {
-            await deleteDoc(doc(db, `groups/${groupId}/widgets/${widget.id}`));
-            fetchWidgets();
-          };
+            const handleDelete = async () => {
+              await deleteDoc(
+                doc(db, `groups/${groupId}/widgets/${widget.id}`)
+              );
+              fetchWidgets();
+            };
 
-          const handleSettings = () => {
-            console.log("Settings for", widget.id);
-          };
+            const handleSettings = () => {
+              console.log("Settings for", widget.id);
+            };
 
-          return (
-            <div key={l.i}>
-              <div
-                className={
-                  editMode ? "widget-content wc-edit" : "widget-content"
-                }
-              >
-                {editMode && (
-                  <div className="d-flex justify-content-between align-items-center px-2 pb-1">
-                    <div className="widget-handle">≡</div>
-                    <div>
-                      <button
-                        className="btn btn-sm btn-light me-2"
-                        onClick={handleSettings}
-                        title="Edit settings"
-                      >
-                        <i className="bi bi-gear" />
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={handleDelete}
-                        title="Delete widget"
-                      >
-                        <i className="bi bi-trash" />
-                      </button>
+            return (
+              <div key={l.i}>
+                <div
+                  className={
+                    editMode ? "widget-content wc-edit" : "widget-content"
+                  }
+                >
+                  {editMode && (
+                    <div className="d-flex justify-content-between align-items-center px-2 pb-1">
+                      <div className="widget-handle">≡</div>
+                      <div>
+                        <button
+                          className="btn btn-sm btn-light me-2"
+                          onClick={handleSettings}
+                          title="Edit settings"
+                        >
+                          <i className="bi bi-gear" />
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={handleDelete}
+                          title="Delete widget"
+                        >
+                          <i className="bi bi-trash" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {WidgetComponent ? (
-                  <WidgetComponent groupId={groupId} {...widget.settings} />
-                ) : (
-                  <div className="p-2 text-muted">Widget not found</div>
-                )}
+                  )}
+                  {WidgetComponent ? (
+                    <WidgetComponent groupId={groupId} {...widget.settings} />
+                  ) : (
+                    <div className="p-2 text-muted">Widget not found</div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </GridLayout>
-
+            );
+          })}
+        </GridLayout>
+      )}
       <EditGroup
         visible={showEditDialog}
         onHide={() => setShowEditDialog(false)}
