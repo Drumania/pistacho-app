@@ -4,7 +4,6 @@ import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-import Groups from "@/layout/Groups";
 import EditGroup from "./EditGroup";
 import AddWidgetDialog from "./AddWidgetDialog";
 
@@ -94,13 +93,11 @@ export default function Dashboards() {
 
   return (
     <div className="container-fluid" ref={containerRef}>
-      <Groups />
-
       <div className="row my-3">
-        <h5 className="col-6 ps-4">
+        {/* <h5 className="col-6 ps-4">
           Dashboard for: <strong>{groupId}</strong>
-        </h5>
-        <div className="col-6 text-end">
+        </h5> */}
+        <div className="col-12 text-end">
           <button
             className="btn-pistacho-outline"
             onClick={() => setShowEditDialog(true)}

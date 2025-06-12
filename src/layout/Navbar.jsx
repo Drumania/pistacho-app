@@ -5,7 +5,7 @@ import { Button } from "primereact/button";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { useAuth } from "@/firebase/AuthContext";
 import { getUserAvatar } from "@/utils/getUserAvatar";
-
+import Groups from "@/layout/Groups";
 export default function Navbar() {
   const panelRef = useRef(null);
   const { user, logout } = useAuth();
@@ -20,7 +20,7 @@ export default function Navbar() {
           <img src="/logo.png" width="40" height="40" />
           <span>Pistacho</span>
         </Link>
-
+        <Groups />
         {user && (
           <div className="d-flex align-items-center gap-2">
             <div className="d-flex align-items-center gap-2 cursor-pointer">
