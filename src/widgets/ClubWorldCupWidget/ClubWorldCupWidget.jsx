@@ -65,28 +65,26 @@ const ClubWorldCupWidget = () => {
         <h5 className="mb-3">{selectedDate}</h5>
         <ul>
           {schedule[selectedDate].map((match, i) => (
-            <li
-              key={i}
-              className="list-group-item d-flex align-items-center justify-content-between"
-            >
-              <span className="time me-2">{match.time}</span>
-              <div className="d-flex align-items-center gap-2">
-                <img
-                  src={clubLogos[match.team1]}
-                  alt={match.team1}
-                  width={24}
-                  height={24}
-                />
-                <span>{match.team1}</span>
-                <strong className="mx-1">vs</strong>
-                <span>{match.team2}</span>
-                <img
-                  src={clubLogos[match.team2]}
-                  alt={match.team2}
-                  width={24}
-                  height={24}
-                />
-              </div>
+            <li key={i} className="row cal-item panel-in-panels">
+              <span className="col-1 time ">{match.time}</span>
+
+              <span className="col-4 text-end">{match.team1}</span>
+              <img
+                src={clubLogos[match.team1]}
+                alt={match.team1}
+                width={24}
+                height={24}
+                className="col-1"
+              />
+              <strong className="col-1 opacity-50">vs</strong>
+              <img
+                src={clubLogos[match.team2]}
+                alt={match.team2}
+                width={24}
+                height={24}
+                className="col-1"
+              />
+              <span className="col-4">{match.team2}</span>
             </li>
           ))}
         </ul>
