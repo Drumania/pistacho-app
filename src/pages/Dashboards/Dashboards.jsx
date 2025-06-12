@@ -17,6 +17,9 @@ import {
   doc,
 } from "firebase/firestore";
 
+// 📦 importa todos los widgets disponibles
+const widgetModules = import.meta.glob("@/widgets/*/*.jsx", { eager: true });
+
 export default function Dashboards() {
   const { groupId } = useParams();
   const containerRef = useRef();
@@ -64,15 +67,15 @@ export default function Dashboards() {
 
     const componentsMap = {};
     for (const widget of widgets) {
-      try {
-        const mod = await import(
-          /* @vite-ignore */ `/src/widgets/${widget.key}/${widget.key}.jsx`
-        );
+      const path = `/src/widgets/${widget.key}/${widget.key}.jsx`;
+      const mod = widgetModules[path];
+      if (mod) {
         componentsMap[widget.id] = mod.default;
-      } catch (err) {
-        console.error("Error importing widget:", widget.key, err);
+      } else {
+        console.warn("No module found for:", path);
       }
     }
+
     setComponents(componentsMap);
   };
 
