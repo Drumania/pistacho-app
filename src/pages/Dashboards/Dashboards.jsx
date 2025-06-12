@@ -174,7 +174,7 @@ export default function Dashboards() {
                   </div>
                 )}
                 {WidgetComponent ? (
-                  <WidgetComponent {...widget.settings} />
+                  <WidgetComponent groupId={groupId} {...widget.settings} />
                 ) : (
                   <div className="p-2 text-muted">Widget not found</div>
                 )}
