@@ -16,18 +16,19 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
             />
           </div>
           <div>
-            <div className={`fw-semibold ${completed ? "opacity-50" : ""}`}>
+            <div
+              className={`fw-semibold d-flex ${completed ? "opacity-50" : ""}`}
+            >
               {title}
+
+              {completed && completed_at && (
+                <div className="opacity-50 ms-2 ">
+                  <i className="bi bi-check-circle me-1" />
+                  Completado el{" "}
+                  {new Date(completed_at).toLocaleDateString("es-AR")}
+                </div>
+              )}
             </div>
-
-            {completed && completed_at && (
-              <div className="small opacity-50 mt-1">
-                <i className="bi bi-check-circle me-1" />
-                Completado el{" "}
-                {new Date(completed_at).toLocaleDateString("es-AR")}
-              </div>
-            )}
-
             <div className="mt-1 d-flex flex-wrap gap-2 small">
               {priority === "high" && (
                 <span className="badge bg-danger">Alta prioridad</span>
