@@ -1,0 +1,37 @@
+.pomodoro-widget {
+  border-radius: var(--border-radius);
+  background-color: var(--panel-inside);
+  color: var(--text-color);
+}
+
+.time-display {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--white-color);
+}
+
+.mode-label.work {
+  color: var(--pistacho-color);
+  font-weight: 500;
+}
+
+.mode-label.break {
+  color: #7ec4cf;
+  font-weight: 500;
+}
+
+.cycles {
+  margin-top: 8px;
+}
+
+.pomodoro-widget.stand-by {
+  background-color: var(--panel-inside); /* verde pistacho translúcido */
+}
+
+.pomodoro-widget.work {
+  background-color: rgba(144, 176, 131, 0.15); /* verde pistacho translúcido */
+}
+
+.pomodoro-widget.break {
+  background-color: rgba(230, 80, 80, 0.1); /* rojo suave */
+}

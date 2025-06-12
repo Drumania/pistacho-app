@@ -1,6 +1,6 @@
 // src/widgets/PomodoroWidget/PomodoroWidget.jsx
 import { useEffect, useRef, useState } from "react";
-// import "./PomodoroWidget.css";
+import "./PomodoroWidget.css"; // Activá tu estilo propio
 
 const WORK_DURATION = 25 * 60;
 const SHORT_BREAK = 5 * 60;
@@ -29,6 +29,11 @@ export default function PomodoroWidget() {
 
     return () => clearInterval(timerRef.current);
   }, [isRunning]);
+
+  const getStatusClass = () => {
+    if (!isRunning) return "stand-by";
+    return mode === "work" ? "work" : "break";
+  };
 
   const handleFinish = () => {
     if (mode === "work") {
@@ -59,18 +64,31 @@ export default function PomodoroWidget() {
   };
 
   return (
-    <div className="pomodoro-widget">
-      <div className="time">{formatTime(timeLeft)}</div>
-      <div className="mode">{mode === "work" ? "Trabajo" : "Descanso"}</div>
-      <div className="controls">
-        <button className="btn btn-sm btn-primary" onClick={toggle}>
-          {isRunning ? "Pausar" : "Iniciar"}
+    <div
+      className={`pomodoro-widget panel-in-panels text-center ${getStatusClass()}`}
+    >
+      <h5 className="mb-0">Pomodoro</h5>
+
+      <div className={`mode-label mb-2 ${mode}`}>
+        {mode === "work" ? "Working time" : "Relax"}
+      </div>
+      <div className="time-display my-2">{formatTime(timeLeft)}</div>
+
+      <div className="d-flex justify-content-center gap-2 ">
+        <button
+          className={`btn btn-sm ${isRunning ? "btn-danger" : "btn-success"}`}
+          onClick={toggle}
+        >
+          {isRunning ? "Pause" : "Start"}
         </button>
         <button className="btn btn-sm btn-outline-secondary" onClick={reset}>
-          Reset
+          Reboot
         </button>
       </div>
-      <div className="cycles">Ciclos: {cycleCount}</div>
+
+      <div className="cycles small text-muted">
+        Completed cycles: {cycleCount}
+      </div>
     </div>
   );
 }
