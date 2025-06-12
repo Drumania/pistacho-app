@@ -1,0 +1,67 @@
+/* Ajuste del calendario embebido */
+.p-calendar .p-datepicker {
+  overflow: hidden;
+  background-color: var(--panel-inside);
+  border-radius: var(--border-radius);
+  color: var(--text-color);
+  border: none;
+}
+
+.p-datepicker table th {
+  padding-left: 10px !important;
+}
+
+/* Hover en día */
+.p-datepicker td > span:hover {
+  background: var(--pistacho-color);
+  color: #fff;
+}
+
+/* Día actual */
+.p-datepicker td.p-datepicker-today > span {
+  border: 1px solid var(--pistacho-color);
+  color: var(--pistacho-color);
+}
+
+/* Día seleccionado */
+.p-datepicker td.p-highlight > span {
+  background: var(--pistacho-color);
+  color: white;
+}
+
+/* Header del datepicker */
+.p-datepicker-header {
+  background: transparent;
+  border: none;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: space-evenly;
+  align-items: stretch;
+}
+
+/* Botón del calendario */
+.p-calendar .p-button {
+  background-color: var(--pistacho-color);
+  border: none;
+}
+
+.p-datepicker table td > span.p-highlight {
+  color: var(--pistacho-color);
+  background-color: #2b2b2b;
+}
+
+.cal-item {
+  margin-bottom: 4px;
+}
+
+.cal-item .cal-actions {
+  width: 30px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cal-item:hover .cal-actions {
+  opacity: 1;
+}

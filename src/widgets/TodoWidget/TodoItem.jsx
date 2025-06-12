@@ -53,13 +53,13 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
           icon="pi pi-pencil"
           className="p-button-sm p-button-text p-button-secondary"
           onClick={onEdit}
-          tooltip="Editar"
+          tooltip="Edit"
         />
         <Button
           icon="pi pi-trash"
           className="p-button-sm p-button-text p-button-danger"
           onClick={() => onDelete(todo)}
-          tooltip="Eliminar"
+          tooltip="Delete"
         />
       </div>
     </li>
