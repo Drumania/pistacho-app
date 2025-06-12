@@ -1,0 +1,27 @@
+.weather-widget h5 {
+  margin: 0 0 var(--m-gap);
+}
+
+.weather-widget .current {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  border-bottom: 1px solid #d4d4d426;
+  margin-bottom: 6px;
+}
+
+.weather-widget .temp {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.weather-widget .forecast {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-gap);
+}
+
+.weather-widget .day {
+  text-align: center;
+  font-size: 0.85rem;
+}

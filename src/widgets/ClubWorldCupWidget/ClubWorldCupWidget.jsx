@@ -69,21 +69,23 @@ const ClubWorldCupWidget = () => {
               <span className="col-1 time ">{match.time}</span>
 
               <span className="col-4 text-end">{match.team1}</span>
-              <img
-                src={clubLogos[match.team1]}
-                alt={match.team1}
-                width={24}
-                height={24}
-                className="col-1"
-              />
+              <div className="col-1">
+                <img
+                  src={clubLogos[match.team1]}
+                  alt={match.team1}
+                  width="30px"
+                  height="30px"
+                />
+              </div>
               <strong className="col-1 opacity-50">vs</strong>
-              <img
-                src={clubLogos[match.team2]}
-                alt={match.team2}
-                width={24}
-                height={24}
-                className="col-1"
-              />
+              <div className="col-1">
+                <img
+                  src={clubLogos[match.team2]}
+                  alt={match.team2}
+                  width="30px"
+                  height="30px"
+                />
+              </div>
               <span className="col-4">{match.team2}</span>
             </li>
           ))}
