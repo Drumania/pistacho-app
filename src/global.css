@@ -187,12 +187,14 @@ nav {
 }
 
 .auth-card {
-  background-color: #1e1e1e;
+  background-color: var(--black-color);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 0 20px rgba(0, 255, 150, 0.05);
 }
 
+.auth-card label {
+  color: var(--text-color);
+}
 /* c/ gropu */
 .nav-groups {
   display: flex;
@@ -389,6 +391,37 @@ nav {
 
 .btn-pistacho-outline:hover {
   border: 1px solid var(--pistacho-color);
+}
+
+.btn-transp-small {
+  padding: 0 var(--gap);
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.8rem;
+  border-radius: 15px;
+  height: 30px;
+  line-height: 30px;
+}
+
+.btn-transp-small:hover {
+  background-color: #383c41;
+}
+
+.btn-google {
+  padding: 0 var(--gap);
+  border-radius: 20px;
+  height: 40px;
+  line-height: 40px;
+  background-color: #fff;
+  color: #444;
+  border: 1px solid #444;
+  cursor: pointer;
+}
+
+.btn-google:hover {
+  background-color: #ccc;
 }
 
 /* Estilo personalizado del modal */

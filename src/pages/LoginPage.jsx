@@ -1,4 +1,4 @@
-// LoginPage.jsx
+// src/pages/LoginPage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,6 +20,12 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
+import { TabView, TabPanel } from "primereact/tabview";
+import { InputText } from "primereact/inputtext";
+import { Password } from "primereact/password";
+import { Button } from "primereact/button";
+import { Divider } from "primereact/divider";
+import { ProgressSpinner } from "primereact/progressspinner";
 import slugify from "slugify";
 import app from "@/firebase/config";
 import db from "@/firebase/firestore";
@@ -33,207 +39,195 @@ const generateUniqueSlug = async (base) => {
   let slug = baseSlug;
   let counter = 1;
   const usersRef = collection(db, "users");
-
   while (true) {
     const q = query(usersRef, where("slug", "==", slug));
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) break;
-    slug = `${baseSlug}-${counter}`;
-    counter++;
+    const snap = await getDocs(q);
+    if (snap.empty) break;
+    slug = `${baseSlug}-${counter++}`;
   }
-
   return slug;
 };
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
-
-  const [tab, setTab] = useState("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [activeTab, setActiveTab] = useState(0); // 0-login / 1-register
+  const [form, setForm] = useState({ email: "", pass: "", name: "" });
   const [error, setError] = useState("");
-  const [preparing, setPreparing] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const handleAuthSuccess = async (firebaseUser, fallbackName) => {
-    const userRef = doc(db, "users", firebaseUser.uid);
-    const userSnap = await getDoc(userRef);
+  const handleChange = (k, v) => setForm({ ...form, [k]: v });
 
-    if (userSnap.exists()) {
-      const userData = userSnap.data();
-      setUser({ ...firebaseUser, ...userData });
-      navigate(`/g/${userData.slug}`);
-      return;
+  /* ------------ Lógica de éxito común ------------- */
+  const handleSuccess = async (fbUser, fallbackName) => {
+    const ref = doc(db, "users", fbUser.uid);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      const display = fbUser.displayName || fallbackName || fbUser.email;
+      const slug = await generateUniqueSlug(display);
+      const meGroup = await addDoc(collection(db, "groups"), {
+        name: "Me",
+        slug,
+        createdAt: serverTimestamp(),
+        createdBy: fbUser.uid,
+        members: [fbUser.uid],
+      });
+      await setDoc(ref, {
+        uid: fbUser.uid,
+        email: fbUser.email,
+        name: display,
+        slug,
+        photoURL: fbUser.photoURL || "",
+        createdAt: serverTimestamp(),
+        groups: [{ id: meGroup.id, slug, name: "Me" }],
+      });
     }
-
-    const displayName =
-      firebaseUser.displayName || fallbackName || firebaseUser.email;
-    const photoURL = firebaseUser.photoURL || "";
-    const slug = await generateUniqueSlug(displayName);
-
-    const groupDoc = await addDoc(collection(db, "groups"), {
-      name: "Me",
-      slug,
-      created_at: serverTimestamp(),
-      owner: {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        name: displayName,
-        photoURL,
-      },
-      members: [
-        {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          name: displayName,
-          photoURL,
-          role: "admin",
-        },
-      ],
-    });
-
-    const userData = {
-      uid: firebaseUser.uid,
-      email: firebaseUser.email,
-      name: displayName,
-      slug,
-      photoURL,
-      created_at: serverTimestamp(),
-      groups: [
-        {
-          id: groupDoc.id,
-          slug,
-          name: "Me",
-          role: "admin",
-        },
-      ],
-    };
-
-    await setDoc(userRef, userData);
-    setUser({ ...firebaseUser, ...userData });
-    navigate(`/g/${slug}`);
+    const profile = (await getDoc(ref)).data();
+    setUser({ ...fbUser, ...profile });
+    navigate(`/g/${profile.slug}`);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  /* ------------ Submit email/pass ------------- */
+  const submit = async () => {
     setError("");
-    setPreparing(true);
-
+    setBusy(true);
     try {
-      if (tab === "login") {
-        const res = await signInWithEmailAndPassword(auth, email, password);
-        await handleAuthSuccess(res.user);
+      if (activeTab === 0) {
+        const { user } = await signInWithEmailAndPassword(
+          auth,
+          form.email,
+          form.pass
+        );
+        await handleSuccess(user);
       } else {
-        const res = await createUserWithEmailAndPassword(auth, email, password);
-        const displayName = name || email;
-        await handleAuthSuccess(res.user, displayName);
+        const { user } = await createUserWithEmailAndPassword(
+          auth,
+          form.email,
+          form.pass
+        );
+        await handleSuccess(user, form.name);
       }
-    } catch (err) {
-      setError(err.message);
+    } catch (e) {
+      setError(e.message);
     } finally {
-      setPreparing(false);
+      setBusy(false);
     }
   };
 
-  const handleGoogle = async () => {
+  /* ------------ Google ------------- */
+  const loginGoogle = async () => {
+    setBusy(true);
     setError("");
-    setPreparing(true);
     try {
-      const res = await signInWithPopup(auth, provider);
-      await handleAuthSuccess(res.user);
-    } catch (err) {
-      setError(err.message);
+      const { user } = await signInWithPopup(auth, provider);
+      await handleSuccess(user);
+    } catch (e) {
+      setError(e.message);
     } finally {
-      setPreparing(false);
+      setBusy(false);
     }
   };
 
+  /* --------------- UI ---------------- */
   return (
-    <div className="d-flex justify-content-center align-items-center min-vh-100 bg-dark">
-      <div className="auth-card" style={{ width: "100%", maxWidth: 400 }}>
-        {preparing ? (
-          <div className="text-center py-5 text-light">
-            <div className="spinner-border text-success" role="status" />
-            <p className="mt-3">Setting up your account...</p>
+    <div className="d-flex justify-content-center align-items-center min-vh-100">
+      <div
+        className="surface-card p-4 shadow-2 border-round w-25 min-w-min"
+        style={{ background: "var(--panel)" }}
+      >
+        {busy ? (
+          <div className="text-center text-light py-5">
+            <ProgressSpinner style={{ width: 50, height: 50 }} />
+            <p className="mt-3">Setting up your account…</p>
           </div>
         ) : (
           <>
-            <ul className="nav nav-tabs mb-4 border-bottom border-secondary">
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${tab === "login" ? "active" : ""}`}
-                  onClick={() => setTab("login")}
-                >
-                  Login
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${tab === "register" ? "active" : ""}`}
-                  onClick={() => setTab("register")}
-                >
-                  Register
-                </button>
-              </li>
-            </ul>
-
-            <form onSubmit={handleSubmit}>
-              {tab === "register" && (
-                <div className="form-floating mb-3">
-                  <input
-                    type="text"
-                    className="form-control bg-dark text-light border-0"
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Name"
-                    required
+            <TabView
+              activeIndex={activeTab}
+              onTabChange={(e) => {
+                setActiveTab(e.index);
+                setError("");
+              }}
+            >
+              <TabPanel header="Login">
+                <div className="p-fluid">
+                  <label className="text-light mb-2">Email</label>
+                  <InputText
+                    value={form.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    className="mb-3"
                   />
-                  <label htmlFor="name">Full Name</label>
+
+                  <label className="text-light mb-2">Password</label>
+                  <Password
+                    value={form.pass}
+                    onChange={(e) => handleChange("pass", e.target.value)}
+                    feedback={false}
+                    toggleMask
+                    className="mb-3 w-full"
+                  />
+
+                  {error && <small className="text-danger">{error}</small>}
+
+                  <Button
+                    label="Login"
+                    className="w-full mt-3 btn-pistacho"
+                    onClick={submit}
+                  />
                 </div>
+              </TabPanel>
+
+              <TabPanel header="Register">
+                <div className="p-fluid">
+                  <label className="text-light mb-2">Full name</label>
+                  <InputText
+                    value={form.name}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                    className="mb-3"
+                  />
+
+                  <label className="text-light mb-2">Email</label>
+                  <InputText
+                    value={form.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    className="mb-3"
+                  />
+
+                  <label className="text-light mb-2">Password</label>
+                  <Password
+                    value={form.pass}
+                    onChange={(e) => handleChange("pass", e.target.value)}
+                    feedback={false}
+                    toggleMask
+                    className="mb-3 w-full"
+                  />
+
+                  {error && <small className="text-danger">{error}</small>}
+
+                  <Button
+                    label="Create account"
+                    className="w-full mt-3 btn-pistacho"
+                    onClick={submit}
+                  />
+                </div>
+              </TabPanel>
+            </TabView>
+
+            <Divider className="my-4" />
+
+            <Button
+              label="Continue with Google"
+              className="btn-google w-100 d-flex align-items-center gap-2"
+              onClick={loginGoogle}
+              icon={() => (
+                <img
+                  src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s48-fcrop64=1,00000000ffffffff-rw"
+                  alt="Google"
+                  style={{ width: 20, height: 20 }}
+                />
               )}
-
-              <div className="form-floating mb-3">
-                <input
-                  type="email"
-                  className="form-control bg-dark text-light border-0"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  required
-                />
-                <label htmlFor="email">Email</label>
-              </div>
-
-              <div className="form-floating mb-3">
-                <input
-                  type="password"
-                  className="form-control bg-dark text-light border-0"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  required
-                />
-                <label htmlFor="password">Password</label>
-              </div>
-
-              {error && <div className="alert alert-danger small">{error}</div>}
-
-              <button type="submit" className="btn btn-pistacho w-100 mb-2">
-                {tab === "login" ? "Login" : "Register"}
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-outline-light w-100"
-                onClick={handleGoogle}
-              >
-                Continue with Google
-              </button>
-            </form>
+            />
           </>
         )}
       </div>
