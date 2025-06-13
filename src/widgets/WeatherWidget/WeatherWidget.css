@@ -1,7 +1,3 @@
-.weather-widget h5 {
-  margin: 0 0 var(--m-gap);
-}
-
 .weather-widget .current {
   display: flex;
   align-items: center;

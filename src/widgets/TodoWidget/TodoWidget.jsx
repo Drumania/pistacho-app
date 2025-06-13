@@ -39,14 +39,28 @@ export default function TodoWidget({ groupId }) {
     );
 
     const unsub = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const now = new Date();
+      const data = snapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .filter((todo) => {
+          if (!todo.completed) return true;
+          if (!todo.completed_at) return true;
+
+          const completedAt = new Date(todo.completed_at);
+          const diffInDays =
+            (now.getTime() - completedAt.getTime()) / (1000 * 60 * 60 * 24);
+
+          return diffInDays <= 1;
+        });
+
       const sorted = data.sort((a, b) => {
         if (a.completed !== b.completed) return a.completed ? 1 : -1;
         return (a.due_date || "") > (b.due_date || "") ? 1 : -1;
       });
+
       setTodos(sorted);
     });
 
