@@ -1,0 +1,31 @@
+/* HabitWidget.css */
+
+.habit-widget {
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.habit-widget h5 {
+  font-size: 1.1rem;
+  color: var(--white-color);
+}
+
+.habit-widget .form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.habit-widget .form-check-input {
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.habit-widget .form-check-label {
+  cursor: pointer;
+}
+
+.habit-widget .text-success {
+  font-weight: 500;
+  margin-bottom: 1rem;
+}

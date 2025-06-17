@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import WidgetManager from "@/components/admin/WidgetManager";
+import GlobalHabitsAdmin from "@/components/admin/GlobalHabitsAdmin";
 
 export default function AdminTools() {
   const [users, setUsers] = useState([]);
@@ -117,6 +118,10 @@ export default function AdminTools() {
 
         <TabPanel header="Widgets" className="m-3">
           <WidgetManager />
+        </TabPanel>
+
+        <TabPanel header="Habits" className="m-3">
+          <GlobalHabitsAdmin />
         </TabPanel>
       </TabView>
     </div>
