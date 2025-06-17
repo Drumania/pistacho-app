@@ -18,6 +18,7 @@ export default function HabitWidget({ groupId }) {
   const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
+  const [completedAllToday, setCompletedAllToday] = useState(false);
 
   const today = format(new Date(), "yyyy-MM-dd");
 
@@ -59,7 +60,9 @@ export default function HabitWidget({ groupId }) {
     const progressRef = doc(db, "habits_progress", groupId, user.uid, today);
     const progressSnap = await getDoc(progressRef);
     if (progressSnap.exists()) {
-      setChecked(progressSnap.data().completedHabits);
+      const progressData = progressSnap.data();
+      setChecked(progressData.completedHabits);
+      setCompletedAllToday(progressData.completedAll);
     } else {
       // si es nuevo día
       if (data.lastCheckedDate !== today) {
@@ -82,19 +85,30 @@ export default function HabitWidget({ groupId }) {
           streak: newStreak,
           lastCheckedDate: today,
         });
+
         setStreak(newStreak);
         setChecked([]);
+        setCompletedAllToday(false);
       }
     }
 
     setLoading(false);
   };
 
-  const toggleCheck = (name) => {
+  const toggleCheck = async (name) => {
     const newChecked = checked.includes(name)
       ? checked.filter((h) => h !== name)
       : [...checked, name];
+
     setChecked(newChecked);
+    setCompletedAllToday(newChecked.length === 3); // 🔄 en vivo
+
+    const progressRef = doc(db, "habits_progress", groupId, user.uid, today);
+    await setDoc(progressRef, {
+      completedHabits: newChecked,
+      completedAll: newChecked.length === 3,
+      timestamp: new Date(),
+    });
   };
 
   if (loading) return <div className="p-3">Loading habits...</div>;
@@ -118,7 +132,11 @@ export default function HabitWidget({ groupId }) {
           <label className="fw-medium">{h.name}</label>
         </div>
       ))}
-
+      {completedAllToday && (
+        <div className="alert alert-success py-2 px-3 mb-3 small rounded">
+          🎉 ¡Completaste tus 3 hábitos de hoy!
+        </div>
+      )}
       <p className="text-success small">Racha actual: {streak} días ✅</p>
 
       <HabitSettingsDialog
