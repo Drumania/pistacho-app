@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import GridLayout from "react-grid-layout";
+import { Responsive, WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
@@ -16,7 +16,7 @@ import {
   doc,
 } from "firebase/firestore";
 
-// 📦 importa todos los widgets disponibles
+const ResponsiveGridLayout = WidthProvider(Responsive);
 const widgetModules = import.meta.glob("@/widgets/*/*.jsx", { eager: true });
 
 export default function Dashboards() {
@@ -31,7 +31,7 @@ export default function Dashboards() {
     slug: groupId,
     name: "My Group",
   });
-  const [layout, setLayout] = useState([]);
+  const [layouts, setLayouts] = useState({ lg: [] });
   const [widgetInstances, setWidgetInstances] = useState([]);
   const [components, setComponents] = useState({});
 
@@ -52,20 +52,19 @@ export default function Dashboards() {
 
   const fetchWidgets = async () => {
     setIsLoading(true);
-
     const snapshot = await getDocs(collection(db, `groups/${groupId}/widgets`));
     const widgets = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setWidgetInstances(widgets);
 
-    setLayout(
-      widgets.map((w) => ({
-        i: w.id,
-        x: w.layout.x,
-        y: w.layout.y,
-        w: w.layout.w,
-        h: w.layout.h,
-      }))
-    );
+    const layoutLg = widgets.map((w) => ({
+      i: w.id,
+      x: w.layout?.x || 0,
+      y: w.layout?.y || 0,
+      w: w.layout?.w || 1,
+      h: w.layout?.h || 1,
+    }));
+
+    setLayouts({ lg: layoutLg });
 
     const componentsMap = {};
     for (const widget of widgets) {
@@ -82,9 +81,9 @@ export default function Dashboards() {
     setIsLoading(false);
   };
 
-  const handleLayoutChange = async (newLayout) => {
-    setLayout(newLayout);
-    for (const w of newLayout) {
+  const handleLayoutChange = async (currentLayout, allLayouts) => {
+    setLayouts(allLayouts);
+    for (const w of currentLayout) {
       await updateDoc(doc(db, `groups/${groupId}/widgets/${w.i}`), {
         layout: { x: w.x, y: w.y, w: w.w, h: w.h },
       });
@@ -94,9 +93,6 @@ export default function Dashboards() {
   return (
     <div className="container-fluid" ref={containerRef}>
       <div className="row my-3">
-        {/* <h5 className="col-6 ps-4">
-          Dashboard for: <strong>{groupId}</strong>
-        </h5> */}
         <div className="col-12 text-end">
           <button
             className="btn-pistacho-outline"
@@ -130,10 +126,11 @@ export default function Dashboards() {
           </div>
         </div>
       ) : (
-        <GridLayout
+        <ResponsiveGridLayout
           className="layout"
-          layout={layout}
-          cols={4}
+          layouts={layouts}
+          breakpoints={{ xl: 1600, lg: 1200, md: 996, sm: 768, xs: 480 }}
+          cols={{ xl: 5, lg: 4, md: 3, sm: 2, xs: 1 }}
           rowHeight={250}
           width={containerWidth}
           onLayoutChange={handleLayoutChange}
@@ -143,7 +140,7 @@ export default function Dashboards() {
           compactType={null}
           preventCollision={true}
         >
-          {layout.map((l) => {
+          {layouts.lg.map((l) => {
             const widget = widgetInstances.find((w) => w.id === l.i);
             const WidgetComponent = components[widget?.id];
 
@@ -195,15 +192,14 @@ export default function Dashboards() {
               </div>
             );
           })}
-        </GridLayout>
+        </ResponsiveGridLayout>
       )}
+
       <EditGroup
         visible={showEditDialog}
         onHide={() => setShowEditDialog(false)}
         groupData={groupData}
-        onSave={(updated) => {
-          setGroupData(updated);
-        }}
+        onSave={(updated) => setGroupData(updated)}
       />
 
       <AddWidgetDialog
