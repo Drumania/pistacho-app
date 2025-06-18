@@ -136,7 +136,6 @@ export default function Groups() {
             + New Group
           </button>
         </div>
-
         <NewGroupDialog
           visible={showDialog}
           user={user}
@@ -146,7 +145,7 @@ export default function Groups() {
             navigate(`/g/${data.slug}`);
           }}
         />
-
+        {console.log(groups)}
         {groups.map((g) => (
           <NavLink
             key={g.id}

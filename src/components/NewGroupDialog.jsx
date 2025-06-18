@@ -1,16 +1,15 @@
+// NewGroupDialog.jsx
 import { useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Steps } from "primereact/steps";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import {
-  addDoc,
-  collection,
-  serverTimestamp,
   doc,
   setDoc,
   updateDoc,
   getDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import slugify from "slugify";
@@ -35,8 +34,9 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
     try {
       const slug = await generateGroupSlug(name);
 
-      // 1. Crear el grupo
-      const groupRef = await addDoc(collection(db, "groups"), {
+      // 1. Crear el grupo con ID igual al slug
+      const groupRef = doc(db, "groups", slug);
+      await setDoc(groupRef, {
         name,
         slug,
         created_at: serverTimestamp(),
@@ -66,7 +66,7 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
         const newGroups = userData.groups || [];
 
         newGroups.push({
-          id: groupRef.id,
+          id: slug,
           slug,
           name,
           role: "admin",
@@ -77,7 +77,7 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
 
       // 3. Continuar con pasos
       setStep(1);
-      if (onCreate) onCreate({ slug, id: groupRef.id });
+      if (onCreate) onCreate({ slug, id: slug });
     } catch (error) {
       console.error("Error creating group:", error);
     } finally {

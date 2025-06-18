@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Responsive, WidthProvider } from "react-grid-layout";
+import EditGroupDialog from "./EditGroupDialog"; // ajustá la ruta si es distinta
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-import EditGroup from "./EditGroup";
 import AddWidgetDialog from "./AddWidgetDialog";
 
 import db from "@/firebase/firestore";
 import {
   collection,
   getDocs,
+  getDoc,
   updateDoc,
   deleteDoc,
   doc,
@@ -26,11 +27,9 @@ export default function Dashboards() {
   const [editMode, setEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [groupName, setGroupName] = useState("");
   const [showAddWidgetDialog, setShowAddWidgetDialog] = useState(false);
-  const [groupData, setGroupData] = useState({
-    slug: groupId,
-    name: "My Group",
-  });
+
   const [layouts, setLayouts] = useState({ lg: [] });
   const [widgetInstances, setWidgetInstances] = useState([]);
   const [components, setComponents] = useState({});
@@ -45,6 +44,17 @@ export default function Dashboards() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    const loadGroupName = async () => {
+      const ref = doc(db, "groups", groupId);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        setGroupName(snap.data().name || "");
+      }
+    };
+    if (groupId) loadGroupName();
+  }, [groupId]);
 
   useEffect(() => {
     fetchWidgets();
@@ -195,13 +205,12 @@ export default function Dashboards() {
         </ResponsiveGridLayout>
       )}
 
-      <EditGroup
+      <EditGroupDialog
+        groupId={groupId}
         visible={showEditDialog}
         onHide={() => setShowEditDialog(false)}
-        groupData={groupData}
-        onSave={(updated) => setGroupData(updated)}
+        onGroupUpdated={(newName) => setGroupName(newName)} // 👈 esta parte
       />
-
       <AddWidgetDialog
         visible={showAddWidgetDialog}
         onHide={() => setShowAddWidgetDialog(false)}

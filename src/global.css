@@ -424,6 +424,12 @@ nav {
   background-color: #ccc;
 }
 
+.cs-list-group {
+  background-color: var(--black-color);
+  padding: var(--m-gap);
+  border-radius: var(--border-radius);
+}
+
 /* Estilo personalizado del modal */
 .new-group-dialog {
   background-color: var(--panel);
@@ -477,6 +483,17 @@ nav {
 
 .new-group-dialog .p-button:hover {
   background-color: var(--dark-pistacho-color);
+}
+
+.p-dialog .p-dialog-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--line-color);
+  padding-bottom: var(--gap);
+  margin-bottom: var(--gap);
+}
+
+.p-dialog .p-dialog-footer {
+  background-color: transparent;
 }
 
 /* admin-panel */
