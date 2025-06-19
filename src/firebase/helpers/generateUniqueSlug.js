@@ -8,6 +8,12 @@ import {
 import slugify from "slugify";
 
 export const generateUniqueSlug = async (baseName) => {
+  if (!baseName || typeof baseName !== "string") {
+    throw new Error(
+      "generateUniqueSlug: baseName is required and must be a string."
+    );
+  }
+
   const db = getFirestore();
   let baseSlug = slugify(baseName, { lower: true, strict: true });
   let slug = baseSlug;

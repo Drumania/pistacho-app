@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import EditGroupDialog from "./EditGroupDialog"; // ajustá la ruta si es distinta
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
+import EditGroupDialog from "./EditGroupDialog";
 import AddWidgetDialog from "./AddWidgetDialog";
 
 import db from "@/firebase/firestore";
@@ -14,14 +14,19 @@ import {
   getDoc,
   updateDoc,
   deleteDoc,
+  addDoc,
   doc,
+  serverTimestamp,
 } from "firebase/firestore";
+import { useAuth } from "@/firebase/AuthContext";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const widgetModules = import.meta.glob("@/widgets/*/*.jsx", { eager: true });
 
 export default function Dashboards() {
   const { groupId } = useParams();
+  const { user, showToast } = useAuth();
+
   const containerRef = useRef();
   const [containerWidth, setContainerWidth] = useState(1200);
   const [editMode, setEditMode] = useState(false);
@@ -33,6 +38,8 @@ export default function Dashboards() {
   const [layouts, setLayouts] = useState({ lg: [] });
   const [widgetInstances, setWidgetInstances] = useState([]);
   const [components, setComponents] = useState({});
+
+  const isAdmin = user?.admin;
 
   useEffect(() => {
     const handleResize = () => {
@@ -100,10 +107,50 @@ export default function Dashboards() {
     }
   };
 
+  const handleSaveTemplate = async () => {
+    const name = prompt("Template name:");
+    if (!name) return;
+
+    const widgetsForTemplate = widgetInstances.map((w) => {
+      const layout = layouts.lg.find((l) => l.i === w.id);
+      return {
+        key: w.key,
+        layout: layout || { x: 0, y: 0, w: 1, h: 1 },
+        settings: w.settings || {},
+      };
+    });
+
+    const templateData = {
+      name,
+      description: "",
+      created_by: user?.uid,
+      created_at: serverTimestamp(),
+      widgets: widgetsForTemplate,
+    };
+
+    try {
+      await addDoc(collection(db, "templates"), templateData);
+      showToast?.("success", "Saved", "Template saved successfully");
+    } catch (err) {
+      console.error("Error saving template:", err);
+      showToast?.("error", "Error", "Failed to save template");
+    }
+  };
+
   return (
     <div className="container-fluid" ref={containerRef}>
       <div className="row my-3">
         <div className="col-12 text-end">
+          {isAdmin && widgetInstances.length > 0 && (
+            <button
+              className="btn-pistacho-outline me-2"
+              onClick={handleSaveTemplate}
+            >
+              <i className="bi bi-save me-1" />
+              Save as Template
+            </button>
+          )}
+
           <button
             className="btn-pistacho-outline"
             onClick={() => setShowEditDialog(true)}
@@ -121,10 +168,18 @@ export default function Dashboards() {
             )}
           </button>
           <button
-            className="btn-pistacho"
+            className="btn-pistacho position-relative btn-start-here"
             onClick={() => setShowAddWidgetDialog(true)}
           >
             Add Widget
+            {widgetInstances.length === 0 && (
+              <span
+                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                style={{ fontSize: "0.7rem" }}
+              >
+                Start here
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -136,80 +191,91 @@ export default function Dashboards() {
           </div>
         </div>
       ) : (
-        <ResponsiveGridLayout
-          className="layout"
-          layouts={layouts}
-          breakpoints={{ xl: 1600, lg: 1200, md: 996, sm: 768, xs: 480 }}
-          cols={{ xl: 5, lg: 4, md: 3, sm: 2, xs: 1 }}
-          rowHeight={250}
-          width={containerWidth}
-          onLayoutChange={handleLayoutChange}
-          draggableHandle=".widget-handle"
-          isDraggable={editMode}
-          isResizable={editMode}
-          compactType={null}
-          preventCollision={true}
-        >
-          {layouts.lg.map((l) => {
-            const widget = widgetInstances.find((w) => w.id === l.i);
-            const WidgetComponent = components[widget?.id];
+        <>
+          <ResponsiveGridLayout
+            className="layout"
+            layouts={layouts}
+            breakpoints={{ xl: 1600, lg: 1200, md: 996, sm: 768, xs: 480 }}
+            cols={{ xl: 5, lg: 4, md: 3, sm: 2, xs: 1 }}
+            rowHeight={250}
+            width={containerWidth}
+            onLayoutChange={handleLayoutChange}
+            draggableHandle=".widget-handle"
+            isDraggable={editMode}
+            isResizable={editMode}
+            compactType={null}
+            preventCollision={true}
+          >
+            {layouts.lg.map((l) => {
+              const widget = widgetInstances.find((w) => w.id === l.i);
+              const WidgetComponent = components[widget?.id];
 
-            const handleDelete = async () => {
-              await deleteDoc(
-                doc(db, `groups/${groupId}/widgets/${widget.id}`)
-              );
-              fetchWidgets();
-            };
+              const handleDelete = async () => {
+                await deleteDoc(
+                  doc(db, `groups/${groupId}/widgets/${widget.id}`)
+                );
+                fetchWidgets();
+              };
 
-            const handleSettings = () => {
-              console.log("Settings for", widget.id);
-            };
+              const handleSettings = () => {
+                console.log("Settings for", widget.id);
+              };
 
-            return (
-              <div key={l.i}>
-                <div
-                  className={
-                    editMode ? "widget-content wc-edit" : "widget-content"
-                  }
-                >
-                  {editMode && (
-                    <div className="d-flex justify-content-between align-items-center px-2 pb-1">
-                      <div className="widget-handle">≡</div>
-                      <div>
-                        <button
-                          className="btn btn-sm btn-light me-2"
-                          onClick={handleSettings}
-                          title="Edit settings"
-                        >
-                          <i className="bi bi-gear" />
-                        </button>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          onClick={handleDelete}
-                          title="Delete widget"
-                        >
-                          <i className="bi bi-trash" />
-                        </button>
+              return (
+                <div key={l.i}>
+                  <div
+                    className={
+                      editMode ? "widget-content wc-edit" : "widget-content"
+                    }
+                  >
+                    {editMode && (
+                      <div className="d-flex justify-content-between align-items-center px-2 pb-1">
+                        <div className="widget-handle">≡</div>
+                        <div>
+                          <button
+                            className="btn btn-sm btn-light me-2"
+                            onClick={handleSettings}
+                            title="Edit settings"
+                          >
+                            <i className="bi bi-gear" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={handleDelete}
+                            title="Delete widget"
+                          >
+                            <i className="bi bi-trash" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {WidgetComponent ? (
-                    <WidgetComponent groupId={groupId} {...widget.settings} />
-                  ) : (
-                    <div className="p-2 text-muted">Widget not found</div>
-                  )}
+                    )}
+                    {WidgetComponent ? (
+                      <WidgetComponent groupId={groupId} {...widget.settings} />
+                    ) : (
+                      <div className="p-2 text-muted">Widget not found</div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </ResponsiveGridLayout>
+              );
+            })}
+          </ResponsiveGridLayout>
+
+          {widgetInstances.length === 0 && (
+            <div className="text-end mt-3">
+              <h3 className="pe-5">
+                <i className="bi bi-arrow-up"></i>
+              </h3>
+              Click "Add Widget" to get started.
+            </div>
+          )}
+        </>
       )}
 
       <EditGroupDialog
         groupId={groupId}
         visible={showEditDialog}
         onHide={() => setShowEditDialog(false)}
-        onGroupUpdated={(newName) => setGroupName(newName)} // 👈 esta parte
+        onGroupUpdated={(newName) => setGroupName(newName)}
       />
       <AddWidgetDialog
         visible={showAddWidgetDialog}

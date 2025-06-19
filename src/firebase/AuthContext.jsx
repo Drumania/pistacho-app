@@ -74,6 +74,7 @@ export function AuthProvider({ children }) {
         registerWithEmail,
         logout,
         updateUserProfile,
+        setUser,
       }}
     >
       {children}

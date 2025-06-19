@@ -7,9 +7,12 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
+import { generateUniqueSlug } from "./generateUniqueSlug";
 
 export const createUserWithGroup = async (user) => {
-  if (!user?.uid) return;
+  if (!user?.uid || !user?.email) {
+    throw new Error("Usuario inválido: falta UID o email.");
+  }
 
   const userData = {
     uid: user.uid,
@@ -19,7 +22,8 @@ export const createUserWithGroup = async (user) => {
     created_at: serverTimestamp(),
   };
 
-  const slug = "me";
+  // Generar slug único basado en el nombre del usuario (o "me" como fallback)
+  const slug = await generateUniqueSlug(user.displayName || "me");
 
   // Crear grupo personal
   const groupRef = await addDoc(collection(db, "groups"), {
@@ -51,6 +55,6 @@ export const createUserWithGroup = async (user) => {
     },
   ];
 
-  // Guardar usuario completo
+  // Guardar usuario completo en Firestore
   await setDoc(doc(db, "users", user.uid), userData);
 };
