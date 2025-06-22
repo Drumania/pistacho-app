@@ -140,16 +140,6 @@ export default function Dashboards() {
 
   return (
     <div className="container-fluid" ref={containerRef}>
-      <HeaderDashboard
-        groupName={groupName}
-        isAdmin={isAdmin}
-        widgetInstances={widgetInstances}
-        handleSaveTemplate={handleSaveTemplate}
-        setShowEditDialog={setShowEditDialog}
-        editMode={editMode}
-        setEditMode={setEditMode}
-        setShowAddWidgetDialog={setShowAddWidgetDialog}
-      />
       {isLoading ? (
         <div className="text-center my-5">
           <div className="spinner-border text-light" role="status">
@@ -158,6 +148,18 @@ export default function Dashboards() {
         </div>
       ) : (
         <>
+          <HeaderDashboard
+            key={groupId}
+            groupName={groupName}
+            isAdmin={isAdmin}
+            widgetInstances={widgetInstances}
+            handleSaveTemplate={handleSaveTemplate}
+            setShowEditDialog={setShowEditDialog}
+            editMode={editMode}
+            setEditMode={setEditMode}
+            setShowAddWidgetDialog={setShowAddWidgetDialog}
+          />
+
           <ResponsiveGridLayout
             className="layout"
             layouts={layouts}
