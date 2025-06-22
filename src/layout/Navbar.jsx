@@ -33,9 +33,6 @@ export default function Navbar() {
         className="navbar-brand d-flex align-items-center gap-2 wrap-logo"
       >
         <img src="/logo.png" width="60px" height="60px" />
-        <span>
-          <strong> Focus</strong>Pit
-        </span>
       </Link>
 
       <Groups />
