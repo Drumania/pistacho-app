@@ -1,11 +1,18 @@
-// EditGroupDialog.jsx
 import { useEffect, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Avatar } from "primereact/avatar";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  getStorage,
+  deleteObject,
+} from "firebase/storage";
 import db from "@/firebase/firestore";
+import app from "@/firebase/config";
 import { useAuth } from "@/firebase/AuthContext";
 
 export default function EditGroupDialog({
@@ -15,12 +22,14 @@ export default function EditGroupDialog({
   onGroupUpdated,
 }) {
   const { user } = useAuth();
+  const storage = getStorage(app);
   const [name, setName] = useState("");
+  const [photoURL, setPhotoURL] = useState("");
+  const [prevImagePath, setPrevImagePath] = useState(""); // para borrar anterior
   const [members, setMembers] = useState([]);
   const [ownerUid, setOwnerUid] = useState(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [loading, setLoading] = useState(false);
-
   const isOwner = user?.uid === ownerUid;
 
   useEffect(() => {
@@ -31,6 +40,8 @@ export default function EditGroupDialog({
       if (snap.exists()) {
         const data = snap.data();
         setName(data.name || "");
+        setPhotoURL(data.photoURL || "");
+        setPrevImagePath(data.photoPath || ""); // guardá la path
         setMembers(data.members || []);
         setOwnerUid(data.owner?.uid || null);
       }
@@ -38,15 +49,42 @@ export default function EditGroupDialog({
     if (visible) loadGroup();
   }, [groupId, visible]);
 
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !groupId) return;
+
+    setLoading(true);
+    try {
+      // Borrar imagen anterior si existe
+      if (prevImagePath) {
+        const oldRef = ref(storage, prevImagePath);
+        await deleteObject(oldRef).catch(() => {}); // ignorar error si no existe
+      }
+
+      const path = `groups/${groupId}/${file.name}`;
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      setPhotoURL(url);
+      setPrevImagePath(path);
+    } catch (err) {
+      console.error("Error al subir imagen:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!name || !groupId) return;
     setLoading(true);
     try {
-      const ref = doc(db, "groups", groupId);
-      await updateDoc(ref, { name });
-      if (typeof onGroupUpdated === "function") {
-        onGroupUpdated(name);
-      }
+      const refGroup = doc(db, "groups", groupId);
+      await updateDoc(refGroup, {
+        name,
+        photoURL,
+        photoPath: prevImagePath,
+      });
+      onGroupUpdated?.();
       onHide();
     } catch (err) {
       console.error("Error updating group:", err);
@@ -93,6 +131,23 @@ export default function EditGroupDialog({
       className="edit-group-dialog"
     >
       <div className="p-fluid">
+        {/* Imagen */}
+        <div className="mb-3 text-center">
+          <Avatar
+            image={photoURL || "/group_placeholder.png"}
+            shape="circle"
+            size="xlarge"
+            className="mb-2"
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="form-control mt-2"
+          />
+        </div>
+
+        {/* Nombre */}
         <label className="mb-2">Group Name</label>
         <InputText
           value={name}
@@ -100,13 +155,13 @@ export default function EditGroupDialog({
           autoFocus
         />
 
+        {/* Miembros */}
         <label className="mb-2 mt-4">Members</label>
-
         <ul className="cs-list-group mb-3">
           {members.map((m) => (
             <li
               key={m.uid}
-              className=" d-flex align-items-center justify-content-between px-2"
+              className="d-flex align-items-center justify-content-between px-2"
             >
               <div className="d-flex align-items-center gap-2">
                 <Avatar
@@ -127,6 +182,7 @@ export default function EditGroupDialog({
           ))}
         </ul>
 
+        {/* Invitación */}
         <label className="mb-2">Invite user (email)</label>
         <div className="d-flex gap-2">
           <InputText
@@ -141,6 +197,7 @@ export default function EditGroupDialog({
           />
         </div>
 
+        {/* Guardar */}
         <Button
           label="Save Changes"
           onClick={handleSave}

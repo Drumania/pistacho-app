@@ -1,51 +1,66 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Avatar } from "primereact/avatar";
-import { Button } from "primereact/button";
-import { OverlayPanel } from "primereact/overlaypanel";
 import { useAuth } from "@/firebase/AuthContext";
 import { getUserAvatar } from "@/utils/getUserAvatar";
 import Groups from "@/layout/Groups";
+
 export default function Navbar() {
-  const panelRef = useRef(null);
   const { user, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  // Abre con hover
+  const handleMouseEnter = () => {
+    setMenuOpen(true);
+  };
+
+  // Cierra con click afuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <nav className="navbar pb-2">
-      <div className="container-fluid d-flex justify-content-between align-items-center">
-        <Link
-          to="/"
-          className="navbar-brand d-flex align-items-center gap-2 wrap-logo"
-        >
-          <img src="/logo.png" width="40" height="40" />
-          <span>Pistacho</span>
-        </Link>
-        <Groups />
-        {user && (
-          <div className="d-flex align-items-center gap-2">
-            <div className="d-flex align-items-center gap-2 cursor-pointer">
-              <Avatar image={getUserAvatar(user)} shape="circle" size="small" />
-              <span className="fw-semibold">
-                {user.displayName || user.email}
-              </span>
-            </div>
+    <nav className="v-navbar">
+      <Link
+        to="/"
+        className="navbar-brand d-flex align-items-center gap-2 wrap-logo"
+      >
+        <img src="/logo.png" width="60px" height="60px" />
+        <span>
+          <strong> Focus</strong>Pit
+        </span>
+      </Link>
 
-            <Button
-              icon="bi bi-three-dots-vertical color-text"
-              className="p-button-text p-0"
-              onClick={(e) => panelRef.current.toggle(e)}
-            />
+      <Groups />
 
-            <OverlayPanel ref={panelRef}>
+      {user && (
+        <div className="navbar-user" ref={wrapperRef}>
+          <div
+            className="user-avatar-clickable"
+            onMouseEnter={handleMouseEnter}
+          >
+            <Avatar image={getUserAvatar(user)} shape="circle" size="large" />
+          </div>
+
+          {menuOpen && (
+            <div className="custom-menu">
               <ul className="user-panel mb-0">
-                {user && user.admin && (
+                {user.admin && (
                   <>
                     <li>
                       <Link
-                        to="/admintools" // You can change this path to your admin tools page
+                        to="/admintools"
                         className="dropdown-item d-flex align-items-center gap-2"
+                        onClick={() => setMenuOpen(false)}
                       >
-                        <i className="bi bi-shield-lock"></i> Admin Tools
+                        <i className="bi bi-shield-lock" /> Admin Tools
                       </Link>
                     </li>
                     <li>
@@ -57,8 +72,9 @@ export default function Navbar() {
                   <Link
                     to="/settings"
                     className="dropdown-item d-flex align-items-center gap-2"
+                    onClick={() => setMenuOpen(false)}
                   >
-                    <i className="bi bi-gear"></i> Settings
+                    <i className="bi bi-gear" /> Settings
                   </Link>
                 </li>
                 <li>
@@ -66,17 +82,20 @@ export default function Navbar() {
                 </li>
                 <li>
                   <button
-                    className="dropdown-item d-flex align-items-center gap-2"
-                    onClick={logout}
+                    className="dropdown-item color-red d-flex align-items-center gap-2"
+                    onClick={() => {
+                      logout();
+                      setMenuOpen(false);
+                    }}
                   >
-                    <i className="bi bi-box-arrow-right"></i> Logout
+                    <i className="bi bi-box-arrow-right" /> Logout
                   </button>
                 </li>
               </ul>
-            </OverlayPanel>
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 }
