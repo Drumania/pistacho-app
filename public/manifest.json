@@ -3,7 +3,7 @@
   "short_name": "Focuspit",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1b2531",
+  "background_color": "#0a131f",
   "theme_color": "#90b083",
   "icons": [
     {

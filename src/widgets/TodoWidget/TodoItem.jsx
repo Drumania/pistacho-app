@@ -7,46 +7,38 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
 
   return (
     <li className="d-flex justify-content-between align-items-start todo-item panel-in-panels">
-      <div className="d-flex flex-column">
-        <div className="d-flex align-items-start gap-2">
-          <div className="wrap-check-todo">
-            <CustomCheckbox
-              checked={completed}
-              onChange={() => onToggle(todo)}
-            />
-          </div>
-          <div>
-            <div
-              className={`fw-semibold d-flex ${completed ? "opacity-50" : ""}`}
-            >
-              {title}
-
-              {completed && completed_at && (
-                <div className="opacity-50 ms-2 ">
-                  <i className="bi bi-check-circle me-1" />
-                  Completado el{" "}
-                  {new Date(completed_at).toLocaleDateString("es-AR")}
-                </div>
-              )}
-            </div>
-            <div className="mt-1 d-flex flex-wrap gap-2 small">
-              {priority === "high" && (
-                <span className="badge bg-danger">Alta prioridad</span>
-              )}
-              {label && (
-                <span
-                  className="badge"
-                  style={{
-                    backgroundColor: label.color,
-                    color: "#fff",
-                  }}
-                >
-                  {label.name}
-                </span>
-              )}
-            </div>
-          </div>
+      <div className="d-flex align-items-center gap-2">
+        <div className="wrap-check-todo">
+          <CustomCheckbox checked={completed} onChange={() => onToggle(todo)} />
         </div>
+        <div className={`fw-semibold d-flex ${completed ? "opacity-50" : ""}`}>
+          {title}
+
+          {completed && completed_at && (
+            <div className="opacity-50 ms-2 ">
+              <i className="bi bi-check-circle me-1" />
+              Completado el {new Date(completed_at).toLocaleDateString("es-AR")}
+            </div>
+          )}
+        </div>
+        {(priority === "high" || label) && (
+          <div className="mt-1 d-flex flex-wrap gap-2 small">
+            {priority === "high" && (
+              <span className="badge bg-danger">Alta prioridad</span>
+            )}
+            {label && (
+              <span
+                className="badge"
+                style={{
+                  backgroundColor: label.color,
+                  color: "#fff",
+                }}
+              >
+                {label.name}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="d-flex flex-column gap-1 align-items-end todo-actions">
