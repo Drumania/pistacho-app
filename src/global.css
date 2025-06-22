@@ -393,6 +393,18 @@ body {
   transform: rotate(45deg);
 }
 
+/* header-dashboard */
+.header-dashboard {
+  display: flex;
+  height: 80px;
+  border-bottom: 1px solid var(--line-color);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--gap);
+  margin-bottom: var(--gap);
+}
+
 /* widget-zone */
 .widget-content {
   height: 100%;
