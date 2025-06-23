@@ -131,7 +131,7 @@ export default function TodoWidget({ groupId }) {
           setShowDialog(false);
           setEditingTodo(null);
         }}
-        style={{ width: "90%", height: "320px", maxWidth: "500px" }}
+        style={{ width: "90%", height: "400px", maxWidth: "500px" }}
         modal
       >
         <TodoForm

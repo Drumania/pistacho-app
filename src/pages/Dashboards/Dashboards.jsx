@@ -33,7 +33,6 @@ export default function Dashboards() {
   const [editMode, setEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [groupName, setGroupName] = useState("");
   const [showAddWidgetDialog, setShowAddWidgetDialog] = useState(false);
 
   const [layouts, setLayouts] = useState({ lg: [] });
@@ -41,6 +40,11 @@ export default function Dashboards() {
   const [components, setComponents] = useState({});
 
   const isAdmin = user?.admin;
+
+  const [groupData, setGroupData] = useState({
+    name: "",
+    photoURL: "",
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -54,14 +58,18 @@ export default function Dashboards() {
   }, []);
 
   useEffect(() => {
-    const loadGroupName = async () => {
+    const loadGroupData = async () => {
       const ref = doc(db, "groups", groupId);
       const snap = await getDoc(ref);
       if (snap.exists()) {
-        setGroupName(snap.data().name || "");
+        const data = snap.data();
+        setGroupData({
+          name: data.name || "",
+          photoURL: data.photoURL || "",
+        });
       }
     };
-    if (groupId) loadGroupName();
+    if (groupId) loadGroupData();
   }, [groupId]);
 
   useEffect(() => {
@@ -150,7 +158,8 @@ export default function Dashboards() {
         <>
           <HeaderDashboard
             key={groupId}
-            groupName={groupName}
+            groupName={groupData.name}
+            groupPhoto={groupData.photoURL}
             isAdmin={isAdmin}
             widgetInstances={widgetInstances}
             handleSaveTemplate={handleSaveTemplate}
@@ -243,7 +252,9 @@ export default function Dashboards() {
         groupId={groupId}
         visible={showEditDialog}
         onHide={() => setShowEditDialog(false)}
-        onGroupUpdated={(newName) => setGroupName(newName)}
+        onGroupUpdated={(updated) =>
+          setGroupData((prev) => ({ ...prev, ...updated }))
+        }
       />
       <AddWidgetDialog
         visible={showAddWidgetDialog}

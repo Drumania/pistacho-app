@@ -12,6 +12,7 @@ export default function Groups() {
   const navigate = useNavigate();
   const [showDialog, setShowDialog] = useState(false);
   const [groups, setGroups] = useState([]);
+  const [groupData, setGroupData] = useState({ name: "", photoURL: "" });
 
   const loadGroups = async () => {
     if (!user?.uid) return setGroups([]);

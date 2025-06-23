@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
+
 import { Button } from "primereact/button";
 import { Avatar } from "primereact/avatar";
+
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import {
   ref,
@@ -84,7 +86,8 @@ export default function EditGroupDialog({
         photoURL,
         photoPath: prevImagePath,
       });
-      onGroupUpdated?.();
+      window.location.reload();
+
       onHide();
     } catch (err) {
       console.error("Error updating group:", err);
@@ -132,19 +135,25 @@ export default function EditGroupDialog({
     >
       <div className="p-fluid">
         {/* Imagen */}
-        <div className="mb-3 text-center">
-          <Avatar
-            image={photoURL || "/group_placeholder.png"}
-            shape="circle"
-            size="xlarge"
-            className="mb-2"
-          />
+        <div className="group-image-wrapper mb-3">
           <input
             type="file"
+            id="group-image-upload"
             accept="image/*"
             onChange={handleImageChange}
-            className="form-control mt-2"
+            style={{ display: "none" }}
           />
+
+          <label htmlFor="group-image-upload" className="group-image-label">
+            <img
+              src={photoURL || "/group_placeholder.png"}
+              alt="Group"
+              className="group-image-avatar"
+            />
+            <div className="group-image-overlay">
+              <i className="bi bi-pencil-fill" />
+            </div>
+          </label>
         </div>
 
         {/* Nombre */}
