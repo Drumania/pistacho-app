@@ -1,4 +1,3 @@
-// src/pages/LoginPage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,11 +19,10 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { TabView, TabPanel } from "primereact/tabview";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
+import { Checkbox } from "primereact/checkbox";
 import { Button } from "primereact/button";
-import { Divider } from "primereact/divider";
 import { ProgressSpinner } from "primereact/progressspinner";
 import slugify from "slugify";
 import app from "@/firebase/config";
@@ -51,14 +49,14 @@ const generateUniqueSlug = async (base) => {
 export default function LoginPage() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  const [activeTab, setActiveTab] = useState(0); // 0-login / 1-register
+  const [mode, setMode] = useState("login"); // "login" | "register"
   const [form, setForm] = useState({ email: "", pass: "", name: "" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (k, v) => setForm({ ...form, [k]: v });
 
-  /* ------------ Lógica de éxito común ------------- */
   const handleSuccess = async (fbUser, fallbackName) => {
     const ref = doc(db, "users", fbUser.uid);
     const snap = await getDoc(ref);
@@ -88,12 +86,11 @@ export default function LoginPage() {
     navigate(`/g/${profile.slug}`);
   };
 
-  /* ------------ Submit email/pass ------------- */
   const submit = async () => {
     setError("");
     setBusy(true);
     try {
-      if (activeTab === 0) {
+      if (mode === "login") {
         const { user } = await signInWithEmailAndPassword(
           auth,
           form.email,
@@ -115,7 +112,6 @@ export default function LoginPage() {
     }
   };
 
-  /* ------------ Google ------------- */
   const loginGoogle = async () => {
     setBusy(true);
     setError("");
@@ -129,100 +125,110 @@ export default function LoginPage() {
     }
   };
 
-  /* --------------- UI ---------------- */
   return (
-    <div className="d-flex justify-content-center align-items-center min-vh-100">
+    <div className="d-flex align-items-center justify-content-center min-vh-100 px-3">
       <div
-        className="surface-card p-4 shadow-2 border-round w-25 min-w-min"
-        style={{ background: "var(--panel)" }}
+        className="bg-dark p-4 p-md-5 rounded-4 shadow w-100"
+        style={{ maxWidth: 460 }}
       >
         {busy ? (
-          <div className="text-center text-light py-5">
+          <div className="text-center py-5">
             <ProgressSpinner style={{ width: 50, height: 50 }} />
             <p className="mt-3">Setting up your account…</p>
           </div>
         ) : (
           <>
-            <TabView
-              activeIndex={activeTab}
-              onTabChange={(e) => {
-                setActiveTab(e.index);
-                setError("");
-              }}
-            >
-              <TabPanel header="Login">
-                <div className="p-fluid">
-                  <label className="text-light mb-2">Email</label>
+            <div className="text-center mb-4">
+              <img src="logo.png" width="80px" />
+              <h3 className="fw-semibold">Welcome to FocusPit</h3>
+              <p className=" mb-1">
+                {mode === "login"
+                  ? "Don't have an account?"
+                  : "Already have an account?"}
+                <span
+                  className="text-primary fw-medium ms-1"
+                  role="button"
+                  onClick={() => {
+                    setMode(mode === "login" ? "register" : "login");
+                    setError("");
+                  }}
+                >
+                  {mode === "login" ? "Create today!" : "Login here!"}
+                </span>
+              </p>
+            </div>
+
+            <div className="mb-3">
+              {mode === "register" && (
+                <>
+                  <label className="form-label">Full Name</label>
                   <InputText
-                    value={form.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                    className="mb-3"
-                  />
-
-                  <label className="text-light mb-2">Password</label>
-                  <Password
-                    value={form.pass}
-                    onChange={(e) => handleChange("pass", e.target.value)}
-                    feedback={false}
-                    toggleMask
-                    className="mb-3 w-full"
-                  />
-
-                  {error && <small className="text-danger">{error}</small>}
-
-                  <Button
-                    label="Login"
-                    className="w-full mt-3 btn-pistacho"
-                    onClick={submit}
-                  />
-                </div>
-              </TabPanel>
-
-              <TabPanel header="Register">
-                <div className="p-fluid">
-                  <label className="text-light mb-2">Full name</label>
-                  <InputText
+                    className="form-control mb-3"
                     value={form.name}
                     onChange={(e) => handleChange("name", e.target.value)}
-                    className="mb-3"
                   />
+                </>
+              )}
 
-                  <label className="text-light mb-2">Email</label>
-                  <InputText
-                    value={form.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                    className="mb-3"
+              <label className="form-label">Email</label>
+              <InputText
+                className="form-control mb-3"
+                value={form.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+              />
+
+              <label className="form-label">Password</label>
+              <Password
+                className="form-control mb-2 w-100"
+                value={form.pass}
+                onChange={(e) => handleChange("pass", e.target.value)}
+                toggleMask
+                feedback={false}
+              />
+
+              {error && <div className="text-danger small mt-2">{error}</div>}
+
+              <div className="d-flex justify-content-between align-items-center mt-3 mb-3">
+                <div className="form-check">
+                  <Checkbox
+                    inputId="remember"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.checked)}
+                    className="me-2"
                   />
-
-                  <label className="text-light mb-2">Password</label>
-                  <Password
-                    value={form.pass}
-                    onChange={(e) => handleChange("pass", e.target.value)}
-                    feedback={false}
-                    toggleMask
-                    className="mb-3 w-full"
-                  />
-
-                  {error && <small className="text-danger">{error}</small>}
-
-                  <Button
-                    label="Create account"
-                    className="w-full mt-3 btn-pistacho"
-                    onClick={submit}
-                  />
+                  <label htmlFor="remember" className="form-check-label">
+                    Remember me
+                  </label>
                 </div>
-              </TabPanel>
-            </TabView>
+                {mode === "login" && (
+                  <span
+                    className="text-primary"
+                    role="button"
+                    style={{ fontSize: 14 }}
+                  >
+                    Forgot password?
+                  </span>
+                )}
+              </div>
 
-            <Divider className="my-4" />
+              <Button
+                label={mode === "login" ? "Login" : "Create account"}
+                className="btn-pistacho w-100"
+                onClick={submit}
+              />
+            </div>
+
+            <div className="text-center mt-4 mb-2">
+              <span className="text-muted">or</span>
+            </div>
 
             <Button
               label="Continue with Google"
-              className="btn-google w-100 d-flex align-items-center gap-2"
+              className="btn btn-outline-secondary bg-white w-100 d-flex align-items-center justify-content-center gap-2"
               onClick={loginGoogle}
               icon={() => (
                 <img
-                  src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s48-fcrop64=1,00000000ffffffff-rw"
+                  src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s48"
                   alt="Google"
                   style={{ width: 20, height: 20 }}
                 />
