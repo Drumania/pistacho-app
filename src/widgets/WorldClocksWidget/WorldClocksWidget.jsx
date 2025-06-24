@@ -7,6 +7,11 @@ const clocks = [
     timezone: "America/Argentina/Buenos_Aires",
     code: "ar",
   },
+  {
+    label: "Uruguay",
+    timezone: "America/Montevideo",
+    code: "uy",
+  },
   { label: "USA", timezone: "America/New_York", code: "us" },
   { label: "España", timezone: "Europe/Madrid", code: "es" },
   { label: "Japón", timezone: "Asia/Tokyo", code: "jp" },
