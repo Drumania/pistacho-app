@@ -1,59 +1,94 @@
 import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
 import db from "@/firebase/firestore";
-import ClockSettingsDialog from "./ClockSettingsDialog"; // el modal que hicimos
+import ClockSettingsDialog from "./ClockSettingsDialog";
 import { Button } from "primereact/button";
 
-export default function WorldClocksWidget({ groupId, widgetId }) {
+import "./WorldClocksWidget.css";
+
+export default function WorldClocksWidget({ groupId }) {
   const { user } = useAuth();
   const [clocks, setClocks] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [times, setTimes] = useState({});
 
-  // 🔄 Cargar config inicial
   useEffect(() => {
     const loadConfig = async () => {
-      if (!groupId || !widgetId) return;
-      const ref = doc(db, "groups", groupId, "widgets", widgetId);
+      if (!groupId) return;
+      const ref = doc(db, "world_clocks", groupId);
       const snap = await getDoc(ref);
       if (snap.exists()) {
         const data = snap.data();
-        setClocks(data?.config?.clocks || []);
+        setClocks(data.clocks || []);
       }
     };
     loadConfig();
-  }, [groupId, widgetId]);
+  }, [groupId]);
 
-  // 💾 Guardar config en Firestore
+  useEffect(() => {
+    const updateTimes = () => {
+      const newTimes = {};
+      clocks.forEach((clock) => {
+        const now = new Date();
+        const options = {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: clock.timezone,
+        };
+        const formatter = new Intl.DateTimeFormat("default", options);
+        newTimes[clock.code] = formatter.format(now);
+      });
+      setTimes(newTimes);
+    };
+
+    updateTimes();
+    const interval = setInterval(updateTimes, 1000);
+    return () => clearInterval(interval);
+  }, [clocks]);
+
   const handleSave = async (selected) => {
     setClocks(selected);
-    const ref = doc(db, "groups", groupId, "widgets", widgetId);
-    await updateDoc(ref, {
-      "config.clocks": selected,
-    });
+    const ref = doc(db, "world_clocks", groupId);
+    try {
+      await updateDoc(ref, { clocks: selected });
+    } catch {
+      await setDoc(ref, { clocks: selected });
+    }
   };
 
   if (!user) return null;
 
   return (
     <div>
-      <div className="flex justify-between align-items-center mb-2">
-        <h5>World Clocks</h5>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h5 className="mb-0">World Clocks</h5>
         <Button
-          icon="pi pi-cog"
-          rounded
-          text
+          label="+ Clocks"
+          className="btn-transp-small"
           onClick={() => setShowDialog(true)}
         />
       </div>
 
-      <div className="grid">
-        {clocks.map((c) => (
-          <div key={c.code} className="col-6 sm:col-4">
-            <WorldClock label={c.label} timezone={c.timezone} code={c.code} />
+      {clocks.map((c) => (
+        <div
+          key={c.code}
+          className="d-flex align-items-center justify-content-between mb-2 panel-in-panels"
+        >
+          <div className="d-flex align-items-center gap-2">
+            <img
+              src={`https://flagcdn.com/w40/${c.code}.png`}
+              alt={c.label}
+              width={28}
+              height={20}
+              style={{ borderRadius: "3px", objectFit: "cover" }}
+            />
+            <span className="font-medium">{c.label}</span>
           </div>
-        ))}
-      </div>
+          <span className="text-xl font-bold">{times[c.code] || "--:--"}</span>
+        </div>
+      ))}
 
       <ClockSettingsDialog
         visible={showDialog}

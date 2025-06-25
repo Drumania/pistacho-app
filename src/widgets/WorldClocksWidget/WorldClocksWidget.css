@@ -19,3 +19,12 @@
 .clock-item .time {
   font-weight: bold;
 }
+
+.country-list {
+  height: 300px;
+  overflow-y: scroll;
+
+  & .panel-in-panels {
+    cursor: pointer;
+  }
+}

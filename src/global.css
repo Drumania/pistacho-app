@@ -514,6 +514,10 @@ body {
   color: var(--pistacho-color);
 }
 
+.bg-pistacho {
+  background-color: var(--dark-pistacho-color);
+}
+
 .color-text {
   color: var(--text-color);
 }
@@ -522,8 +526,16 @@ body {
   color: var(--red-color);
 }
 
+.bg-red {
+  background-color: var(--red-color);
+}
+
 .color-green {
   color: var(--green-color);
+}
+
+.bg-green {
+  background-color: var(--green-color);
 }
 
 .btn-pistacho {
@@ -673,10 +685,11 @@ body {
 
 /* admin-panel */
 .admin-panel {
-  background-color: var(--black-color);
+  background-color: var(--panel-inside);
   color: #f1f1f1;
   border-radius: 10px;
   padding: 1rem;
+  margin: var(--gap);
 }
 
 .admin-panel .p-datatable {
@@ -685,14 +698,12 @@ body {
 }
 
 .admin-panel .p-datatable .p-datatable-thead > tr > th {
-  background-color: var(--black-color);
   color: var(--pistacho-color);
   font-weight: 600;
   border: none;
 }
 
 .admin-panel .p-datatable .p-datatable-tbody > tr {
-  background-color: var(--black-color);
   color: #f1f1f1;
   border: none;
 }
