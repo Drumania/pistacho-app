@@ -6,7 +6,7 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
   const { title, completed, priority, label, completed_at } = todo;
 
   return (
-    <li className="d-flex justify-content-between align-items-start todo-item panel-in-panels">
+    <li className="d-flex justify-content-between align-items-start todo-item">
       <div className="d-flex align-items-center gap-2">
         <div className="wrap-check-todo">
           <CustomCheckbox checked={completed} onChange={() => onToggle(todo)} />

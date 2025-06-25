@@ -4,6 +4,10 @@
 
 .todo-item {
   margin-bottom: 4px;
+  background-color: var(--panel-inside);
+  padding: 2px 10px;
+  border-radius: var(--border-radius);
+  color: var(--text-color);
 }
 
 .todo-item .todo-actions {
