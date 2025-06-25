@@ -1,54 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getAuth,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-} from "firebase/auth";
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  serverTimestamp,
-} from "firebase/firestore";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Checkbox } from "primereact/checkbox";
 import { Button } from "primereact/button";
 import { ProgressSpinner } from "primereact/progressspinner";
-import slugify from "slugify";
-import app from "@/firebase/config";
-import db from "@/firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
-
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-
-const generateUniqueSlug = async (base) => {
-  const baseSlug = slugify(base, { lower: true, strict: true });
-  let slug = baseSlug;
-  let counter = 1;
-  const usersRef = collection(db, "users");
-  while (true) {
-    const q = query(usersRef, where("slug", "==", slug));
-    const snap = await getDocs(q);
-    if (snap.empty) break;
-    slug = `${baseSlug}-${counter++}`;
-  }
-  return slug;
-};
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { loginWithGoogle, loginWithEmail, registerWithEmail } = useAuth();
+
   const [mode, setMode] = useState("login"); // "login" | "register"
   const [form, setForm] = useState({ email: "", pass: "", name: "" });
   const [error, setError] = useState("");
@@ -57,54 +19,16 @@ export default function LoginPage() {
 
   const handleChange = (k, v) => setForm({ ...form, [k]: v });
 
-  const handleSuccess = async (fbUser, fallbackName) => {
-    const ref = doc(db, "users", fbUser.uid);
-    const snap = await getDoc(ref);
-
-    if (!snap.exists()) {
-      const display = fbUser.displayName || fallbackName || fbUser.email;
-      const slug = await generateUniqueSlug(display);
-      const meGroup = await addDoc(collection(db, "groups"), {
-        name: "Me",
-        slug,
-        createdAt: serverTimestamp(),
-        createdBy: fbUser.uid,
-        members: [fbUser.uid],
-      });
-      await setDoc(ref, {
-        uid: fbUser.uid,
-        email: fbUser.email,
-        name: display,
-        slug,
-        photoURL: fbUser.photoURL || "",
-        createdAt: serverTimestamp(),
-        groups: [{ id: meGroup.id, slug, name: "Me" }],
-      });
-    }
-    const profile = (await getDoc(ref)).data();
-    setUser({ ...fbUser, ...profile });
-    navigate(`/g/${profile.slug}`);
-  };
-
   const submit = async () => {
     setError("");
     setBusy(true);
     try {
-      if (mode === "login") {
-        const { user } = await signInWithEmailAndPassword(
-          auth,
-          form.email,
-          form.pass
-        );
-        await handleSuccess(user);
-      } else {
-        const { user } = await createUserWithEmailAndPassword(
-          auth,
-          form.email,
-          form.pass
-        );
-        await handleSuccess(user, form.name);
-      }
+      const profile =
+        mode === "login"
+          ? await loginWithEmail(form.email, form.pass)
+          : await registerWithEmail(form.email, form.pass, form.name);
+
+      navigate(`/g/${profile.slug}`);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -112,12 +36,12 @@ export default function LoginPage() {
     }
   };
 
-  const loginGoogle = async () => {
+  const loginWithGoogleClick = async () => {
     setBusy(true);
     setError("");
     try {
-      const { user } = await signInWithPopup(auth, provider);
-      await handleSuccess(user);
+      const profile = await loginWithGoogle();
+      navigate(`/g/${profile.slug}`);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -225,7 +149,7 @@ export default function LoginPage() {
             <Button
               label="Continue with Google"
               className="btn btn-outline-secondary bg-white w-100 d-flex align-items-center justify-content-center gap-2"
-              onClick={loginGoogle}
+              onClick={loginWithGoogleClick}
               icon={() => (
                 <img
                   src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s48"
