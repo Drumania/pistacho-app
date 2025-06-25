@@ -10,7 +10,7 @@ export default function HeaderDashboard({
 }) {
   return (
     <div className="header-dashboard">
-      <h4>{groupName}</h4>
+      <h3 className="fw-bold">{groupName}</h3>
       <div>
         {isAdmin && widgetInstances.length > 0 && (
           <button
