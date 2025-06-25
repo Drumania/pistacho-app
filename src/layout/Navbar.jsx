@@ -32,7 +32,7 @@ export default function Navbar() {
         to="/"
         className="navbar-brand d-flex align-items-center gap-2 wrap-logo"
       >
-        <img src="/logo.png" width="60px" height="60px" />
+        <img src="/icon-192.png" width="60px" height="60px" />
       </Link>
 
       <Groups />
