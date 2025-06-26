@@ -63,7 +63,7 @@ export default function BlockTextWidget({ groupId, widgetId }) {
   if (!user) return null;
 
   return (
-    <div className="p-3 surface-card shadow-2 border-round">
+    <div className="">
       <InputTextarea
         value={draft}
         onChange={handleChange}
