@@ -85,7 +85,10 @@ export default function BlockTextWidget({ groupId, widgetId }) {
         </div>
       )}
       {lastEditedBy && (
-        <div className="text-sm text-right text-opacity-50 mt-2">
+        <div
+          className="text-right text-opacity-50 mt-2"
+          style={{ fontSize: "11px" }}
+        >
           Last edited by <strong>{lastEditedBy}</strong>
           {lastEditedAt && (
             <>

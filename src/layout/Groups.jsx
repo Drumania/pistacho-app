@@ -51,11 +51,13 @@ export default function Groups() {
           key={g.id}
           to={`/g/${g.slug}`}
           className={({ isActive }) =>
-            `group-btn tooltip-wrapper ${isActive ? "active" : ""}`
+            `group-btn tooltip-wrapper position-relative ${
+              isActive ? "active" : ""
+            }`
           }
         >
-          <div className="tooltip">{g.name}</div>
           <img src={g.photoURL || "/group_placeholder.png"} />
+          <div className="tooltip">{g.name}</div>
         </NavLink>
       ))}
 
