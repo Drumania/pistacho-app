@@ -118,7 +118,7 @@ export default function HabitWidget({ groupId }) {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Mis hábitos diarios</h5>
         <Button
-          label="Edit habits"
+          label="+ habits"
           className="btn-transp-small"
           onClick={() => setShowDialog(true)}
         />
