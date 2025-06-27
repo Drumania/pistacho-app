@@ -313,6 +313,15 @@ body {
 .wrap-group-members {
   border-top: 1px solid var(--line-color);
 }
+
+.cs-border-top {
+  border-top: 1px solid var(--line-color);
+}
+
+.cs-border-bottom {
+  border-bottom: 1px solid var(--line-color);
+}
+
 /* TOOLTIP */
 
 .tooltip-wrapper {
@@ -629,6 +638,10 @@ body {
   background-color: var(--panel-inside);
   padding: var(--m-gap);
   border-radius: var(--border-radius);
+}
+
+.cs-list-group li:not(:last-child) {
+  border-bottom: 1px solid var(--line-color);
 }
 
 /* Estilo personalizado del modal */
