@@ -1,65 +1,65 @@
 import { useEffect, useState } from "react";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
-
-const db = getFirestore();
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { Button } from "primereact/button";
+import InviteMemberDialog from "@/pages/Dashboards/InviteMemberDialog";
+import { useAuth } from "@/firebase/AuthContext";
+import db from "@/firebase/firestore";
+import UserListMembers from "@/components/UserListMembers";
 
 export default function MembersWidget({ groupId }) {
+  const { user } = useAuth();
   const [members, setMembers] = useState([]);
   const [ownerId, setOwnerId] = useState(null);
+  const [showDialog, setShowDialog] = useState(false);
+
+  const isOwner = user?.uid === ownerId;
 
   useEffect(() => {
-    if (!groupId) return;
-
     const fetchMembers = async () => {
-      console.log("⏳ Fetching members for groupId:", groupId);
+      if (!groupId) return;
 
       const groupRef = doc(db, "groups", groupId);
       const groupSnap = await getDoc(groupRef);
-
-      if (!groupSnap.exists()) {
-        console.warn("❌ Group not found:", groupId);
-        return;
-      }
+      if (!groupSnap.exists()) return;
 
       const groupData = groupSnap.data();
-      console.log("📄 groupData:", groupData);
-
       setOwnerId(groupData.owner?.uid || null);
 
-      const members = Array.isArray(groupData.members) ? groupData.members : [];
-      console.log("👥 members array:", members);
+      const membersRef = collection(db, "groups", groupId, "members");
+      const membersSnap = await getDocs(membersRef);
 
       const fullUsers = await Promise.all(
-        members.map(async (m) => {
-          if (!m?.uid) {
-            console.error("❌ Member without valid uid:", m);
-            return null;
-          }
-
-          try {
-            const userRef = doc(db, "users", m.uid);
-            const userSnap = await getDoc(userRef);
-
-            return userSnap.exists()
-              ? { id: m.uid, role: m.role, ...userSnap.data() }
-              : null;
-          } catch (err) {
-            console.error("🔥 Error fetching user:", m.uid, err);
-            return null;
-          }
+        membersSnap.docs.map(async (mDoc) => {
+          const { uid, role } = mDoc.data();
+          const userSnap = await getDoc(doc(db, "users", uid));
+          const userData = userSnap.exists() ? userSnap.data() : {};
+          return {
+            uid,
+            role,
+            name: userData.name || userData.displayName || "Unknown",
+            photoURL: userData.photoURL || "",
+          };
         })
       );
 
-      setMembers(fullUsers.filter(Boolean));
+      setMembers(fullUsers);
     };
 
     fetchMembers();
-  }, [groupId]);
+  }, [groupId, showDialog]); // recarga al cerrar el modal
 
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Group Members</h5>
+        {isOwner && (
+          <Button
+            label="Invite"
+            icon="pi pi-user-plus"
+            className="p-button-sm"
+            onClick={() => setShowDialog(true)}
+          />
+        )}
       </div>
 
       {members.length === 0 && (
@@ -68,39 +68,16 @@ export default function MembersWidget({ groupId }) {
 
       <ul className="cs-list-group mb-3">
         {members.map((u) => (
-          <li
-            key={u.id}
-            className="d-flex align-items-center justify-content-between px-2"
-          >
-            <div className="d-flex align-items-center gap-2">
-              <div
-                className="p-avatar p-component p-avatar-image p-avatar-circle"
-                data-pc-name="avatar"
-                data-pc-section="root"
-              >
-                <img
-                  src={u.photoURL || "/avatar_placeholder.png"}
-                  alt={u.name}
-                  className="rounded-circle"
-                  width={32}
-                  height={32}
-                />
-              </div>
-              <div className="fw-semibold">{u.name}</div>
-            </div>
-            <div className="d-flex align-items-center gap-2">
-              {u.role === "admin" && (
-                <span className="badge bg-warning text-dark me-1">Admin</span>
-              )}
-              {u.id === ownerId && (
-                <span className="badge bg-info text-dark">Owner</span>
-              )}
-
-              {/* <span class="badge bg-secondary text-capitalize">admin</span> */}
-            </div>
-          </li>
+          <UserListMembers key={u.uid} user={u} ownerId={ownerId} />
         ))}
       </ul>
+
+      {/* Invite Dialog */}
+      <InviteMemberDialog
+        visible={showDialog}
+        onHide={() => setShowDialog(false)}
+        groupId={groupId}
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@ export default function HeaderDashboard({
   isAdmin,
   widgetInstances,
   handleSaveTemplate,
+  setShowInviteDialog,
   setShowEditDialog,
   editMode,
   setEditMode,
@@ -23,11 +24,19 @@ export default function HeaderDashboard({
         )}
 
         <button
+          className="btn-pistacho-outline me-2"
+          onClick={() => setShowInviteDialog(true)}
+        >
+          <i className="bi bi-person-plus" title="Invite Members" />
+        </button>
+
+        <button
           className="btn-pistacho-outline"
           onClick={() => setShowEditDialog(true)}
         >
           <i className="bi bi-gear" title="Settings Group" />
         </button>
+
         <button
           className="btn-pistacho-outline mx-2"
           onClick={() => setEditMode((prev) => !prev)}

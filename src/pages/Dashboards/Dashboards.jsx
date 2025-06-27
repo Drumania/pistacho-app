@@ -5,6 +5,8 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
 import HeaderDashboard from "./HeaderDashboard";
+
+import InviteMemberDialog from "./InviteMemberDialog";
 import EditGroupDialog from "./EditGroupDialog";
 import AddWidgetDialog from "./AddWidgetDialog";
 
@@ -32,6 +34,7 @@ export default function Dashboards() {
   const [containerWidth, setContainerWidth] = useState(1200);
   const [editMode, setEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddWidgetDialog, setShowAddWidgetDialog] = useState(false);
 
@@ -163,6 +166,7 @@ export default function Dashboards() {
             isAdmin={isAdmin}
             widgetInstances={widgetInstances}
             handleSaveTemplate={handleSaveTemplate}
+            setShowInviteDialog={setShowInviteDialog}
             setShowEditDialog={setShowEditDialog}
             editMode={editMode}
             setEditMode={setEditMode}
@@ -251,6 +255,12 @@ export default function Dashboards() {
           )}
         </>
       )}
+
+      <InviteMemberDialog
+        groupId={groupId}
+        visible={showInviteDialog}
+        onHide={() => setShowInviteDialog(false)}
+      />
 
       <EditGroupDialog
         groupId={groupId}

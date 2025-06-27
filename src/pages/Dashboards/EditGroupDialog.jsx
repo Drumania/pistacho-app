@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
-
 import { Button } from "primereact/button";
-import { Avatar } from "primereact/avatar";
-
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import {
   ref,
@@ -13,26 +10,18 @@ import {
   getStorage,
   deleteObject,
 } from "firebase/storage";
+
 import db from "@/firebase/firestore";
 import app from "@/firebase/config";
 import { useAuth } from "@/firebase/AuthContext";
 
-export default function EditGroupDialog({
-  groupId,
-  visible,
-  onHide,
-  onGroupUpdated,
-}) {
+export default function EditGroupDialog({ groupId, visible, onHide }) {
   const { user } = useAuth();
   const storage = getStorage(app);
   const [name, setName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
-  const [prevImagePath, setPrevImagePath] = useState(""); // para borrar anterior
-  const [members, setMembers] = useState([]);
-  const [ownerUid, setOwnerUid] = useState(null);
-  const [inviteEmail, setInviteEmail] = useState("");
+  const [prevImagePath, setPrevImagePath] = useState("");
   const [loading, setLoading] = useState(false);
-  const isOwner = user?.uid === ownerUid;
 
   useEffect(() => {
     const loadGroup = async () => {
@@ -43,9 +32,7 @@ export default function EditGroupDialog({
         const data = snap.data();
         setName(data.name || "");
         setPhotoURL(data.photoURL || "");
-        setPrevImagePath(data.photoPath || ""); // guardá la path
-        setMembers(data.members || []);
-        setOwnerUid(data.owner?.uid || null);
+        setPrevImagePath(data.photoPath || "");
       }
     };
     if (visible) loadGroup();
@@ -57,10 +44,9 @@ export default function EditGroupDialog({
 
     setLoading(true);
     try {
-      // Borrar imagen anterior si existe
       if (prevImagePath) {
         const oldRef = ref(storage, prevImagePath);
-        await deleteObject(oldRef).catch(() => {}); // ignorar error si no existe
+        await deleteObject(oldRef).catch(() => {});
       }
 
       const path = `groups/${groupId}/${file.name}`;
@@ -86,8 +72,6 @@ export default function EditGroupDialog({
         photoURL,
         photoPath: prevImagePath,
       });
-      window.location.reload();
-
       onHide();
     } catch (err) {
       console.error("Error updating group:", err);
@@ -96,121 +80,50 @@ export default function EditGroupDialog({
     }
   };
 
-  const handleInvite = () => {
-    if (inviteEmail.trim()) {
-      console.log("Invitar a:", inviteEmail);
-      setInviteEmail("");
-    }
-  };
-
-  const renderMemberActions = (member) => {
-    if (!isOwner || member.uid === user?.uid) return null;
-    return (
-      <div className="d-flex gap-2">
-        {member.role !== "admin" && (
-          <Button
-            icon="pi pi-star"
-            className="p-button-sm p-button-text text-warning"
-            title="Hacer admin"
-            onClick={() => console.log("Hacer admin:", member.uid)}
-          />
-        )}
-        <Button
-          icon="pi pi-times"
-          className="p-button-sm p-button-text text-danger"
-          title="Eliminar del grupo"
-          onClick={() => console.log("Eliminar:", member.uid)}
-        />
-      </div>
-    );
-  };
-
   return (
     <Dialog
       visible={visible}
       onHide={onHide}
-      header="Edit Group"
+      header="Edit Group Info"
       style={{ width: "30rem" }}
       className="edit-group-dialog"
     >
       <div className="p-fluid">
-        {/* Imagen */}
-        <div className="group-image-wrapper mb-3">
-          <input
-            type="file"
-            id="group-image-upload"
-            accept="image/*"
-            onChange={handleImageChange}
-            style={{ display: "none" }}
-          />
-
-          <label htmlFor="group-image-upload" className="group-image-label">
-            <img
-              src={photoURL || "/group_placeholder.png"}
-              alt="Group"
-              className="group-image-avatar"
+        <div className="d-flex justify-content-between align-items-center mb-3 gap-3">
+          <div className="flex-grow-1">
+            <label className="mb-2">Group Name</label>
+            <InputText
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+              className="w-100"
             />
-            <div className="group-image-overlay">
-              <i className="bi bi-pencil-fill" />
-            </div>
-          </label>
+          </div>
+          <div className="text-end">
+            <input
+              type="file"
+              id="group-image-upload"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ display: "none" }}
+            />
+            <label htmlFor="group-image-upload" className="group-image-label">
+              <img
+                src={photoURL || "/group_placeholder.png"}
+                alt="Group"
+                className="group-image-avatar"
+              />
+              <div className="group-image-overlay">
+                <i className="bi bi-pencil-fill" />
+              </div>
+            </label>
+          </div>
         </div>
 
-        {/* Nombre */}
-        <label className="mb-2">Group Name</label>
-        <InputText
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          autoFocus
-        />
-
-        {/* Miembros */}
-        <label className="mb-2 mt-4">Members</label>
-        <ul className="cs-list-group mb-3">
-          {members.map((m) => (
-            <li
-              key={m.uid}
-              className="d-flex align-items-center justify-content-between px-2"
-            >
-              <div className="d-flex align-items-center gap-2">
-                <Avatar
-                  image={m.photoURL}
-                  label={m.name?.[0]}
-                  size="small"
-                  shape="circle"
-                />
-                <div className="fw-semibold">{m.name}</div>
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <span className="badge bg-secondary text-capitalize">
-                  {m.role}
-                </span>
-                {renderMemberActions(m)}
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        {/* Invitación */}
-        <label className="mb-2">Invite user (email)</label>
-        <div className="d-flex gap-2">
-          <InputText
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-            placeholder="user@email.com"
-          />
-          <Button
-            label="Invite"
-            onClick={handleInvite}
-            disabled={!inviteEmail.trim()}
-          />
-        </div>
-
-        {/* Guardar */}
         <Button
           label="Save Changes"
           onClick={handleSave}
-          className="mt-4 btn-pistacho"
+          className="mt-3 btn-pistacho"
           disabled={!name}
           loading={loading}
         />

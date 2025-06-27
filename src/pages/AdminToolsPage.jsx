@@ -8,11 +8,14 @@ import {
   collection,
   updateDoc,
   deleteDoc,
+  addDoc,
+  setDoc,
   doc,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import WidgetManager from "@/components/admin/WidgetManager";
 import GlobalHabitsAdmin from "@/components/admin/GlobalHabitsAdmin";
+import { getAuth } from "firebase/auth";
 
 export default function AdminTools() {
   const [users, setUsers] = useState([]);
@@ -81,10 +84,49 @@ export default function AdminTools() {
     />
   );
 
+  const handleMigrateMembers = async () => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser || currentUser.email !== "martinbrumana@gmail.com") {
+      alert("Acceso denegado.");
+      return;
+    }
+
+    console.log("🚀 Iniciando migración de members...");
+
+    for (const group of groups) {
+      if (!group.members || !Array.isArray(group.members)) continue;
+
+      const groupRef = doc(db, "groups", group.id);
+
+      for (const member of group.members) {
+        if (!member.uid) continue;
+
+        const memberRef = doc(groupRef, "members", member.uid);
+        await setDoc(memberRef, member, { merge: true });
+      }
+    }
+
+    alert("✅ Migración completada.");
+  };
+
   return (
     <div className="admin-panel container-fluid">
       <h4 className="mb-4 ps-2 pt-3">Admin Panel</h4>
       <TabView>
+        {/* <TabPanel header="Groups" className="m-3">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h6 className="m-0">Migrar List</h6>
+            <Button
+              label="Migrar Members"
+              icon="pi pi-refresh"
+              className="btn-pistacho"
+              onClick={handleMigrateMembers}
+            />
+          </div>
+        </TabPanel> */}
+
         <TabPanel header="Users" className="m-3">
           <DataTable value={users} paginator rows={10} className="mt-3">
             <Column field="id" header="ID" />

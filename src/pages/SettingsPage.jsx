@@ -62,7 +62,7 @@ export default function SettingsPage() {
         photoURL,
       };
 
-      await setDoc(doc(db, "users", user.uid), updatedData);
+      await setDoc(doc(db, "users", user.uid), updatedData, { merge: true });
 
       // Actualizar también Auth
       await updateUserProfile({

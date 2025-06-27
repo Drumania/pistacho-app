@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import {
+  collectionGroup,
+  getDocs,
+  getDoc,
+  doc,
+  getFirestore,
+} from "firebase/firestore";
 
 import NewGroupDialog from "@/components/NewGroupDialog";
 import { useAuth } from "@/firebase/AuthContext";
@@ -12,28 +18,31 @@ export default function Groups() {
   const navigate = useNavigate();
   const [showDialog, setShowDialog] = useState(false);
   const [groups, setGroups] = useState([]);
-  const [groupData, setGroupData] = useState({ name: "", photoURL: "" });
 
   const loadGroups = async () => {
     if (!user?.uid) return setGroups([]);
 
     try {
-      const userDocRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userDocRef);
-      if (!userSnap.exists()) return setGroups([]);
+      const memberSnap = await getDocs(collectionGroup(db, "members"));
 
-      const userGroups = userSnap.data().groups || [];
+      const userMemberships = memberSnap.docs.filter(
+        (doc) => doc.id === user.uid
+      );
+
       const groupDocs = await Promise.all(
-        userGroups.map(async (g) => {
-          const groupRef = doc(db, "groups", g.id);
+        userMemberships.map(async (memberDoc) => {
+          const groupId = memberDoc.ref.parent.parent.id;
+          const groupRef = doc(db, "groups", groupId);
           const groupSnap = await getDoc(groupRef);
-          return groupSnap.exists() ? { id: g.id, ...groupSnap.data() } : null;
+          return groupSnap.exists()
+            ? { id: groupId, ...groupSnap.data() }
+            : null;
         })
       );
 
       setGroups(groupDocs.filter(Boolean));
     } catch (err) {
-      console.error("Error al cargar grupos:", err);
+      console.error("Error al cargar grupos desde members:", err);
       setGroups([]);
     }
   };
