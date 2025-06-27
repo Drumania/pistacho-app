@@ -54,9 +54,8 @@ export default function MembersWidget({ groupId }) {
         <h5 className="mb-0">Group Members</h5>
         {isOwner && (
           <Button
-            label="Invite"
-            icon="pi pi-user-plus"
-            className="p-button-sm"
+            label="+ Members"
+            className="btn-transp-small"
             onClick={() => setShowDialog(true)}
           />
         )}
