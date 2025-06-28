@@ -1,13 +1,15 @@
+// PaymentHistoryWidget.jsx completo con edición de amount y toggle de pago
 import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import { Button } from "primereact/button";
+import { InputNumber } from "primereact/inputnumber";
 import PaymentHistoryModal from "./PaymentHistoryModal";
 
 export default function PaymentHistoryWidget({ groupId, widgetId }) {
   const [data, setData] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  console.log("clg: ", groupId);
+
   useEffect(() => {
     if (!groupId) return;
 
@@ -15,7 +17,9 @@ export default function PaymentHistoryWidget({ groupId, widgetId }) {
       const ref = doc(db, "payment_history", groupId);
       const snap = await getDoc(ref);
       if (!snap.exists()) {
-        setData(null); // aseguramos que siga siendo null
+        setData(null);
+      } else {
+        setData(snap.data()); // FALTABA ESTO
       }
     };
 
@@ -25,17 +29,27 @@ export default function PaymentHistoryWidget({ groupId, widgetId }) {
   const togglePaid = async (index) => {
     const updated = [...data.months];
     updated[index].paid = !updated[index].paid;
+    await saveChanges(updated);
+  };
 
+  const updateAmount = async (index, value) => {
+    const updated = [...data.months];
+    updated[index].amount = value;
+    await saveChanges(updated);
+  };
+
+  const saveChanges = async (updatedMonths) => {
     const ref = doc(db, "payment_history", groupId);
-    await setDoc(ref, { ...data, months: updated }, { merge: true });
-    setData((prev) => ({ ...prev, months: updated }));
+    const payload = { ...data, months: updatedMonths };
+    await setDoc(ref, payload, { merge: true });
+    setData(payload);
   };
 
   if (!groupId) return null;
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-2">
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="m-0">Payment History</h5>
         {data && (
           <Button
@@ -51,20 +65,31 @@ export default function PaymentHistoryWidget({ groupId, widgetId }) {
           {data.months.map((m, i) => (
             <li
               key={m.month}
-              className="d-flex justify-content-between align-items-center"
+              className="d-flex justify-content-between align-items-center gap-3"
             >
-              <div>
+              <div className="flex-grow-1">
                 <strong>{formatMonth(m.month)}</strong>
-                <div className="text-muted">💲 {m.amount || 0}</div>
               </div>
+              <div className="d-flex align-items-center gap-2">
+                <InputNumber
+                  value={m.amount}
+                  onValueChange={(e) => updateAmount(i, e.value)}
+                  min={0}
+                  mode="currency"
+                  currency="USD"
+                  locale="de-DE" // ← esto pone punto como separador de miles
+                  maxFractionDigits={0}
+                  className="custom-width-input"
+                />
 
-              <Button
-                icon={m.paid ? "pi pi-check-circle" : "pi pi-circle"}
-                className={`p-button-sm p-button-text ${
-                  m.paid ? "text-success" : "text-muted"
-                }`}
-                onClick={() => togglePaid(i)}
-              />
+                <Button
+                  icon={m.paid ? "pi pi-check-circle" : "pi pi-circle"}
+                  className={`p-button-sm p-button-text ${
+                    m.paid ? "text-success" : "text-muted"
+                  }`}
+                  onClick={() => togglePaid(i)}
+                />
+              </div>
             </li>
           ))}
         </ul>
@@ -91,6 +116,6 @@ export default function PaymentHistoryWidget({ groupId, widgetId }) {
 
 const formatMonth = (str) => {
   const [y, m] = str.split("-");
-  const date = new Date(`${y}-${m}-01`);
+  const date = new Date(parseInt(y), parseInt(m) - 1, 1); // ← este -1 es clave
   return date.toLocaleString("default", { month: "long", year: "numeric" });
 };

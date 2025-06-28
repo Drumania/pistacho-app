@@ -644,6 +644,22 @@ body {
   border-bottom: 1px solid var(--line-color);
 }
 
+.custom-width-input {
+  width: 120px !important; /* fuerza el contenedor */
+}
+
+.custom-width-input input {
+  width: 100% !important; /* fuerza el input real */
+  border: none; /* opcional si no querés borde */
+  background-color: transparent;
+  padding: 0.25rem 0.5rem;
+}
+
+.custom-width-input input:focus {
+  outline: none;
+  box-shadow: none;
+  background-color: rgba(255, 255, 255, 0.07); /* más clarito al focus */
+}
 /* Estilo personalizado del modal */
 .new-group-dialog {
   background-color: var(--panel);
