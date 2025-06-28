@@ -1,7 +1,12 @@
-export default function CustomCheckbox({ checked, onChange }) {
+export default function CustomCheckbox({ checked, onChange, customId }) {
   return (
     <label className="custom-checkbox">
-      <input type="checkbox" checked={checked} onChange={onChange} />
+      <input
+        type="checkbox"
+        id={customId}
+        checked={checked}
+        onChange={onChange}
+      />
       <span className="checkmark" />
     </label>
   );

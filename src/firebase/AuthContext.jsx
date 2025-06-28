@@ -8,6 +8,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  sendPasswordResetEmail, // ✅ agregado
 } from "firebase/auth";
 import {
   doc,
@@ -49,7 +50,6 @@ async function ensureUserData(fbUser, fallbackName = "") {
     const display = fbUser.displayName || fallbackName || fbUser.email;
     const slug = await generateUniqueSlug(display);
 
-    // Crear grupo personal "Me"
     const meGroup = await addDoc(collection(db, "groups"), {
       name: "Me",
       slug,
@@ -121,6 +121,10 @@ export function AuthProvider({ children }) {
     return enriched;
   };
 
+  const resetPassword = async (email) => {
+    await sendPasswordResetEmail(auth, email);
+  };
+
   const logout = () => signOut(auth);
 
   const updateUserProfile = (data) =>
@@ -136,6 +140,7 @@ export function AuthProvider({ children }) {
         loginWithGoogle,
         loginWithEmail,
         registerWithEmail,
+        resetPassword, // ✅ agregado al contexto
         logout,
         updateUserProfile,
         setUser,
