@@ -10,7 +10,7 @@
   --white-color: #f5f5f5;
   --text-color: #d4d4d4;
   --black-color: #0b0c0e;
-  --bg-color: #000;
+  --bg-color: #25303d;
   --line-color: #394b5e;
   --panel: #212529;
   --panel-inside: #1c1d1e;
@@ -105,6 +105,7 @@ body {
 .wrap-main {
   width: clac(100vw - 80px);
   margin-left: 80px;
+  background-color: var(--bg-color);
 }
 
 /* nav groups */
@@ -740,6 +741,8 @@ body {
   border-radius: 8px;
   padding: 0.75rem 1rem;
   width: 100%;
+  height: 48px;
+  line-height: 48px;
   font-size: 1rem;
   box-sizing: border-box;
 }
@@ -757,11 +760,14 @@ body {
 .p-icon-field,
 .p-password {
   width: 100% !important;
-  background-color: var(--black-color);
 }
 
 .p-input-icon {
   margin-top: -7px;
+}
+
+.login-card .bg-white:hover {
+  opacity: 0.9;
 }
 
 /* admin-panel */

@@ -109,7 +109,7 @@ export default function LoginPage() {
             <div className="py-3">
               <Button
                 label="Continue with Google"
-                className="btn btn-outline-secondary bg-white w-100 py-3 d-flex align-items-center justify-content-center gap-2"
+                className="btn bg-white text-dark w-100 py-3 d-flex align-items-center justify-content-center gap-2"
                 onClick={loginWithGoogleClick}
                 icon={() => (
                   <img
