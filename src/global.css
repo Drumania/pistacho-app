@@ -844,6 +844,44 @@ body {
 /* MOBILE  */
 
 @media (max-width: 600px) {
+  /* layout */
+  .wrap-navbar {
+    position: fixed;
+    width: 80px;
+    left: -120px;
+    top: 0;
+    height: 100dvh;
+    z-index: 5000;
+    transition: all 0.2s ease;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+    background-color: var(--panel, #1c1d1e);
+  }
+
+  .wrap-navbar-open {
+    left: 0;
+  }
+
+  .overlay-navbar {
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 4000;
+  }
+
+  .header-dashboard div {
+    display: flex;
+
+    & #save-as-template,
+    & #invite-members,
+    & #add-widget {
+      display: none;
+    }
+  }
+
+  .wrap-main {
+    margin-left: 0px;
+  }
+
+  /* end layout */
+
   .login-card {
     padding: 2rem 1.5rem !important;
     border-radius: 1rem !important;

@@ -17,6 +17,7 @@ export default function HeaderDashboard({
           <button
             className="btn-pistacho-outline me-2"
             onClick={handleSaveTemplate}
+            id="save-as-template"
           >
             <i className="bi bi-save me-1" />
             Save as Template
@@ -26,6 +27,7 @@ export default function HeaderDashboard({
         <button
           className="btn-pistacho-outline me-2"
           onClick={() => setShowInviteDialog(true)}
+          id="invite-members"
         >
           <i className="bi bi-person-plus" title="Invite Members" />
         </button>
@@ -33,6 +35,7 @@ export default function HeaderDashboard({
         <button
           className="btn-pistacho-outline"
           onClick={() => setShowEditDialog(true)}
+          id="setting-group"
         >
           <i className="bi bi-gear" title="Settings Group" />
         </button>
@@ -40,6 +43,7 @@ export default function HeaderDashboard({
         <button
           className="btn-pistacho-outline mx-2"
           onClick={() => setEditMode((prev) => !prev)}
+          id="edit-dashboard"
         >
           {editMode ? (
             <i className="bi bi-check-lg" title="Done" />
@@ -50,6 +54,7 @@ export default function HeaderDashboard({
         <button
           className="btn-pistacho position-relative btn-start-here"
           onClick={() => setShowAddWidgetDialog(true)}
+          id="add-widget"
         >
           Add Widget
           {widgetInstances.length === 0 && (

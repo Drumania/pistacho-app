@@ -1,12 +1,68 @@
+import { useState, useEffect, useRef } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 
 export default function Layout() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const navbarRef = useRef();
+
+  // Detectar si es mobile
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 600);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Cerrar al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        mobileMenuOpen &&
+        navbarRef.current &&
+        !navbarRef.current.contains(e.target)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileMenuOpen]);
+
+  // Bloquear scroll del body
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [mobileMenuOpen]);
+
   return (
-    <div className="app-wrapper">
-      <div className="wrap-navbar">
+    <div className="app-wrapper position-relative">
+      {isMobile && (
+        <button
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
+          className="position-absolute top-0 start-0 m-2 z-3 text-white"
+        >
+          {mobileMenuOpen ? "X" : "☰"}
+        </button>
+      )}
+
+      {isMobile && mobileMenuOpen && (
+        <div className="overlay-navbar position-fixed top-0 start-0 w-100 h-100"></div>
+      )}
+
+      <div
+        ref={navbarRef}
+        className={`wrap-navbar ${mobileMenuOpen ? "wrap-navbar-open" : ""}`}
+      >
         <Navbar />
       </div>
+
       <main className="wrap-main">
         <Outlet />
       </main>
