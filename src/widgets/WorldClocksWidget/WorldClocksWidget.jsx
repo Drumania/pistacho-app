@@ -13,11 +13,12 @@ export default function WorldClocksWidget({ groupId }) {
   const [showDialog, setShowDialog] = useState(false);
   const [times, setTimes] = useState({});
 
+  const docRef = doc(db, "widget_data", "world_clocks", groupId, "main");
+
   useEffect(() => {
     const loadConfig = async () => {
       if (!groupId) return;
-      const ref = doc(db, "world_clocks", groupId);
-      const snap = await getDoc(ref);
+      const snap = await getDoc(docRef);
       if (snap.exists()) {
         const data = snap.data();
         setClocks(data.clocks || []);
@@ -50,11 +51,10 @@ export default function WorldClocksWidget({ groupId }) {
 
   const handleSave = async (selected) => {
     setClocks(selected);
-    const ref = doc(db, "world_clocks", groupId);
     try {
-      await updateDoc(ref, { clocks: selected });
+      await updateDoc(docRef, { clocks: selected });
     } catch {
-      await setDoc(ref, { clocks: selected });
+      await setDoc(docRef, { clocks: selected });
     }
   };
 

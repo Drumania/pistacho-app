@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
+  collection,
+} from "firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
 import db from "@/firebase/firestore";
 import { InputTextarea } from "primereact/inputtextarea";
@@ -17,17 +23,14 @@ export default function BlockTextWidget({ groupId, widgetId }) {
   useEffect(() => {
     const loadText = async () => {
       if (!groupId || !widgetId) return;
-      const ref = doc(db, "block_text", groupId);
+      const ref = doc(db, "widget_data", "block_text", groupId, widgetId);
       const snap = await getDoc(ref);
       if (snap.exists()) {
         const data = snap.data();
-        const entry = data?.[widgetId];
-        if (entry) {
-          setText(entry.text || "");
-          setDraft(entry.text || "");
-          setLastEditedBy(entry.user_display_name || "");
-          setLastEditedAt(entry.updated_at?.toDate() || null);
-        }
+        setText(data.text || "");
+        setDraft(data.text || "");
+        setLastEditedBy(data.user_display_name || "");
+        setLastEditedAt(data.updated_at?.toDate() || null);
       }
     };
     loadText();
@@ -42,7 +45,7 @@ export default function BlockTextWidget({ groupId, widgetId }) {
     if (!groupId || !widgetId || !user) return;
     setLoading(true);
 
-    const ref = doc(db, "block_text", groupId);
+    const ref = doc(db, "widget_data", "block_text", groupId, widgetId);
     const payload = {
       text: draft,
       user_id: user.uid,
@@ -51,7 +54,7 @@ export default function BlockTextWidget({ groupId, widgetId }) {
       updated_at: serverTimestamp(),
     };
 
-    await setDoc(ref, { [widgetId]: payload }, { merge: true });
+    await setDoc(ref, payload, { merge: true });
 
     setText(draft);
     setEdited(false);

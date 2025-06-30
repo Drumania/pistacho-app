@@ -67,7 +67,7 @@ export default function TodoForm({
     if (!groupId) return;
     const fetchLabels = async () => {
       const snapshot = await getDocs(
-        collection(db, `groups/${groupId}/labels`)
+        collection(db, `widget_data_todos/${groupId}/labels`)
       );
       const labels = snapshot.docs.map((doc) => doc.data());
       setLabelList(labels);
@@ -79,7 +79,10 @@ export default function TodoForm({
     if (!name || !groupId) return;
     const exists = labelList.some((l) => l.name === name);
     if (!exists) {
-      await addDoc(collection(db, `groups/${groupId}/labels`), { name, color });
+      await addDoc(collection(db, `widget_data_todos/${groupId}/labels`), {
+        name,
+        color,
+      });
       setLabelList([...labelList, { name, color }]);
     }
   };

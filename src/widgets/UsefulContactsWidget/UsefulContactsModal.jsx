@@ -30,7 +30,7 @@ export default function UsefulContactsModal({
   };
 
   const handleSave = async () => {
-    const ref = doc(db, "useful_contacts", groupId);
+    const ref = doc(db, "widget_data", "useful_contacts", groupId, "main");
     await setDoc(ref, { contacts }, { merge: true });
     onSave(contacts);
     onHide();

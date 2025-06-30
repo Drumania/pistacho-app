@@ -8,7 +8,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
-  sendPasswordResetEmail, // ✅ agregado
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import {
   doc,
@@ -18,7 +18,6 @@ import {
   query,
   where,
   getDocs,
-  addDoc,
   serverTimestamp,
 } from "firebase/firestore";
 import slugify from "slugify";
@@ -42,6 +41,27 @@ async function generateUniqueSlug(base) {
   return slug;
 }
 
+// ✅ grupo personal con order 0
+async function createPersonalGroup(slug, user) {
+  const groupRef = doc(db, "groups", slug);
+  const memberRef = doc(db, "groups", slug, "members", user.uid);
+
+  await setDoc(groupRef, {
+    name: "Me",
+    slug,
+    status: "active",
+    photoURL: "/group_placeholder.png",
+    order: 0,
+    created_at: serverTimestamp(),
+  });
+
+  await setDoc(memberRef, {
+    uid: user.uid,
+    owner: true,
+    admin: true,
+  });
+}
+
 async function ensureUserData(fbUser, fallbackName = "") {
   const ref = doc(db, "users", fbUser.uid);
   const snap = await getDoc(ref);
@@ -50,13 +70,7 @@ async function ensureUserData(fbUser, fallbackName = "") {
     const display = fbUser.displayName || fallbackName || fbUser.email;
     const slug = await generateUniqueSlug(display);
 
-    const meGroup = await addDoc(collection(db, "groups"), {
-      name: "Me",
-      slug,
-      createdAt: serverTimestamp(),
-      createdBy: fbUser.uid,
-      members: [fbUser.uid],
-    });
+    await createPersonalGroup(slug, fbUser);
 
     await setDoc(ref, {
       uid: fbUser.uid,
@@ -65,7 +79,6 @@ async function ensureUserData(fbUser, fallbackName = "") {
       slug,
       photoURL: fbUser.photoURL || "",
       createdAt: serverTimestamp(),
-      groups: [{ id: meGroup.id, slug, name: "Me" }],
     });
   }
 
@@ -140,7 +153,7 @@ export function AuthProvider({ children }) {
         loginWithGoogle,
         loginWithEmail,
         registerWithEmail,
-        resetPassword, // ✅ agregado al contexto
+        resetPassword,
         logout,
         updateUserProfile,
         setUser,

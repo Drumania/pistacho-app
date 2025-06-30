@@ -114,7 +114,7 @@ export default function WidgetManager() {
         />
       </div>
 
-      <DataTable value={widgets} paginator rows={10} className="mt-3">
+      <DataTable value={widgets} paginator rows={20} className="mt-3">
         <Column field="id" header="Key" />
         <Column field="label" header="Label" />
         <Column field="defaultLayout.w" header="W" />

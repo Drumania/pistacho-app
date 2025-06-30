@@ -1,3 +1,4 @@
+// ✅ TodoWidget.jsx actualizado
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -29,15 +30,13 @@ export default function TodoWidget({ groupId }) {
 
   if (!user || !user.uid || !groupId) return null;
 
-  // 🔄 Leer tareas del usuario en el grupo actual
+  // ✅ Leer desde widget_data_todos/{groupId}
   useEffect(() => {
     const q = query(
-      collection(db, "todos"),
+      collection(db, `widget_data_todos/${groupId}/items`),
       where("user_id", "==", user.uid),
-      where("group_id", "==", groupId),
       orderBy("created_at", "desc")
     );
-
     const unsub = onSnapshot(q, (snapshot) => {
       const now = new Date();
       const data = snapshot.docs
@@ -67,17 +66,17 @@ export default function TodoWidget({ groupId }) {
     return () => unsub();
   }, [user.uid, groupId]);
 
-  // ➕ Crear o actualizar
+  const colRef = collection(db, `widget_data_todos/${groupId}/items`);
+
   const handleAddOrUpdate = async (data) => {
     if (editingTodo) {
-      await updateDoc(doc(db, "todos", editingTodo.id), data);
+      await updateDoc(doc(colRef, editingTodo.id), data);
       setEditingTodo(null);
     } else {
-      await addDoc(collection(db, "todos"), {
+      await addDoc(colRef, {
         ...data,
         completed: false,
         user_id: user.uid,
-        group_id: groupId,
         created_at: serverTimestamp(),
       });
     }
@@ -85,14 +84,14 @@ export default function TodoWidget({ groupId }) {
   };
 
   const handleToggle = async (todo) => {
-    await updateDoc(doc(db, "todos", todo.id), {
+    await updateDoc(doc(colRef, todo.id), {
       completed: !todo.completed,
       completed_at: !todo.completed ? new Date().toISOString() : null,
     });
   };
 
   const handleDelete = async (todo) => {
-    await deleteDoc(doc(db, "todos", todo.id));
+    await deleteDoc(doc(colRef, todo.id));
   };
 
   return (
@@ -135,6 +134,7 @@ export default function TodoWidget({ groupId }) {
         modal
       >
         <TodoForm
+          groupId={groupId}
           onSubmit={handleAddOrUpdate}
           editingTodo={editingTodo}
           onCancelEdit={() => {

@@ -1,4 +1,3 @@
-// HabitWidget.jsx
 import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc, getDocs, collection } from "firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
@@ -11,7 +10,7 @@ import { Button } from "primereact/button";
 
 import "./HabitWidget.css";
 
-export default function HabitWidget({ groupId }) {
+export default function HabitWidget({ groupId, widgetId }) {
   const { user } = useAuth();
   const [habits, setHabits] = useState([]);
   const [checked, setChecked] = useState([]);
@@ -23,55 +22,66 @@ export default function HabitWidget({ groupId }) {
   const today = format(new Date(), "yyyy-MM-dd");
 
   useEffect(() => {
-    if (!user || !groupId) return;
+    if (!user || !groupId || !widgetId) return;
     loadHabits();
-  }, [user, groupId]);
+  }, [user, groupId, widgetId]);
 
   const loadHabits = async () => {
     setLoading(true);
-    const ref = doc(db, "groups", groupId, "habits", user.uid);
-    const snap = await getDoc(ref);
+    const userRef = doc(db, "widget_data", "habits", groupId, widgetId);
+    const snap = await getDoc(userRef);
 
     let data;
 
-    // Si no tiene hábitos configurados, usar los 3 primeros globales
     if (!snap.exists()) {
       const globalSnap = await getDocs(collection(db, "global_habits"));
       const global = globalSnap.docs.map((d) => d.data()).slice(0, 3);
       data = {
-        selected: global,
-        streak: 0,
-        lastCheckedDate: today,
+        users: {
+          [user.uid]: {
+            selected: global,
+            streak: 0,
+            lastCheckedDate: today,
+          },
+        },
       };
-      await setDoc(ref, data);
+      await setDoc(userRef, data);
     } else {
       data = snap.data();
-      // si le falta lastCheckedDate lo setea
-      if (!data.lastCheckedDate) {
-        data.lastCheckedDate = today;
-        await setDoc(ref, data, { merge: true });
+      if (!data.users?.[user.uid]?.lastCheckedDate) {
+        data.users[user.uid].lastCheckedDate = today;
+        await setDoc(userRef, data, { merge: true });
       }
     }
 
-    setHabits(data.selected || []);
-    setStreak(data.streak || 0);
+    const userData = data.users[user.uid];
+    setHabits(userData.selected || []);
+    setStreak(userData.streak || 0);
 
-    // progreso del día
-    const progressRef = doc(db, "habits_progress", groupId, user.uid, today);
+    const progressRef = doc(
+      db,
+      "widget_data",
+      "habits_progress",
+      groupId,
+      widgetId,
+      user.uid,
+      today
+    );
     const progressSnap = await getDoc(progressRef);
     if (progressSnap.exists()) {
       const progressData = progressSnap.data();
       setChecked(progressData.completedHabits);
       setCompletedAllToday(progressData.completedAll);
     } else {
-      // si es nuevo día
-      if (data.lastCheckedDate !== today) {
+      if (userData.lastCheckedDate !== today) {
         const yProgressRef = doc(
           db,
+          "widget_data",
           "habits_progress",
           groupId,
+          widgetId,
           user.uid,
-          data.lastCheckedDate
+          userData.lastCheckedDate
         );
         await setDoc(yProgressRef, {
           completedHabits: checked,
@@ -79,12 +89,20 @@ export default function HabitWidget({ groupId }) {
           timestamp: new Date(),
         });
 
-        const newStreak = checked.length === 3 ? data.streak + 1 : 0;
-        await setDoc(ref, {
-          ...data,
-          streak: newStreak,
-          lastCheckedDate: today,
-        });
+        const newStreak = checked.length === 3 ? userData.streak + 1 : 0;
+        await setDoc(
+          userRef,
+          {
+            users: {
+              [user.uid]: {
+                ...userData,
+                streak: newStreak,
+                lastCheckedDate: today,
+              },
+            },
+          },
+          { merge: true }
+        );
 
         setStreak(newStreak);
         setChecked([]);
@@ -101,9 +119,17 @@ export default function HabitWidget({ groupId }) {
       : [...checked, name];
 
     setChecked(newChecked);
-    setCompletedAllToday(newChecked.length === 3); // 🔄 en vivo
+    setCompletedAllToday(newChecked.length === 3);
 
-    const progressRef = doc(db, "habits_progress", groupId, user.uid, today);
+    const progressRef = doc(
+      db,
+      "widget_data",
+      "habits_progress",
+      groupId,
+      widgetId,
+      user.uid,
+      today
+    );
     await setDoc(progressRef, {
       completedHabits: newChecked,
       completedAll: newChecked.length === 3,
@@ -141,10 +167,11 @@ export default function HabitWidget({ groupId }) {
 
       <HabitSettingsDialog
         groupId={groupId}
+        widgetId={widgetId}
         visible={showDialog}
         onHide={() => {
           setShowDialog(false);
-          loadHabits(); // 🔄 recarga hábitos después de editar
+          loadHabits();
         }}
       />
     </div>

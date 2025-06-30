@@ -1,38 +1,36 @@
-// HabitSettingsDialog.jsx
 import { useEffect, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { useAuth } from "@/firebase/AuthContext";
 import db from "@/firebase/firestore";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  addDoc,
-} from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 
-export default function HabitSettingsDialog({ groupId, visible, onHide }) {
+export default function HabitSettingsDialog({
+  groupId,
+  widgetId,
+  visible,
+  onHide,
+}) {
   const { user } = useAuth();
   const [globalHabits, setGlobalHabits] = useState([]);
   const [customHabit, setCustomHabit] = useState("");
   const [selected, setSelected] = useState([]);
 
   useEffect(() => {
-    if (visible && user && groupId) loadData();
-  }, [visible, user, groupId]);
+    if (visible && user && groupId && widgetId) loadData();
+  }, [visible, user, groupId, widgetId]);
 
   const loadData = async () => {
     const habitsSnap = await getDocs(collection(db, "global_habits"));
     const habits = habitsSnap.docs.map((doc) => doc.data());
     setGlobalHabits(habits);
 
-    const userRef = doc(db, "groups", groupId, "habits", user.uid);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists()) {
-      setSelected(userSnap.data().selected || []);
+    const ref = doc(db, "widget_data", "habits", groupId, widgetId);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const data = snap.data();
+      setSelected(data.users?.[user.uid]?.selected || []);
     }
   };
 
@@ -53,12 +51,20 @@ export default function HabitSettingsDialog({ groupId, visible, onHide }) {
   };
 
   const handleSave = async () => {
-    const ref = doc(db, "groups", groupId, "habits", user.uid);
-    await setDoc(ref, {
-      selected,
-      streak: 0,
-      lastCheckedDate: "",
-    });
+    const ref = doc(db, "widget_data", "habits", groupId, widgetId);
+    await setDoc(
+      ref,
+      {
+        users: {
+          [user.uid]: {
+            selected,
+            streak: 0,
+            lastCheckedDate: "",
+          },
+        },
+      },
+      { merge: true }
+    );
     onHide();
   };
 

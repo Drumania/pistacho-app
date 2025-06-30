@@ -7,12 +7,18 @@ export default function UserListMembers({
   return (
     <li className="d-flex align-items-center justify-content-between p-2">
       <div className="d-flex align-items-center gap-2">
-        <img
-          src={user.photoURL || "/avatar_placeholder.png"}
-          alt={user.name}
-          className="rounded-circle"
-          width={32}
-          height={32}
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            backgroundImage: `url(${
+              user.photoURL || "/avatar_placeholder.png"
+            })`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
         />
         <div className="fw-semibold">{user.name}</div>
       </div>

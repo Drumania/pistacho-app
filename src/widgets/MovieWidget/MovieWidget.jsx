@@ -1,21 +1,20 @@
-// MovieWidget.jsx
 import { useEffect, useState } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import { Button } from "primereact/button";
 import MovieWidgetModal from "./MovieWidgetModal";
 
 import "./MovieWidget.css";
 
-export default function MovieWidget({ groupId }) {
+export default function MovieWidget({ groupId, widgetId }) {
   const [movies, setMovies] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    if (!groupId) return;
+    if (!groupId || !widgetId) return;
 
     const fetch = async () => {
-      const ref = doc(db, "movies", groupId);
+      const ref = doc(db, "widget_data", "movies", groupId, widgetId);
       const snap = await getDoc(ref);
       if (snap.exists()) {
         setMovies(snap.data().movies || []);
@@ -23,9 +22,9 @@ export default function MovieWidget({ groupId }) {
     };
 
     fetch();
-  }, [groupId]);
+  }, [groupId, widgetId]);
 
-  if (!groupId) return null;
+  if (!groupId || !widgetId) return null;
 
   return (
     <div>
@@ -61,6 +60,7 @@ export default function MovieWidget({ groupId }) {
         visible={showModal}
         onHide={() => setShowModal(false)}
         groupId={groupId}
+        widgetId={widgetId}
         initialMovies={movies}
         onSave={setMovies}
       />

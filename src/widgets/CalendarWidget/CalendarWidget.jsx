@@ -8,22 +8,20 @@ import CalendarForm from "./CalendarForm";
 
 import db from "@/firebase/firestore";
 import {
-  collection,
-  addDoc,
+  doc,
+  setDoc,
+  getDoc,
   updateDoc,
   deleteDoc,
-  doc,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
+  collection,
+  getDocs,
   serverTimestamp,
 } from "firebase/firestore";
 
 import { useAuth } from "@/firebase/AuthContext";
 import "./CalendarWidget.css";
 
-export default function CalendarWidget({ groupId }) {
+export default function CalendarWidget({ groupId, widgetId }) {
   const { user } = useAuth();
   const toast = useRef();
   const [events, setEvents] = useState([]);
@@ -31,25 +29,20 @@ export default function CalendarWidget({ groupId }) {
   const [form, setForm] = useState({ title: "", date: null, id: null });
   const [selectedDate, setSelectedDate] = useState(null);
 
-  if (!user || !groupId) return null;
-
   useEffect(() => {
-    const q = query(
-      collection(db, "events"),
-      where("group_id", "==", groupId),
-      orderBy("date", "asc")
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setEvents(data);
-    });
-    return () => unsub();
-  }, [groupId]);
-
-  useEffect(() => {
-    // Setea el día actual como fecha seleccionada al montar
     setSelectedDate(new Date());
-  }, []);
+    loadEvents();
+  }, [groupId, widgetId]);
+
+  const loadEvents = async () => {
+    if (!groupId || !widgetId) return;
+    const eventsCol = collection(db, "widget_data", "events", groupId);
+    const snap = await getDocs(eventsCol);
+    const data = snap.docs
+      .filter((d) => d.data().widget_id === widgetId)
+      .map((d) => ({ id: d.id, ...d.data() }));
+    setEvents(data);
+  };
 
   const handleAdd = async () => {
     if (!form.title || !form.date) {
@@ -61,23 +54,31 @@ export default function CalendarWidget({ groupId }) {
       return;
     }
 
+    const payload = {
+      title: form.title,
+      date: form.date.toISOString(),
+      user_id: user.uid,
+      group_id: groupId,
+      widget_id: widgetId,
+      updated_at: serverTimestamp(),
+    };
+
     if (form.id) {
-      await updateDoc(doc(db, "events", form.id), {
-        title: form.title,
-        date: form.date.toISOString(),
-      });
+      await updateDoc(
+        doc(db, "widget_data", "events", groupId, form.id),
+        payload
+      );
     } else {
-      await addDoc(collection(db, "events"), {
-        title: form.title,
-        date: form.date.toISOString(),
-        user_id: user.uid,
-        group_id: groupId,
+      const newRef = doc(collection(db, "widget_data", "events", groupId));
+      await setDoc(newRef, {
+        ...payload,
         created_at: serverTimestamp(),
       });
     }
 
     setForm({ title: "", date: null, id: null });
     setVisible(false);
+    loadEvents();
   };
 
   const handleEdit = (event) => {
@@ -90,7 +91,8 @@ export default function CalendarWidget({ groupId }) {
   };
 
   const handleDelete = async (id) => {
-    await deleteDoc(doc(db, "events", id));
+    await deleteDoc(doc(db, "widget_data", "events", groupId, id));
+    loadEvents();
   };
 
   const renderDate = (date) => {
@@ -124,6 +126,8 @@ export default function CalendarWidget({ groupId }) {
     );
   };
 
+  if (!user) return null;
+
   return (
     <div>
       <Toast ref={toast} />
@@ -136,7 +140,7 @@ export default function CalendarWidget({ groupId }) {
           onClick={() => {
             setForm({
               title: "",
-              date: selectedDate || null, // usa el día marcado si hay uno
+              date: selectedDate || null,
               id: null,
             });
             setVisible(true);

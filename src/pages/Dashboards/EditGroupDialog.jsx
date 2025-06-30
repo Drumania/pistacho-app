@@ -18,16 +18,18 @@ import { useAuth } from "@/firebase/AuthContext";
 export default function EditGroupDialog({ groupId, visible, onHide }) {
   const { user } = useAuth();
   const storage = getStorage(app);
+
   const [name, setName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
   const [prevImagePath, setPrevImagePath] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!groupId || !visible) return;
+
     const loadGroup = async () => {
-      if (!groupId) return;
-      const ref = doc(db, "groups", groupId);
-      const snap = await getDoc(ref);
+      const refGroup = doc(db, "groups", groupId);
+      const snap = await getDoc(refGroup);
       if (snap.exists()) {
         const data = snap.data();
         setName(data.name || "");
@@ -35,24 +37,25 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
         setPrevImagePath(data.photoPath || "");
       }
     };
-    if (visible) loadGroup();
+
+    loadGroup();
   }, [groupId, visible]);
 
   const handleImageChange = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file || !groupId) return;
 
     setLoading(true);
     try {
       if (prevImagePath) {
-        const oldRef = ref(storage, prevImagePath);
-        await deleteObject(oldRef).catch(() => {});
+        await deleteObject(ref(storage, prevImagePath)).catch(() => {});
       }
 
       const path = `groups/${groupId}/${file.name}`;
       const storageRef = ref(storage, path);
       await uploadBytes(storageRef, file);
       const url = await getDownloadURL(storageRef);
+
       setPhotoURL(url);
       setPrevImagePath(path);
     } catch (err) {
@@ -64,6 +67,7 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
 
   const handleSave = async () => {
     if (!name || !groupId) return;
+
     setLoading(true);
     try {
       const refGroup = doc(db, "groups", groupId);

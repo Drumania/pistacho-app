@@ -1,4 +1,3 @@
-// MovieWidgetModal.jsx (guarda en Firestore en cada cambio con mini loader)
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Dialog } from "primereact/dialog";
@@ -15,6 +14,7 @@ export default function MovieWidgetModal({
   visible,
   onHide,
   groupId,
+  widgetId,
   initialMovies,
   onSave,
 }) {
@@ -44,7 +44,6 @@ export default function MovieWidgetModal({
             },
           }
         );
-        console.log(res.data.results);
         setResults(res.data.results);
       } catch (err) {
         console.error("TMDB Search Error:", err);
@@ -56,7 +55,7 @@ export default function MovieWidgetModal({
 
   const saveToFirestore = async (updatedMovies) => {
     setLoading(true);
-    const ref = doc(db, "movies", groupId);
+    const ref = doc(db, "widget_data", "movies", groupId, widgetId);
     await setDoc(ref, { movies: updatedMovies }, { merge: true });
     setLoading(false);
     onSave(updatedMovies);
@@ -105,7 +104,7 @@ export default function MovieWidgetModal({
 
         <div className="dialog-scroll-container">
           {/* Columna de películas guardadas */}
-          <div className="scroll-column pe-2 ">
+          <div className="scroll-column pe-2">
             <h6 className="mb-3">Selected Movies</h6>
             {movies.length === 0 && (
               <p className="text-muted">No movies selected.</p>
@@ -131,7 +130,7 @@ export default function MovieWidgetModal({
           </div>
 
           {/* Columna de búsqueda TMDB */}
-          <div className="scroll-column ">
+          <div className="scroll-column">
             <h6 className="mb-3">Search TMDB</h6>
             <input
               type="text"

@@ -13,7 +13,7 @@ export default function UsefulContactsWidget({ groupId }) {
     if (!groupId) return;
 
     const fetch = async () => {
-      const ref = doc(db, "useful_contacts", groupId);
+      const ref = doc(db, "widget_data", "useful_contacts", groupId, "main");
       const snap = await getDoc(ref);
       if (snap.exists()) {
         setContacts(snap.data().contacts || []);

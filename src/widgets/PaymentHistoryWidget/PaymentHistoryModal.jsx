@@ -26,9 +26,10 @@ export default function PaymentHistoryModal({
   visible,
   onHide,
   groupId,
+  widgetId,
   onSave,
 }) {
-  const [startMonth, setStartMonth] = useState(0); // 0 = January
+  const [startMonth, setStartMonth] = useState(0);
   const [startYear, setStartYear] = useState(currentYear);
   const [endMonth, setEndMonth] = useState(0);
   const [endYear, setEndYear] = useState(currentYear);
@@ -73,7 +74,7 @@ export default function PaymentHistoryModal({
       months,
     };
 
-    const ref = doc(db, "payment_history", groupId);
+    const ref = doc(db, "widget_data", "payment_history", groupId, widgetId);
     await setDoc(ref, data);
     onSave(data);
     onHide();
@@ -143,7 +144,7 @@ export default function PaymentHistoryModal({
             <div className="mt-3 pb-3 cs-border-bottom">
               Total months: {previewMonths.length}
             </div>
-            <ul className="mt-3 ">
+            <ul className="mt-3">
               {previewMonths.map((m) => (
                 <li key={m.month}>{formatMonth(m.month)}</li>
               ))}
@@ -159,6 +160,6 @@ export default function PaymentHistoryModal({
 
 const formatMonth = (str) => {
   const [y, m] = str.split("-");
-  const date = new Date(parseInt(y), parseInt(m) - 1, 1); // ← fijate el "- 1" acá
+  const date = new Date(parseInt(y), parseInt(m) - 1, 1);
   return date.toLocaleString("default", { month: "long", year: "numeric" });
 };

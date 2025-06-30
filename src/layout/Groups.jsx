@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   collectionGroup,
   getDocs,
@@ -23,26 +23,38 @@ export default function Groups() {
     if (!user?.uid) return setGroups([]);
 
     try {
-      const memberSnap = await getDocs(collectionGroup(db, "members"));
+      const q = collectionGroup(db, "members");
+      const snapshot = await getDocs(q);
 
-      const userMemberships = memberSnap.docs.filter(
-        (doc) => doc.id === user.uid
-      );
+      const myGroups = [];
 
-      const groupDocs = await Promise.all(
-        userMemberships.map(async (memberDoc) => {
-          const groupId = memberDoc.ref.parent.parent.id;
-          const groupRef = doc(db, "groups", groupId);
-          const groupSnap = await getDoc(groupRef);
-          return groupSnap.exists()
-            ? { id: groupId, ...groupSnap.data() }
-            : null;
-        })
-      );
+      for (const docSnap of snapshot.docs) {
+        const data = docSnap.data();
+        if (data.uid !== user.uid) continue;
 
-      setGroups(groupDocs.filter(Boolean));
+        const groupRef = docSnap.ref.parent.parent;
+        if (!groupRef) continue;
+
+        const groupSnap = await getDoc(groupRef);
+        if (!groupSnap.exists()) continue;
+
+        const group = groupSnap.data();
+        if (group.status !== "active") continue;
+
+        myGroups.push({
+          id: groupRef.id,
+          slug: group.slug,
+          name: group.name,
+          photoURL: group.photoURL || "/group_placeholder.png",
+          order: group.order ?? 9999, // ✅ si no tiene order va al final
+        });
+      }
+
+      // ✅ Ordenamos por el campo `order`
+      myGroups.sort((a, b) => a.order - b.order);
+      setGroups(myGroups);
     } catch (err) {
-      console.error("Error al cargar grupos desde members:", err);
+      console.error("Error al cargar grupos:", err);
       setGroups([]);
     }
   };
@@ -55,19 +67,19 @@ export default function Groups() {
 
   return (
     <div className="sidebar-groups">
-      {groups.map((g) => (
-        <NavLink
-          key={g.id}
-          to={`/g/${g.slug}`}
-          className={({ isActive }) =>
-            `group-btn tooltip-wrapper position-relative ${
-              isActive ? "active" : ""
-            }`
-          }
+      {groups.map((group) => (
+        <button
+          key={group.id}
+          className="group-btn tooltip-wrapper position-relative"
+          onClick={() => navigate(`/g/${group.slug}`)}
+          style={{
+            backgroundImage: `url(${group.photoURL})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
         >
-          <img src={g.photoURL || "/group_placeholder.png"} />
-          <div className="tooltip">{g.name}</div>
-        </NavLink>
+          <div className="tooltip">{group.name}</div>
+        </button>
       ))}
 
       <div

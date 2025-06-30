@@ -31,6 +31,7 @@ html {
 html,
 body {
   scroll-behavior: smooth;
+  overflow-x: hidden !important;
 }
 
 *,
@@ -144,6 +145,10 @@ body {
 }
 
 .group-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
   border: none;
   padding: 0;
   cursor: pointer;
@@ -155,11 +160,8 @@ body {
   aspect-ratio: 1 / 1;
   overflow: hidden;
 
-  & img {
-    object-fit: contain;
-    position: relative;
-    z-index: 1;
-  }
+  pointer-events: auto;
+  user-select: none;
 }
 
 .group-btn.active,
@@ -181,6 +183,42 @@ body {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+}
+
+.group-btn.editing {
+  animation: shake 0.4s infinite;
+  position: relative;
+}
+
+@keyframes shake {
+  0% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  25% {
+    transform: translate(0.5px, -0.5px) rotate(-1deg);
+  }
+  50% {
+    transform: translate(-0.5px, 0.5px) rotate(1deg);
+  }
+  75% {
+    transform: translate(0.5px, 0.5px) rotate(0deg);
+  }
+  100% {
+    transform: translate(0px, -0.5px) rotate(-1deg);
+  }
+}
+
+.drag-handle {
+  margin-right: 4px;
+  cursor: grab;
+  user-select: none;
+  color: var(--text-color);
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.group-btn:hover .drag-handle {
+  opacity: 1;
 }
 
 .navbar-user {
@@ -801,6 +839,25 @@ body {
 
 .admin-panel .p-button.text-danger {
   color: #ff7f7f !important;
+}
+
+/* misc */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.shine {
+  animation: shine-glow 1.2s infinite alternate;
+  box-shadow: 0 0 10px 2px var(--white-color);
+}
+
+@keyframes shine-glow {
+  from {
+    box-shadow: 0 0 0px 0px var(--white-color);
+  }
+  to {
+    box-shadow: 0 0 12px 6px var(--white-color);
+  }
 }
 
 /* primereact fixs */

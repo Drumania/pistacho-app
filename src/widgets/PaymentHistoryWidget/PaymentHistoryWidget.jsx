@@ -1,4 +1,3 @@
-// PaymentHistoryWidget.jsx completo con edición de amount y toggle de pago
 import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import db from "@/firebase/firestore";
@@ -11,20 +10,20 @@ export default function PaymentHistoryWidget({ groupId, widgetId }) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    if (!groupId) return;
+    if (!groupId || !widgetId) return;
 
     const fetch = async () => {
-      const ref = doc(db, "payment_history", groupId);
+      const ref = doc(db, "widget_data", "payment_history", groupId, widgetId);
       const snap = await getDoc(ref);
-      if (!snap.exists()) {
-        setData(null);
+      if (snap.exists()) {
+        setData(snap.data());
       } else {
-        setData(snap.data()); // FALTABA ESTO
+        setData(null);
       }
     };
 
     fetch();
-  }, [groupId]);
+  }, [groupId, widgetId]);
 
   const togglePaid = async (index) => {
     const updated = [...data.months];
@@ -39,13 +38,13 @@ export default function PaymentHistoryWidget({ groupId, widgetId }) {
   };
 
   const saveChanges = async (updatedMonths) => {
-    const ref = doc(db, "payment_history", groupId);
+    const ref = doc(db, "widget_data", "payment_history", groupId, widgetId);
     const payload = { ...data, months: updatedMonths };
     await setDoc(ref, payload, { merge: true });
     setData(payload);
   };
 
-  if (!groupId) return null;
+  if (!groupId || !widgetId) return null;
 
   return (
     <div>
@@ -77,7 +76,7 @@ export default function PaymentHistoryWidget({ groupId, widgetId }) {
                   min={0}
                   mode="currency"
                   currency="USD"
-                  locale="de-DE" // ← esto pone punto como separador de miles
+                  locale="de-DE"
                   maxFractionDigits={0}
                   className="custom-width-input"
                 />
@@ -108,6 +107,7 @@ export default function PaymentHistoryWidget({ groupId, widgetId }) {
         visible={showModal}
         onHide={() => setShowModal(false)}
         groupId={groupId}
+        widgetId={widgetId}
         onSave={setData}
       />
     </div>
@@ -116,6 +116,6 @@ export default function PaymentHistoryWidget({ groupId, widgetId }) {
 
 const formatMonth = (str) => {
   const [y, m] = str.split("-");
-  const date = new Date(parseInt(y), parseInt(m) - 1, 1); // ← este -1 es clave
+  const date = new Date(parseInt(y), parseInt(m) - 1, 1);
   return date.toLocaleString("default", { month: "long", year: "numeric" });
 };

@@ -52,19 +52,13 @@ export default function HeaderDashboard({
           )}
         </button>
         <button
-          className="btn-pistacho position-relative btn-start-here"
+          className={`btn-pistacho position-relative btn-start-here ${
+            widgetInstances.length === 0 ? "shine" : ""
+          }`}
           onClick={() => setShowAddWidgetDialog(true)}
           id="add-widget"
         >
           Add Widget
-          {widgetInstances.length === 0 && (
-            <span
-              className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              style={{ fontSize: "0.7rem" }}
-            >
-              Start here
-            </span>
-          )}
         </button>
       </div>
     </div>

@@ -40,11 +40,17 @@ export default function Navbar() {
       {user && (
         <div className="navbar-user" ref={wrapperRef}>
           <div
-            className="user-avatar-clickable"
             onMouseEnter={handleMouseEnter}
-          >
-            <Avatar image={getUserAvatar(user)} shape="circle" size="large" />
-          </div>
+            className="rounded-circle border"
+            style={{
+              width: 48,
+              height: 48,
+              backgroundImage: `url(${getUserAvatar(user)})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              cursor: "pointer",
+            }}
+          />
 
           {menuOpen && (
             <div className="custom-menu">

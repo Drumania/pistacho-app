@@ -1,29 +1,15 @@
-// NewGroupDialog.jsx
 import { useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Steps } from "primereact/steps";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
-import {
-  doc,
-  setDoc,
-  updateDoc,
-  getDoc,
-  serverTimestamp,
-} from "firebase/firestore";
-import db from "@/firebase/firestore";
-import slugify from "slugify";
-
-const generateGroupSlug = async (name) => {
-  const base = slugify(name, { lower: true, strict: true });
-  const random = Math.floor(1000 + Math.random() * 9000);
-  return `${base}-${random}`;
-};
+import { useCreateGroup } from "@/hooks/useCreateGroup";
 
 export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const { createGroup } = useCreateGroup();
 
   const steps = [{ label: "Create" }, { label: "Info" }, { label: "Done" }];
 
@@ -32,52 +18,9 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
     setLoading(true);
 
     try {
-      const slug = await generateGroupSlug(name);
-
-      // 1. Crear el grupo con ID igual al slug
-      const groupRef = doc(db, "groups", slug);
-      await setDoc(groupRef, {
-        name,
-        slug,
-        created_at: serverTimestamp(),
-        owner: {
-          uid: user.uid,
-          email: user.email,
-          name: user.displayName || "",
-          photoURL: user.photoURL || "",
-        },
-        members: [
-          {
-            uid: user.uid,
-            email: user.email,
-            name: user.displayName || "",
-            photoURL: user.photoURL || "",
-            role: "admin",
-          },
-        ],
-      });
-
-      // 2. Agregar ese grupo al usuario (en su array `groups`)
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        const newGroups = userData.groups || [];
-
-        newGroups.push({
-          id: slug,
-          slug,
-          name,
-          role: "admin",
-        });
-
-        await updateDoc(userRef, { groups: newGroups });
-      }
-
-      // 3. Continuar con pasos
+      const group = await createGroup(name, user);
       setStep(1);
-      if (onCreate) onCreate({ slug, id: slug });
+      if (onCreate) onCreate(group);
     } catch (error) {
       console.error("Error creating group:", error);
     } finally {
