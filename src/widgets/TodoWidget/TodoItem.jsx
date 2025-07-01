@@ -11,46 +11,47 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
         <div className="wrap-check-todo">
           <CustomCheckbox checked={completed} onChange={() => onToggle(todo)} />
         </div>
-        <div className={`fw-semibold d-flex ${completed ? "opacity-50" : ""}`}>
+        <div className={`fw-semibold  ${completed ? "opacity-50" : ""}`}>
           {title}
 
+          {(priority === "high" || label) && (
+            <>
+              {priority === "high" && (
+                <span className="m-1 badge bg-danger">Alta prioridad</span>
+              )}
+              {label && (
+                <span
+                  className="m-1 badge"
+                  style={{
+                    backgroundColor: label.color,
+                    color: "#fff",
+                  }}
+                >
+                  {label.name}
+                </span>
+              )}
+            </>
+          )}
+
           {completed && completed_at && (
-            <div className="opacity-50 ms-2 ">
+            <div className="opacity-50  ">
               <i className="bi bi-check-circle me-1" />
-              Completado el {new Date(completed_at).toLocaleDateString("es-AR")}
+              Complete {new Date(completed_at).toLocaleDateString("es-AR")}
             </div>
           )}
         </div>
-        {(priority === "high" || label) && (
-          <div className="mt-1 d-flex flex-wrap gap-2 small">
-            {priority === "high" && (
-              <span className="badge bg-danger">Alta prioridad</span>
-            )}
-            {label && (
-              <span
-                className="badge"
-                style={{
-                  backgroundColor: label.color,
-                  color: "#fff",
-                }}
-              >
-                {label.name}
-              </span>
-            )}
-          </div>
-        )}
       </div>
 
-      <div className="d-flex flex-column gap-1 align-items-end todo-actions">
+      <div className="d-flex align-items-center todo-actions">
         <Button
           icon="pi pi-pencil"
-          className="p-button-sm p-button-text p-button-secondary"
+          className="color-green"
           onClick={onEdit}
           tooltip="Edit"
         />
         <Button
           icon="pi pi-trash"
-          className="p-button-sm p-button-text p-button-danger"
+          className="color-red"
           onClick={() => onDelete(todo)}
           tooltip="Delete"
         />

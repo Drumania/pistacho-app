@@ -11,6 +11,7 @@ export default function MembersWidget({ groupId }) {
   const [members, setMembers] = useState([]);
   const [ownerId, setOwnerId] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // 👈 agregás esto
 
   const isOwner = user?.uid === ownerId;
 
@@ -18,9 +19,14 @@ export default function MembersWidget({ groupId }) {
     const fetchMembers = async () => {
       if (!groupId) return;
 
+      setIsLoading(true); // 👈 empieza loading
+
       const groupRef = doc(db, "groups", groupId);
       const groupSnap = await getDoc(groupRef);
-      if (!groupSnap.exists()) return;
+      if (!groupSnap.exists()) {
+        setIsLoading(false);
+        return;
+      }
 
       const groupData = groupSnap.data();
       setOwnerId(groupData.owner?.uid || null);
@@ -30,12 +36,14 @@ export default function MembersWidget({ groupId }) {
 
       const fullUsers = await Promise.all(
         membersSnap.docs.map(async (mDoc) => {
-          const { uid, role } = mDoc.data();
+          const { uid, role, admin = false, owner = false } = mDoc.data();
           const userSnap = await getDoc(doc(db, "users", uid));
           const userData = userSnap.exists() ? userSnap.data() : {};
           return {
             uid,
             role,
+            admin,
+            owner,
             name: userData.name || userData.displayName || "Unknown",
             photoURL: userData.photoURL || "",
           };
@@ -43,10 +51,11 @@ export default function MembersWidget({ groupId }) {
       );
 
       setMembers(fullUsers);
+      setIsLoading(false); // 👈 termina loading
     };
 
     fetchMembers();
-  }, [groupId, showDialog]); // recarga al cerrar el modal
+  }, [groupId, showDialog]);
 
   return (
     <div>
@@ -61,17 +70,14 @@ export default function MembersWidget({ groupId }) {
         )}
       </div>
 
-      {members.length === 0 && (
-        <div className="text-muted">No members found.</div>
-      )}
-
       <ul className="cs-list-group mb-3">
-        {members.map((u) => (
-          <UserListMembers key={u.uid} user={u} ownerId={ownerId} />
-        ))}
+        {isLoading
+          ? [...Array(3)].map((_, i) => <UserListMembers key={i} user={null} />)
+          : members.map((u) => (
+              <UserListMembers key={u.uid} user={u} ownerId={ownerId} />
+            ))}
       </ul>
 
-      {/* Invite Dialog */}
       <InviteMemberDialog
         visible={showDialog}
         onHide={() => setShowDialog(false)}

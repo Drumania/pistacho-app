@@ -263,6 +263,7 @@ export default function Dashboards() {
           setGroupData((prev) => ({ ...prev, ...updated }))
         }
       />
+
       <AddWidgetDialog
         visible={showAddWidgetDialog}
         onHide={() => setShowAddWidgetDialog(false)}

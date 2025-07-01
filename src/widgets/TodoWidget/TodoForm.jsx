@@ -31,18 +31,14 @@ const PRIORITY_OPTIONS = [
   { label: "Alta prioridad", value: "high" },
 ];
 
-export default function TodoForm({
-  onSubmit,
-  editingTodo,
-  onCancelEdit,
-  groupId,
-}) {
+export default function TodoForm({ onSubmit, editingTodo, groupId }) {
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("normal");
   const [dueDate, setDueDate] = useState(new Date());
   const [labelName, setLabelName] = useState("");
   const [labelColor, setLabelColor] = useState(TAG_COLORS[0].color);
   const [labelList, setLabelList] = useState([]);
+  const [loading, setLoading] = useState(false);
   const titleRef = useRef(null);
 
   useEffect(() => {
@@ -90,12 +86,21 @@ export default function TodoForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
-    if (labelName) await saveLabelIfNew(labelName, labelColor);
-    onSubmit({
-      title: title.trim(),
-      priority,
-      label: labelName ? { name: labelName, color: labelColor } : null,
-    });
+
+    setLoading(true);
+
+    try {
+      if (labelName) await saveLabelIfNew(labelName, labelColor);
+      await onSubmit({
+        title: title.trim(),
+        priority,
+        label: labelName ? { name: labelName, color: labelColor } : null,
+      });
+    } catch (err) {
+      console.error("Error saving task", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const colorTemplate = (option) => (
@@ -189,15 +194,9 @@ export default function TodoForm({
           type="submit"
           label={editingTodo ? "Update Task" : "Save Task"}
           className="btn-pistacho"
+          loading={loading}
+          disabled={loading}
         />
-        {editingTodo && (
-          <Button
-            type="button"
-            label="Cancelar"
-            className="btn-pistacho-outline"
-            onClick={onCancelEdit}
-          />
-        )}
       </div>
     </form>
   );

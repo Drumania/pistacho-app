@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   collectionGroup,
   getDocs,
@@ -10,16 +10,20 @@ import {
 
 import NewGroupDialog from "@/components/NewGroupDialog";
 import { useAuth } from "@/firebase/AuthContext";
+import { Skeleton } from "primereact/skeleton";
 
 const db = getFirestore();
 
 export default function Groups() {
   const { user } = useAuth();
+  const { groupId } = useParams();
   const navigate = useNavigate();
   const [showDialog, setShowDialog] = useState(false);
   const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const loadGroups = async () => {
+    setLoading(true);
     if (!user?.uid) return setGroups([]);
 
     try {
@@ -53,6 +57,7 @@ export default function Groups() {
       // ✅ Ordenamos por el campo `order`
       myGroups.sort((a, b) => a.order - b.order);
       setGroups(myGroups);
+      setLoading(false);
     } catch (err) {
       console.error("Error al cargar grupos:", err);
       setGroups([]);
@@ -67,20 +72,32 @@ export default function Groups() {
 
   return (
     <div className="sidebar-groups">
-      {groups.map((group) => (
-        <button
-          key={group.id}
-          className="group-btn tooltip-wrapper position-relative"
-          onClick={() => navigate(`/g/${group.slug}`)}
-          style={{
-            backgroundImage: `url(${group.photoURL})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="tooltip">{group.name}</div>
-        </button>
-      ))}
+      {loading
+        ? [...Array(5)].map((_, i) => (
+            <Skeleton
+              key={i}
+              shape="circle"
+              width="40px"
+              height="40px"
+              className="mb-1"
+            />
+          ))
+        : groups.map((group) => (
+            <button
+              key={group.id}
+              className={`group-btn tooltip-wrapper position-relative ${
+                group.slug === groupId ? "active" : ""
+              }`}
+              onClick={() => navigate(`/g/${group.slug}`)}
+              style={{
+                backgroundImage: `url(${group.photoURL})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              <div className="tooltip">{group.name}</div>
+            </button>
+          ))}
 
       <div
         className="group-btn group-btn-new tooltip-wrapper"

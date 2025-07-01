@@ -1,26 +1,21 @@
 import { useState } from "react";
 import { Dialog } from "primereact/dialog";
-import { Steps } from "primereact/steps";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { useCreateGroup } from "@/hooks/useCreateGroup";
 
 export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
-  const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const { createGroup } = useCreateGroup();
 
-  const steps = [{ label: "Create" }, { label: "Info" }, { label: "Done" }];
-
   const handleCreateGroup = async () => {
     if (!name || !user?.uid) return;
     setLoading(true);
-
     try {
       const group = await createGroup(name, user);
-      setStep(1);
       if (onCreate) onCreate(group);
+      resetDialog();
     } catch (error) {
       console.error("Error creating group:", error);
     } finally {
@@ -29,7 +24,6 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
   };
 
   const resetDialog = () => {
-    setStep(0);
     setName("");
     setLoading(false);
     onHide();
@@ -41,49 +35,25 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
       onHide={resetDialog}
       header="New Group"
       style={{ width: "30rem" }}
-      closable={false}
       className="new-group-dialog"
     >
-      <Steps model={steps} activeIndex={step} readOnly className="mb-4" />
-
-      {step === 0 && (
-        <div className="p-fluid">
-          <label className="mb-2">Group Name</label>
-          <InputText
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            autoFocus
-          />
-          <Button
-            label="Create Group"
-            onClick={handleCreateGroup}
-            className="mt-3"
-            disabled={!name}
-            loading={loading}
-          />
-        </div>
-      )}
-
-      {step === 1 && (
-        <div>
-          <p className="mb-3">
-            Your group was created successfully. You can now invite people from
-            the group dashboard.
-          </p>
-          <Button
-            label="Go to Group"
-            onClick={() => setStep(2)}
-            className="w-100"
-          />
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="text-center">
-          <p className="mb-3">You're all set!</p>
-          <Button label="Close" onClick={resetDialog} className="w-100" />
-        </div>
-      )}
+      <div className="p-fluid">
+        <label className="mb-2">Group Name</label>
+        <InputText
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          autoFocus
+          className="input-text-custom mb-3"
+          placeholder="Enter group name"
+        />
+        <Button
+          label="Create Group"
+          onClick={handleCreateGroup}
+          className="btn-pistacho w-100"
+          disabled={!name}
+          loading={loading}
+        />
+      </div>
     </Dialog>
   );
 }

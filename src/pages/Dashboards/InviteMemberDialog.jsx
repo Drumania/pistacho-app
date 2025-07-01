@@ -3,11 +3,9 @@ import { Dialog } from "primereact/dialog";
 import UserListMembers from "@/components/UserListMembers";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
-import { Avatar } from "primereact/avatar";
 import {
   doc,
   getDoc,
-  updateDoc,
   collection,
   query,
   where,
@@ -25,15 +23,21 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
   const [ownerUid, setOwnerUid] = useState(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(true);
   const isOwner = user?.uid === ownerUid;
 
   useEffect(() => {
     const loadGroupAndMembers = async () => {
       if (!groupId) return;
 
+      setIsLoadingMembers(true);
+
       const groupRef = doc(db, "groups", groupId);
       const groupSnap = await getDoc(groupRef);
-      if (!groupSnap.exists()) return;
+      if (!groupSnap.exists()) {
+        setIsLoadingMembers(false);
+        return;
+      }
 
       const groupData = groupSnap.data();
       setOwnerUid(groupData.owner?.uid || null);
@@ -43,12 +47,13 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
 
       const membersData = await Promise.all(
         membersSnap.docs.map(async (docSnap) => {
-          const { uid, role } = docSnap.data();
+          const { uid, role, admin = false } = docSnap.data();
           const userSnap = await getDoc(doc(db, "users", uid));
           const userData = userSnap.exists() ? userSnap.data() : {};
           return {
             uid,
             role,
+            admin,
             name: userData.name || userData.displayName || "Unknown",
             photoURL: userData.photoURL || "",
           };
@@ -56,6 +61,7 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
       );
 
       setMembers(membersData);
+      setIsLoadingMembers(false);
     };
 
     if (visible) loadGroupAndMembers();
@@ -124,9 +130,11 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
         {/* Lista de miembros */}
         <label className="mb-2">Members</label>
         <ul className="cs-list-group mb-3">
-          {members.map((u) => (
-            <UserListMembers key={u.uid} user={u} ownerId={ownerUid} />
-          ))}
+          {isLoadingMembers
+            ? [...Array(4)].map((_, i) => (
+                <UserListMembers key={i} user={null} />
+              ))
+            : members.map((u) => <UserListMembers key={u.uid} user={u} />)}
         </ul>
 
         {/* Invitación */}
@@ -141,6 +149,7 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
             label="Invite"
             onClick={handleInvite}
             disabled={!inviteEmail.trim() || loading}
+            loading={loading}
           />
         </div>
       </div>

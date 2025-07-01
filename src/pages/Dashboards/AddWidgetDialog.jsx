@@ -90,7 +90,7 @@ export default function AddWidgetDialog({
       header="Add a Widget"
       visible={visible}
       onHide={onHide}
-      style={{ width: "1000px", maxWidth: "100%", height: "600px" }}
+      style={{ width: "1000px", maxWidth: "100%", height: "85%" }}
       className="p-fluid"
     >
       <div style={{ height: "100%", overflow: "hidden" }}>
