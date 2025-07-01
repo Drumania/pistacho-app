@@ -16,6 +16,19 @@ export default function AddWidgetDialog({
   onWidgetAdded,
 }) {
   const [widgetTypes, setWidgetTypes] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  const CATEGORIES = [
+    { value: "productivity", label: "Productivity" },
+    { value: "entertainment", label: "Entertainment" },
+    { value: "finance", label: "Finance" },
+    { value: "health", label: "Health" },
+    { value: "utilities", label: "Utilities" },
+    { value: "collaboration", label: "Collaboration" },
+    { value: "personal", label: "Personal" },
+    { value: "lifestyle", label: "Lifestyle" },
+    { value: "custom", label: "Custom" },
+  ];
 
   useEffect(() => {
     const fetchAvailableWidgets = async () => {
@@ -36,9 +49,8 @@ export default function AddWidgetDialog({
       }
     });
 
-    let minY = Math.min(...columnHeights);
-    let col = columnHeights.indexOf(minY);
-
+    const minY = Math.min(...columnHeights);
+    const col = columnHeights.indexOf(minY);
     return { x: col, y: minY };
   };
 
@@ -68,50 +80,105 @@ export default function AddWidgetDialog({
     onHide();
   };
 
+  const filteredWidgets =
+    selectedCategory === "all"
+      ? widgetTypes
+      : widgetTypes.filter((w) => w.categories?.includes(selectedCategory));
+
   return (
     <Dialog
       header="Add a Widget"
       visible={visible}
       onHide={onHide}
-      style={{ width: "800px" }}
+      style={{ width: "1000px", maxWidth: "100%", height: "600px" }}
       className="p-fluid"
     >
-      <div className="row">
-        {widgetTypes.map((widget) => (
-          <div className="col-6 col-md-4 col-lg-3 mb-3" key={widget.id}>
-            <div
-              className="card h-100 d-flex flex-column justify-content-between text-center p-2"
-              style={{ height: "200px", width: "100%" }}
-            >
-              <div>
-                {widget.image ? (
-                  <img
-                    src={widget.image}
-                    alt={widget.label}
-                    className="img-fluid mb-2"
-                    style={{ maxHeight: "80px", objectFit: "contain" }}
-                  />
-                ) : (
-                  <div className="text-muted mb-2" style={{ fontSize: "2rem" }}>
-                    <i className={widget.icon || "bi bi-puzzle"} />
-                  </div>
-                )}
-                <h6>{widget.label}</h6>
-              </div>
-              <Button
-                icon="bi bi-plus-circle"
-                label="Add"
-                className="btn-sm mt-2"
-                onClick={() => handleAdd(widget)}
-              />
+      <div style={{ height: "100%", overflow: "hidden" }}>
+        <div className="d-flex flex-row h-100">
+          {/* Sidebar */}
+          <div
+            className="border-end p-3"
+            style={{
+              width: "240px",
+              flexShrink: 0,
+              overflowY: "auto",
+              overflowX: "hidden",
+            }}
+          >
+            <div className="d-flex flex-column gap-2">
+              <button
+                className={`text-start cs-border-bottom pb-2 fs-5 ${
+                  selectedCategory === "all" ? "color-pistacho" : "text-white"
+                }`}
+                onClick={() => setSelectedCategory("all")}
+              >
+                All
+              </button>
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.value}
+                  className={`text-start ${
+                    selectedCategory === cat.value
+                      ? "color-pistacho"
+                      : "text-white"
+                  }`}
+                  onClick={() => setSelectedCategory(cat.value)}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
 
-      {!widgetTypes.length && (
-        <p className="text-muted mt-3">No widgets available.</p>
-      )}
+          {/* Grid */}
+          <div
+            className="flex-grow-1 p-3"
+            style={{
+              overflowY: "auto",
+              overflowX: "hidden",
+            }}
+          >
+            <div className="row">
+              {filteredWidgets.map((widget) => (
+                <div className="col-6 col-md-4 col-lg-3 mb-3" key={widget.id}>
+                  <div
+                    className="card h-100 d-flex flex-column justify-content-between text-center p-2"
+                    style={{ height: "200px", width: "100%" }}
+                  >
+                    <div>
+                      {widget.image ? (
+                        <img
+                          src={widget.image}
+                          alt={widget.label}
+                          className="img-fluid mb-2"
+                          style={{ maxHeight: "80px", objectFit: "contain" }}
+                        />
+                      ) : (
+                        <div
+                          className="text-muted mb-2"
+                          style={{ fontSize: "2rem" }}
+                        >
+                          <i className={widget.icon || "bi bi-puzzle"} />
+                        </div>
+                      )}
+                      <h6>{widget.label}</h6>
+                    </div>
+                    <Button
+                      label="Add"
+                      className="btn-pistacho-small"
+                      onClick={() => handleAdd(widget)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {!filteredWidgets.length && (
+              <p className="text-muted mt-3">No widgets in this category.</p>
+            )}
+          </div>
+        </div>
+      </div>
     </Dialog>
   );
 }

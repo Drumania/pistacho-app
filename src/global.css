@@ -2,9 +2,9 @@
   --s-gap: 4px;
   --m-gap: 8px;
   --gap: 16px;
-  --light-pistacho-color: #aac79e;
+  --light-pistacho-color: #bad8ad;
   --pistacho-color: #90b083;
-  --dark-pistacho-color: #748d6a;
+  --dark-pistacho-color: #63795a;
   --red-color: #e6544a;
   --green-color: #57e64a;
   --white-color: #f5f5f5;
@@ -540,26 +540,46 @@ h5 {
 }
 
 .wc-edit {
-  border: 1px dashed var(--pistacho-color);
+  outline: 1px dashed var(--pistacho-color);
+  outline-offset: -1px; /* Ajustá según tu padding */
 }
 
 .wc-edit-cont {
   position: absolute;
-  top: 12px;
-  width: calc(100% - 30px);
-  background: #000000d0;
-  border-radius: var(--border-radius);
+  width: 100%;
   z-index: 100;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px); /* Safari */
 }
 
 .widget-handle {
+  top: -16px;
+  left: -16px;
+  width: 30px;
+  height: 40px;
+  position: absolute;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #888;
+  color: #000000;
   margin-bottom: 0.5rem;
   cursor: grab;
+  background-color: var(--pistacho-color);
+  border-radius: 8px 0 8px 0;
+  text-align: center;
+}
+
+.widget-delete {
+  top: -16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #000000;
+  line-height: 40px;
+  cursor: grab;
+  background-color: var(--red-color);
+  border-radius: 0 8px 0 8px;
+  text-align: center;
 }
 
 /* .widget-zone {
@@ -624,7 +644,7 @@ h5 {
   padding: 0 var(--gap);
   background-color: var(--pistacho-color);
   color: var(--black-color);
-  border: 1px solid var(--panel-hover);
+  border: 2px solid var(--pistacho-color);
   cursor: pointer;
   border-radius: 20px;
   height: 40px;
@@ -635,7 +655,7 @@ h5 {
   padding: 0 var(--gap);
   background-color: var(--pistacho-color);
   color: var(--black-color);
-  border: 1px solid var(--panel-hover);
+  border: 2px solid var(--pistacho-color);
   cursor: pointer;
   font-size: 0.8rem;
   border-radius: 15px;
@@ -643,8 +663,9 @@ h5 {
   line-height: 30px;
 }
 
-.btn-pistacho:hover {
-  border: 1px solid var(--pistacho-color);
+.btn-pistacho:hover,
+.btn-pistacho-small:hover {
+  border: 2px solid var(--dark-pistacho-color);
 }
 
 .btn-pistacho-outline {
@@ -719,6 +740,15 @@ h5 {
   box-shadow: none;
   background-color: rgba(255, 255, 255, 0.07); /* más clarito al focus */
 }
+
+.cw-100 {
+  width: 100px;
+}
+
+.cw-200 {
+  width: 200px;
+}
+
 /* Estilo personalizado del modal */
 .new-group-dialog {
   background-color: var(--panel);
@@ -876,6 +906,21 @@ h5 {
 }
 
 /* primereact fixs */
+/* Más alto visualmente */
+.custom-datatable .p-datatable-tbody > tr {
+  height: 30px;
+  line-height: 30px;
+}
+
+/* Alternar colores más marcados */
+.custom-datatable .p-datatable-odd {
+  background-color: #2a2a2a; /* fila impar */
+}
+.custom-datatable .p-datatable-even {
+  background-color: #1f1f1f; /* fila par */
+}
+
+/* Padding más grande */
 .p-avatar-group .p-avatar {
   border: 0;
 }

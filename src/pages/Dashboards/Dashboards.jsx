@@ -201,10 +201,6 @@ export default function Dashboards() {
                 fetchWidgets();
               };
 
-              const handleSettings = () => {
-                console.log("Settings for", widget.id);
-              };
-
               return (
                 <div key={l.i}>
                   <div
@@ -213,23 +209,17 @@ export default function Dashboards() {
                     }
                   >
                     {editMode && (
-                      <div className="wc-edit-cont  d-flex justify-content-between align-items-center px-2 pb-1">
-                        <div className="widget-handle">≡</div>
-                        <div>
-                          <button
-                            className="btn btn-sm btn-light me-2"
-                            onClick={handleSettings}
-                            title="Edit settings"
-                          >
-                            <i className="bi bi-gear" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-danger"
-                            onClick={handleDelete}
-                            title="Delete widget"
-                          >
-                            <i className="bi bi-trash" />
-                          </button>
+                      <div className="wc-edit-cont">
+                        <div className="widget-handle">
+                          <i className="bi bi-grip-vertical"></i>
+                        </div>
+
+                        <div
+                          className="widget-delete"
+                          onClick={handleDelete}
+                          title="Delete widget"
+                        >
+                          <i className="bi bi-trash" />
                         </div>
                       </div>
                     )}

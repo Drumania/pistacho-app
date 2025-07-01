@@ -1,3 +1,4 @@
+// 👇 estos imports suman storage
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -8,6 +9,15 @@ import {
   getDoc,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import app from "@/firebase/config";
+
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
@@ -21,25 +31,73 @@ export default function WidgetManager() {
     key: "",
     label: "",
     icon: "",
+    image: "",
     w: 1,
     h: 1,
+    status: "enabled",
+    categories: [],
   });
+  const [prevImagePath, setPrevImagePath] = useState("");
   const [error, setError] = useState("");
 
-  const fetchWidgets = async () => {
-    const snapshot = await getDocs(collection(db, "widgets"));
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    setWidgets(data);
-  };
+  const storage = getStorage(app);
+
+  const CATEGORIES = [
+    {
+      value: "productivity",
+      label: "Productivity",
+      description: "Tools to help you stay organized and focused.",
+    },
+    {
+      value: "entertainment",
+      label: "Entertainment",
+      description: "Track movies, games, and fun content.",
+    },
+    {
+      value: "finance",
+      label: "Finance",
+      description: "Manage payments, expenses, and financial info.",
+    },
+    {
+      value: "health",
+      label: "Health",
+      description: "Track habits, weight, and overall well-being.",
+    },
+    {
+      value: "utilities",
+      label: "Utilities",
+      description: "Useful widgets like weather, clocks, or contacts.",
+    },
+    {
+      value: "collaboration",
+      label: "Collaboration",
+      description: "Work with others: group members, shared tools.",
+    },
+    {
+      value: "personal",
+      label: "Personal",
+      description: "Private or self-related widgets like notes or photos.",
+    },
+    {
+      value: "lifestyle",
+      label: "Lifestyle",
+      description: "Daily life tools like weather, trackers, etc.",
+    },
+    {
+      value: "custom",
+      label: "Custom",
+      description: "Creative or flexible widgets like images or embeds.",
+    },
+  ];
 
   useEffect(() => {
     fetchWidgets();
   }, []);
 
-  const toggleWidgetEnabled = async (widget) => {
-    const ref = doc(db, "widgets", widget.id);
-    await updateDoc(ref, { enabled: !widget.enabled });
-    fetchWidgets();
+  const fetchWidgets = async () => {
+    const snapshot = await getDocs(collection(db, "widgets"));
+    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setWidgets(data);
   };
 
   const openEditDialog = (widget) => {
@@ -48,16 +106,41 @@ export default function WidgetManager() {
       key: widget.id,
       label: widget.label,
       icon: widget.icon,
+      image: widget.image || "",
       w: widget.defaultLayout?.w || 1,
       h: widget.defaultLayout?.h || 1,
+      status: widget.enabled ? "enabled" : "disabled",
+      categories: widget.categories || [],
       isEdit: true,
     });
+    setPrevImagePath(widget.image || "");
     setDialogVisible(true);
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !formData.key) return;
+
+    const path = `widget_images/${formData.key}/${file.name}`;
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+
+    if (prevImagePath && prevImagePath !== path) {
+      try {
+        await deleteObject(ref(storage, prevImagePath));
+      } catch (err) {
+        console.warn("Error deleting previous image:", err);
+      }
+    }
+
+    setFormData((f) => ({ ...f, image: url }));
+    setPrevImagePath(path);
   };
 
   const handleSave = async () => {
     setError("");
-    const { key, label, icon, w, h, isEdit } = formData;
+    const { key, label, icon, w, h, status, isEdit } = formData;
 
     if (!key || !label || !icon) {
       setError("All fields are required.");
@@ -71,8 +154,10 @@ export default function WidgetManager() {
       await setDoc(ref, {
         label,
         icon,
-        enabled: true,
+        image: formData.image || "",
+        enabled: status === "enabled",
         defaultLayout: { w: Number(w), h: Number(h) },
+        categories: formData.categories || [],
       });
       setDialogVisible(false);
       fetchWidgets();
@@ -80,23 +165,6 @@ export default function WidgetManager() {
       setError("This widget key already exists.");
     }
   };
-
-  const widgetActionsTemplate = (row) => (
-    <div className="d-flex gap-2">
-      <Button
-        icon={row.enabled ? "bi bi-toggle-on" : "bi bi-toggle-off"}
-        className="p-button-sm p-button-text"
-        onClick={() => toggleWidgetEnabled(row)}
-        title={row.enabled ? "Disable widget" : "Enable widget"}
-      />
-      <Button
-        icon="bi bi-pencil"
-        className="p-button-sm p-button-text"
-        onClick={() => openEditDialog(row)}
-        title="Edit widget"
-      />
-    </div>
-  );
 
   return (
     <div className="p-3">
@@ -107,27 +175,72 @@ export default function WidgetManager() {
           icon="bi bi-plus"
           className="btn-pistacho"
           onClick={() => {
-            setFormData({ key: "", label: "", icon: "", w: 1, h: 1 });
+            setFormData({
+              key: "",
+              label: "",
+              icon: "",
+              image: "",
+              w: 1,
+              h: 1,
+              status: "enabled",
+              categories: [],
+              isEdit: false,
+            });
+            setPrevImagePath("");
             setDialogVisible(true);
             setError("");
           }}
         />
       </div>
 
-      <DataTable value={widgets} paginator rows={20} className="mt-3">
-        <Column field="id" header="Key" />
-        <Column field="label" header="Label" />
-        <Column field="defaultLayout.w" header="W" />
-        <Column field="defaultLayout.h" header="H" />
+      <DataTable
+        value={widgets}
+        paginator
+        rows={20}
+        stripedRows
+        className="mt-3 custom-datatable"
+      >
+        <Column field="label" header="Label" sortable className="fw-bold" />
+        <Column field="id" header="Key" sortable className="fw-light" />
+        <Column field="defaultLayout.w" header="W" sortable />
+        <Column field="defaultLayout.h" header="H" sortable />
         <Column
-          field="enabled"
-          header="Enabled"
-          body={(row) => (row.enabled ? "✅" : "—")}
+          header="Status"
+          body={(row) =>
+            row.enabled === false ? (
+              <span className="badge bg-danger">Disabled</span>
+            ) : null
+          }
+          style={{ width: "100px" }}
         />
         <Column
-          header="Actions"
-          body={widgetActionsTemplate}
-          style={{ width: "120px" }}
+          header="Categories"
+          body={(row) =>
+            Array.isArray(row.categories) && row.categories.length > 0 ? (
+              <div className="d-flex flex-wrap gap-1">
+                {row.categories.map((cat) => {
+                  const found = CATEGORIES.find((c) => c.value === cat);
+                  return (
+                    <span key={cat} className="badge bg-secondary">
+                      {found?.label || cat}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : null
+          }
+        />
+        <Column
+          header="Edit"
+          body={(row) => (
+            <Button
+              icon="bi bi-pencil"
+              className="bg-black p-button-sm p-button-text"
+              onClick={() => openEditDialog(row)}
+              title="Edit widget"
+            />
+          )}
+          style={{ width: "80px" }}
         />
       </DataTable>
 
@@ -135,73 +248,150 @@ export default function WidgetManager() {
         header={formData.isEdit ? "Edit Widget" : "Add Widget"}
         visible={dialogVisible}
         onHide={() => setDialogVisible(false)}
-        className="p-fluid"
+        style={{ width: "700px" }}
       >
-        {!formData.isEdit && (
-          <div className="field">
-            <label htmlFor="key">Widget Key</label>
-            <InputText
-              id="key"
-              value={formData.key}
-              onChange={(e) =>
-                setFormData({ ...formData, key: e.target.value })
-              }
-            />
-          </div>
-        )}
-
-        <div className="field mt-2">
-          <label htmlFor="label">Label</label>
-          <InputText
-            id="label"
-            value={formData.label}
-            onChange={(e) =>
-              setFormData({ ...formData, label: e.target.value })
-            }
-          />
-        </div>
-
-        <div className="field mt-2">
-          <label htmlFor="icon">Icon (Bootstrap class)</label>
-          <InputText
-            id="icon"
-            value={formData.icon}
-            onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-          />
-          {formData.icon && (
-            <div className="mt-2">
-              <i className={`${formData.icon} me-2`} />{" "}
-              <code>{formData.icon}</code>
+        <div className="row g-0">
+          {!formData.isEdit && (
+            <div className="col-12 mb-4">
+              <label htmlFor="key">Widget Key: (Folder)</label>
+              <InputText
+                id="key"
+                value={formData.key}
+                className="w-100"
+                onChange={(e) =>
+                  setFormData({ ...formData, key: e.target.value })
+                }
+              />
             </div>
           )}
-        </div>
 
-        <div className="field mt-2 d-flex gap-3">
-          <div className="w-50">
+          <div className="col-9 mb-4 pe-4 ">
+            <label htmlFor="label">Label:</label>
+            <InputText
+              id="label"
+              value={formData.label}
+              className="w-100 mb-3"
+              onChange={(e) =>
+                setFormData({ ...formData, label: e.target.value })
+              }
+            />
+
+            <label htmlFor="icon">Icon: (Bootstrap class)</label>
+            <div className="d-flex justify-content-start align-items-center">
+              <InputText
+                id="icon"
+                value={formData.icon}
+                onChange={(e) =>
+                  setFormData({ ...formData, icon: e.target.value })
+                }
+              />
+              {formData.icon && (
+                <div className="ps-2 text-center">
+                  <i className={`${formData.icon} me-2`} />
+                  <br />
+                  <code>{formData.icon}</code>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <label>Image (optional)</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="form-control"
+              />
+              <small className="text-muted d-block mt-1">
+                150 x 150 px. PNG or JPG recommended.
+              </small>
+              {formData.image && (
+                <div className="mt-2">
+                  <img
+                    src={formData.image}
+                    alt="preview"
+                    className="img-thumbnail"
+                    style={{ maxWidth: "150px", maxHeight: "150px" }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="col-3 ps-4 mb-4 border-start">
+            <label>Status</label>
+            <select
+              className="form-select"
+              value={formData.status}
+              onChange={(e) =>
+                setFormData({ ...formData, status: e.target.value })
+              }
+            >
+              <option value="enabled">Enabled</option>
+              <option value="disabled">Disabled</option>
+            </select>
+          </div>
+
+          <div className="col-3 mb-4">
             <label>Width (w)</label>
+            <br />
             <InputText
               value={formData.w}
               onChange={(e) => setFormData({ ...formData, w: e.target.value })}
+              style={{ width: "80px" }}
             />
-          </div>
-          <div className="w-50">
+            <br />
+            <br />
             <label>Height (h)</label>
+            <br />
             <InputText
               value={formData.h}
               onChange={(e) => setFormData({ ...formData, h: e.target.value })}
+              style={{ width: "80px" }}
             />
           </div>
-        </div>
 
-        {error && <small className="text-danger">{error}</small>}
+          <div className="col-9 mb-4 border-start ps-4 ">
+            <label className="mb-2 d-block">Categories</label>
+            <div className="d-flex flex-column gap-1">
+              {CATEGORIES.map((cat) => (
+                <div className="form-check" key={cat.value}>
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id={`cat-${cat.value}`}
+                    checked={formData.categories.includes(cat.value)}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      const updated = checked
+                        ? [...formData.categories, cat.value]
+                        : formData.categories.filter((c) => c !== cat.value);
+                      setFormData({ ...formData, categories: updated });
+                    }}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor={`cat-${cat.value}`}
+                  >
+                    {cat.label}
+                    <small className="ps-4 text-white-50">
+                      {cat.description}
+                    </small>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        <div className="mt-4 text-end">
-          <Button
-            label="Save"
-            icon="bi bi-save"
-            className="btn-pistacho"
-            onClick={handleSave}
-          />
+          {error && <small className="text-danger">{error}</small>}
+
+          <div className="col-6 mt-4 text-end">
+            <Button
+              label="Save"
+              className="btn-pistacho"
+              onClick={handleSave}
+            />
+          </div>
         </div>
       </Dialog>
     </div>
