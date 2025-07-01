@@ -99,7 +99,7 @@ export default function AddWidgetDialog({
           <div
             className="border-end p-3"
             style={{
-              width: "240px",
+              width: "180px",
               flexShrink: 0,
               overflowY: "auto",
               overflowX: "hidden",
@@ -140,29 +140,23 @@ export default function AddWidgetDialog({
           >
             <div className="row">
               {filteredWidgets.map((widget) => (
-                <div className="col-6 col-md-4 col-lg-3 mb-3" key={widget.id}>
-                  <div
-                    className="card h-100 d-flex flex-column justify-content-between text-center p-2"
-                    style={{ height: "200px", width: "100%" }}
-                  >
-                    <div>
-                      {widget.image ? (
-                        <img
-                          src={widget.image}
-                          alt={widget.label}
-                          className="img-fluid mb-2"
-                          style={{ maxHeight: "80px", objectFit: "contain" }}
-                        />
-                      ) : (
-                        <div
-                          className="text-muted mb-2"
-                          style={{ fontSize: "2rem" }}
-                        >
-                          <i className={widget.icon || "bi bi-puzzle"} />
-                        </div>
-                      )}
-                      <h6>{widget.label}</h6>
-                    </div>
+                <div className="col-6 col-md-4  mb-3" key={widget.id}>
+                  <div className="widget-card">
+                    {widget.label}
+
+                    {widget.image ? (
+                      <img
+                        src={widget.image}
+                        alt={widget.label}
+                        className="img-fluid mb-2"
+                        style={{ maxHeight: "80px", objectFit: "contain" }}
+                      />
+                    ) : (
+                      <div className="icon-placeholder mb-2">
+                        <i className={widget.icon || "bi bi-puzzle"} />
+                      </div>
+                    )}
+
                     <Button
                       label="Add"
                       className="btn-pistacho-small"

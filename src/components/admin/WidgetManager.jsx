@@ -265,7 +265,7 @@ export default function WidgetManager() {
             </div>
           )}
 
-          <div className="col-9 mb-4 pe-4 ">
+          <div className="col-12 border-bottom pe-4 ">
             <label htmlFor="label">Label:</label>
             <InputText
               id="label"
@@ -275,64 +275,51 @@ export default function WidgetManager() {
                 setFormData({ ...formData, label: e.target.value })
               }
             />
+          </div>
 
+          <div className="col-6 py-4 pe-4 border-end">
+            <label>Image (optional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="form-control"
+            />
+            <small className="text-info d-block mt-1">
+              150 x 150 px. PNG or JPG recommended.
+            </small>
+            {formData.image && (
+              <div className="mt-2">
+                <img
+                  src={formData.image}
+                  alt="preview"
+                  className="img-thumbnail"
+                  style={{ maxWidth: "150px", maxHeight: "150px" }}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="col-6 py-4 ps-4 ">
             <label htmlFor="icon">Icon: (Bootstrap class)</label>
-            <div className="d-flex justify-content-start align-items-center">
-              <InputText
-                id="icon"
-                value={formData.icon}
-                onChange={(e) =>
-                  setFormData({ ...formData, icon: e.target.value })
-                }
-              />
-              {formData.icon && (
-                <div className="ps-2 text-center">
-                  <i className={`${formData.icon} me-2`} />
-                  <br />
-                  <code>{formData.icon}</code>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-4">
-              <label>Image (optional)</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="form-control"
-              />
-              <small className="text-muted d-block mt-1">
-                150 x 150 px. PNG or JPG recommended.
-              </small>
-              {formData.image && (
-                <div className="mt-2">
-                  <img
-                    src={formData.image}
-                    alt="preview"
-                    className="img-thumbnail"
-                    style={{ maxWidth: "150px", maxHeight: "150px" }}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="col-3 ps-4 mb-4 border-start">
-            <label>Status</label>
-            <select
-              className="form-select"
-              value={formData.status}
+            <InputText
+              id="icon"
+              value={formData.icon}
               onChange={(e) =>
-                setFormData({ ...formData, status: e.target.value })
+                setFormData({ ...formData, icon: e.target.value })
               }
-            >
-              <option value="enabled">Enabled</option>
-              <option value="disabled">Disabled</option>
-            </select>
+            />
+            <br />
+            {formData.icon && (
+              <div className="ps-2 text-center">
+                <i className={`${formData.icon} me-2`} />
+                <br />
+                <code>{formData.icon}</code>
+              </div>
+            )}
           </div>
 
-          <div className="col-3 mb-4">
+          <div className="col-3 py-4 border-top">
             <label>Width (w)</label>
             <br />
             <InputText
@@ -351,7 +338,7 @@ export default function WidgetManager() {
             />
           </div>
 
-          <div className="col-9 mb-4 border-start ps-4 ">
+          <div className="col-9 py-4 border-top border-start ps-4 ">
             <label className="mb-2 d-block">Categories</label>
             <div className="d-flex flex-column gap-1">
               {CATEGORIES.map((cat) => (
@@ -385,10 +372,25 @@ export default function WidgetManager() {
 
           {error && <small className="text-danger">{error}</small>}
 
-          <div className="col-6 mt-4 text-end">
+          <div className="col-12 ps-4 py-4 border-top border-bottom d-flex align-items-center">
+            <label>Status</label>
+            <select
+              className="form-select ms-3"
+              style={{ width: "200px" }}
+              value={formData.status}
+              onChange={(e) =>
+                setFormData({ ...formData, status: e.target.value })
+              }
+            >
+              <option value="enabled">Enabled</option>
+              <option value="disabled">Disabled</option>
+            </select>
+          </div>
+
+          <div className="col-12 mt-4 text-center">
             <Button
               label="Save"
-              className="btn-pistacho"
+              className="btn-pistacho px-5"
               onClick={handleSave}
             />
           </div>
