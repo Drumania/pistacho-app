@@ -88,6 +88,10 @@ body {
   font-size: var(--font-size);
 }
 
+h5 {
+  font-size: 1rem;
+}
+
 .app-wrapper {
   width: 100vw;
   position: relative;
@@ -661,7 +665,7 @@ body {
 .btn-transp-small {
   padding: 0 var(--gap);
   background-color: transparent;
-  color: var(--text-color);
+  color: #959595;
   border: 1px solid transparent;
   cursor: pointer;
   font-size: 0.8rem;
