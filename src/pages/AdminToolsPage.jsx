@@ -20,6 +20,7 @@ import { getAuth } from "firebase/auth";
 export default function AdminTools() {
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [memberCounts, setMemberCounts] = useState({});
 
   useEffect(() => {
     fetchUsers();
@@ -32,12 +33,25 @@ export default function AdminTools() {
     setUsers(data);
   };
 
+  const fetchMemberCounts = async (groupsList) => {
+    const counts = {};
+
+    for (const group of groupsList) {
+      const membersSnap = await getDocs(
+        collection(db, "groups", group.id, "members")
+      );
+      counts[group.id] = membersSnap.size;
+    }
+
+    setMemberCounts(counts);
+  };
+
   const fetchGroups = async () => {
     const snapshot = await getDocs(collection(db, "groups"));
     const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setGroups(data);
+    fetchMemberCounts(data); // 👈 agregá esto
   };
-
   const toggleAdmin = async (user) => {
     const ref = doc(db, "users", user.id);
     await updateDoc(ref, { admin: !user.admin });
@@ -149,7 +163,22 @@ export default function AdminTools() {
           <DataTable value={groups} paginator rows={10} className="mt-3">
             <Column field="id" header="ID" />
             <Column field="name" header="Group Name" />
+            <Column field="slug" header="Slug" />
             <Column field="created_by" header="Created By" />
+            <Column field="status" header="status" />
+            <Column
+              field="created_at"
+              header="Created At"
+              body={(row) =>
+                row.created_at?.toDate
+                  ? row.created_at.toDate().toLocaleDateString()
+                  : "-"
+              }
+            />
+            <Column
+              header="Members"
+              body={(row) => memberCounts[row.id] ?? "–"}
+            />
             <Column
               header="Actions"
               body={groupActionsTemplate}

@@ -112,6 +112,9 @@ export default function Dashboards() {
 
   const handleLayoutChange = async (currentLayout, allLayouts) => {
     setLayouts(allLayouts);
+
+    if (!editMode) return;
+
     for (const w of currentLayout) {
       await updateDoc(doc(db, `groups/${groupId}/widgets/${w.i}`), {
         layout: { x: w.x, y: w.y, w: w.w, h: w.h },
