@@ -156,19 +156,31 @@ export default function TodoForm({
 
       {labelList.length > 0 && (
         <div className="d-flex flex-wrap gap-2">
-          {labelList.map((l) => (
-            <Button
-              key={l.name}
-              type="button"
-              label={l.name}
-              className="p-button-sm"
-              style={{ backgroundColor: l.color, borderColor: l.color }}
-              onClick={() => {
-                setLabelName(l.name);
-                setLabelColor(l.color);
-              }}
-            />
-          ))}
+          {labelList.length > 0 && (
+            <div className="d-flex flex-wrap gap-2">
+              {labelList.map((l) => (
+                <span
+                  key={l.name}
+                  className="badge tag-clickable"
+                  style={{ backgroundColor: l.color, cursor: "pointer" }}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    setLabelName(l.name);
+                    setLabelColor(l.color);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setLabelName(l.name);
+                      setLabelColor(l.color);
+                    }
+                  }}
+                >
+                  {l.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

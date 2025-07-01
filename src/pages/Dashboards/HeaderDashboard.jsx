@@ -41,7 +41,9 @@ export default function HeaderDashboard({
         </button>
 
         <button
-          className="btn-pistacho-outline mx-2"
+          className={
+            editMode ? "btn-pistacho shine mx-2" : "btn-pistacho-outline mx-2"
+          }
           onClick={() => setEditMode((prev) => !prev)}
           id="edit-dashboard"
         >

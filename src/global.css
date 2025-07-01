@@ -12,8 +12,8 @@
   --black-color: #0b0c0e;
   --bg-color: #25303d;
   --line-color: #394b5e;
-  --panel: #212529;
-  --panel-inside: #1c1d1e;
+  --panel: #1a232f;
+  --panel-inside: #141d29;
   --panel-hover: #394b5e;
   --font-size: 16px;
   --font-family: "Inter", sans-serif;
@@ -120,7 +120,7 @@ h5 {
   align-items: center;
   width: 80px;
   height: 100dvh;
-  background-color: var(--panel);
+  background-color: #0e141a;
 }
 
 .wrap-logo {
@@ -542,17 +542,23 @@ h5 {
 .wc-edit {
   outline: 1px dashed var(--pistacho-color);
   outline-offset: -1px; /* Ajustá según tu padding */
+  z-index: 100;
 }
 
 .wc-edit-cont {
   position: absolute;
   width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border-radius: 8px;
+  background-color: #0b0c0eb9;
   z-index: 100;
 }
 
 .widget-handle {
-  top: -16px;
-  left: -16px;
+  top: 0;
+  left: 0;
   width: 30px;
   height: 40px;
   position: absolute;
@@ -567,8 +573,8 @@ h5 {
 }
 
 .widget-delete {
-  top: -16px;
-  right: 16px;
+  top: 0;
+  right: 0;
   width: 40px;
   height: 40px;
   position: absolute;
@@ -580,6 +586,36 @@ h5 {
   background-color: var(--red-color);
   border-radius: 0 8px 0 8px;
   text-align: center;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  z-index: 100;
+  border-radius: 8px 0 8px 0;
+  background-color: var(--pistacho-color);
+}
+
+.react-resizable-handle {
+  background-image: none;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "\21F2";
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 35px;
+  height: 35px;
+  border-right: 0;
+  border-bottom: 0;
+  color: var(--black-color);
+  font-size: 1.5rem;
+  text-align: center;
+  line-height: 28px;
 }
 
 /* widget-card */
