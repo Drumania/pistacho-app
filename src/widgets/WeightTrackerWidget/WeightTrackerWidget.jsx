@@ -37,6 +37,14 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
     return () => unsub();
   }, [user, groupId, widgetId]);
 
+  const weightsOnly = weights.map((w) => w.weight);
+  const minY = weightsOnly.length
+    ? Math.floor(Math.min(...weightsOnly) - 10)
+    : 50;
+  const maxY = weightsOnly.length
+    ? Math.ceil(Math.max(...weightsOnly) + 10)
+    : 130;
+
   const chartData = {
     labels: weights.map((w) => w.date),
     datasets: [
@@ -57,6 +65,11 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
     scales: {
       y: {
         beginAtZero: false,
+        min: minY,
+        max: maxY,
+        ticks: {
+          stepSize: 5,
+        },
       },
     },
   };
@@ -66,7 +79,7 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Weight Tracker</h5>
         <Button
-          label="+ Add Weight"
+          label="+ Weight"
           className="btn-transp-small"
           onClick={() => setShowDialog(true)}
         />

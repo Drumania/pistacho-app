@@ -210,7 +210,7 @@ export default function Dashboards() {
                     }
                   >
                     {editMode && (
-                      <div className="d-flex justify-content-between align-items-center px-2 pb-1">
+                      <div className="wc-edit-cont  d-flex justify-content-between align-items-center px-2 pb-1">
                         <div className="widget-handle">≡</div>
                         <div>
                           <button

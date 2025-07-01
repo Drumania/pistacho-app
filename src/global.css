@@ -539,8 +539,19 @@ body {
   border: 1px dashed var(--pistacho-color);
 }
 
+.wc-edit-cont {
+  position: absolute;
+  top: 12px;
+  width: calc(100% - 30px);
+  background: #000000d0;
+  border-radius: var(--border-radius);
+  z-index: 100;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px); /* Safari */
+}
+
 .widget-handle {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: #888;
   margin-bottom: 0.5rem;
