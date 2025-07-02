@@ -11,15 +11,14 @@ export default function MembersWidget({ groupId }) {
   const [members, setMembers] = useState([]);
   const [ownerId, setOwnerId] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // 👈 agregás esto
+  const [isLoading, setIsLoading] = useState(true);
 
   const isOwner = user?.uid === ownerId;
 
   useEffect(() => {
     const fetchMembers = async () => {
       if (!groupId) return;
-
-      setIsLoading(true); // 👈 empieza loading
+      setIsLoading(true);
 
       const groupRef = doc(db, "groups", groupId);
       const groupSnap = await getDoc(groupRef);
@@ -36,22 +35,26 @@ export default function MembersWidget({ groupId }) {
 
       const fullUsers = await Promise.all(
         membersSnap.docs.map(async (mDoc) => {
-          const { uid, role, admin = false, owner = false } = mDoc.data();
+          const { uid, role, admin = false, status = "active" } = mDoc.data();
+
+          if (!uid || status === "disabled") return null;
+
           const userSnap = await getDoc(doc(db, "users", uid));
           const userData = userSnap.exists() ? userSnap.data() : {};
+
           return {
             uid,
             role,
             admin,
-            owner,
+            status,
             name: userData.name || userData.displayName || "Unknown",
             photoURL: userData.photoURL || "",
           };
         })
       );
 
-      setMembers(fullUsers);
-      setIsLoading(false); // 👈 termina loading
+      setMembers(fullUsers.filter(Boolean));
+      setIsLoading(false);
     };
 
     fetchMembers();
@@ -73,9 +76,7 @@ export default function MembersWidget({ groupId }) {
       <ul className="cs-list-group mb-3">
         {isLoading
           ? [...Array(3)].map((_, i) => <UserListMembers key={i} user={null} />)
-          : members.map((u) => (
-              <UserListMembers key={u.uid} user={u} ownerId={ownerId} />
-            ))}
+          : members.map((u) => <UserListMembers key={u.uid} user={u} />)}
       </ul>
 
       <InviteMemberDialog

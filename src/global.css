@@ -11,11 +11,11 @@
   --text-color: #d4d4d4;
   --black-color: #0b0c0e;
   --bg-color: #25303d;
-  --line-color: #394b5e;
+  --line-color: #394b5e71;
   --panel: #1a232f;
   --panel-inside: #141d29;
   --panel-hover: #394b5e;
-  --font-size: 16px;
+  --font-size: 14px;
   --font-family: "Inter", sans-serif;
   --border-radius: 16px;
   --box-shadow: 10px 10px 40px 1px rgba(0, 0, 0, 0.21);
@@ -647,6 +647,14 @@ h5 {
 }
 
 /* misc */
+.fs-cs-1 {
+  font-size: 1rem;
+}
+
+.fs-cs-09 {
+  font-size: 0.9rem;
+}
+
 .color-pistacho {
   color: var(--pistacho-color);
 }
@@ -715,12 +723,12 @@ h5 {
   line-height: 40px;
   background-color: transparent;
   color: var(--pistacho-color);
-  border: 1px dashed var(--panel-hover);
+  border: 1px dashed transparent;
   cursor: pointer;
 }
 
 .btn-pistacho-outline:hover {
-  border: 1px solid var(--pistacho-color);
+  border: 1px dashed var(--panel-hover);
 }
 
 .btn-transp-small {

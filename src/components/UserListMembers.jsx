@@ -26,19 +26,32 @@ export default function UserListMembers({ user, extraContent = null }) {
                 backgroundRepeat: "no-repeat",
               }}
             />
-            <div className="fw-semibold">{user.name}</div>
+            <div
+              className={`fs-cs-09 ${
+                user.status === "pending" ? "fst-italic opacity-50" : ""
+              }`}
+            >
+              {user.name}
+            </div>
           </>
         )}
       </div>
 
       <div className="d-flex align-items-center gap-2">
-        {isLoading ? (
-          <Skeleton width="60px" height="20px" />
-        ) : (
-          user.admin && (
-            <span className="badge bg-warning text-dark">Admin</span>
-          )
+        {!isLoading && (
+          <>
+            {user.status === "pending" && (
+              <span className="badge bg-secondary">Pending</span>
+            )}
+            {user.owner && (
+              <span className="badge bg-info text-dark">Owner</span>
+            )}
+            {user.admin && (
+              <span className="badge bg-warning text-dark">Admin</span>
+            )}
+          </>
         )}
+        {isLoading && <Skeleton width="60px" height="20px" />}
         {extraContent}
       </div>
     </li>

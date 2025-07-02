@@ -13,7 +13,7 @@ export default function HeaderDashboard({
     <div className="header-dashboard">
       <h3 className="fw-bold">{groupName}</h3>
       <div>
-        {isAdmin && widgetInstances.length > 0 && (
+        {/* {isAdmin && widgetInstances.length > 0 && (
           <button
             className="btn-pistacho-outline me-2"
             onClick={handleSaveTemplate}
@@ -22,7 +22,7 @@ export default function HeaderDashboard({
             <i className="bi bi-save me-1" />
             Save as Template
           </button>
-        )}
+        )} */}
 
         <button
           className="btn-pistacho-outline me-2"
