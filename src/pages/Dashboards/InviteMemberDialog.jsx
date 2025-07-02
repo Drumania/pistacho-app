@@ -124,7 +124,7 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
       visible={visible}
       onHide={onHide}
       header="Invite Members"
-      style={{ width: "30rem" }}
+      style={{ width: "90%", maxWidth: "500px" }}
     >
       <div className="p-fluid">
         {/* Lista de miembros */}

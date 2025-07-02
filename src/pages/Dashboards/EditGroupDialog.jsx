@@ -89,7 +89,7 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
       visible={visible}
       onHide={onHide}
       header="Edit Group Info"
-      style={{ width: "30rem" }}
+      style={{ width: "90%", maxWidth: "500px" }}
       className="edit-group-dialog"
     >
       <div className="p-fluid">
