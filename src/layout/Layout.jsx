@@ -46,7 +46,7 @@ export default function Layout() {
       {isMobile && (
         <button
           onClick={() => setMobileMenuOpen((prev) => !prev)}
-          className="position-absolute top-0 start-0 m-2 z-3 text-white"
+          className="menu-hamb"
         >
           {mobileMenuOpen ? "X" : "☰"}
         </button>

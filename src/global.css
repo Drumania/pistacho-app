@@ -1003,6 +1003,18 @@ h5 {
 
 @media (max-width: 600px) {
   /* layout */
+  .container-fluid {
+    --bs-gutter-x: 0.5rem;
+  }
+
+  .app-wrapper .menu-hamb {
+    position: absolute;
+    top: 12px;
+    left: 0px;
+    padding: 10px;
+    font-size: 1.2rem;
+  }
+
   .wrap-navbar {
     position: fixed;
     width: 80px;
@@ -1024,11 +1036,15 @@ h5 {
     z-index: 4000;
   }
 
+  .header-dashboard {
+    padding-left: 30px;
+  }
+
   .header-dashboard div {
     display: flex;
 
     & #save-as-template,
-    & #invite-members,
+    & #edit-dashboard,
     & #add-widget {
       display: none;
     }

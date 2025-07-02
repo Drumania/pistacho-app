@@ -1,4 +1,3 @@
-// ✅ TodoWidget.jsx actualizado
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -19,18 +18,19 @@ import TodoItem from "./TodoItem";
 
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
+import { Skeleton } from "primereact/skeleton";
 
 import "./TodoWidget.css";
 
 export default function TodoWidget({ groupId }) {
   const { user } = useAuth();
   const [todos, setTodos] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editingTodo, setEditingTodo] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
 
   if (!user || !user.uid || !groupId) return null;
 
-  // ✅ Leer desde widget_data_todos/{groupId}
   useEffect(() => {
     const q = query(
       collection(db, `widget_data_todos/${groupId}/items`),
@@ -61,6 +61,7 @@ export default function TodoWidget({ groupId }) {
       });
 
       setTodos(sorted);
+      setLoading(false);
     });
 
     return () => unsub();
@@ -109,18 +110,32 @@ export default function TodoWidget({ groupId }) {
       </div>
 
       <ul className="list-unstyled small mt-2">
-        {todos.map((todo) => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            onToggle={handleToggle}
-            onDelete={handleDelete}
-            onEdit={() => {
-              setEditingTodo(todo);
-              setShowDialog(true);
-            }}
-          />
-        ))}
+        {loading ? (
+          <>
+            <li className="mb-2">
+              <Skeleton width="100%" height="2rem" />
+            </li>
+            <li className="mb-2">
+              <Skeleton width="100%" height="2rem" />
+            </li>
+            <li className="mb-2">
+              <Skeleton width="100%" height="2rem" />
+            </li>
+          </>
+        ) : (
+          todos.map((todo) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+              onEdit={() => {
+                setEditingTodo(todo);
+                setShowDialog(true);
+              }}
+            />
+          ))
+        )}
       </ul>
 
       <Dialog

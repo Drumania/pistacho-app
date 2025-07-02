@@ -38,7 +38,6 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
       className="new-group-dialog"
     >
       <div className="p-fluid">
-        <label className="mb-2">Group Name</label>
         <InputText
           value={name}
           onChange={(e) => setName(e.target.value)}
