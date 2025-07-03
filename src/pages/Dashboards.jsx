@@ -37,6 +37,7 @@ export default function Dashboards() {
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddWidgetDialog, setShowAddWidgetDialog] = useState(false);
+  const [isGroupAdmin, setIsGroupAdmin] = useState(false);
 
   const [layouts, setLayouts] = useState({ lg: [] });
   const [widgetInstances, setWidgetInstances] = useState([]);
@@ -74,6 +75,24 @@ export default function Dashboards() {
     };
     if (groupId) loadGroupData();
   }, [groupId]);
+
+  useEffect(() => {
+    const checkGroupAdmin = async () => {
+      if (!groupId || !user?.uid) return;
+
+      const memberRef = doc(db, "groups", groupId, "members", user.uid);
+      const memberSnap = await getDoc(memberRef);
+
+      if (memberSnap.exists()) {
+        const memberData = memberSnap.data();
+        setIsGroupAdmin(memberData.admin === true);
+      } else {
+        setIsGroupAdmin(false);
+      }
+    };
+
+    checkGroupAdmin();
+  }, [groupId, user?.uid]);
 
   useEffect(() => {
     fetchWidgets();
@@ -166,7 +185,7 @@ export default function Dashboards() {
             key={groupId}
             groupName={groupData.name}
             groupPhoto={groupData.photoURL}
-            isAdmin={isAdmin}
+            isAdmin={isGroupAdmin}
             widgetInstances={widgetInstances}
             handleSaveTemplate={handleSaveTemplate}
             setShowInviteDialog={setShowInviteDialog}

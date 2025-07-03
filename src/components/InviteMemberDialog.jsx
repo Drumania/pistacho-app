@@ -20,7 +20,6 @@ import useNotifications from "@/hooks/useNotifications";
 
 export default function InviteMemberDialog({ groupId, visible, onHide }) {
   const { user } = useAuth();
-
   const { sendNotification } = useNotifications();
 
   const [members, setMembers] = useState([]);
@@ -35,46 +34,46 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
 
   const isOwner = user?.uid === ownerUid;
 
-  useEffect(() => {
-    const loadGroupAndMembers = async () => {
-      if (!groupId) return;
-      setIsLoadingMembers(true);
+  const loadGroupAndMembers = async () => {
+    if (!groupId) return;
+    setIsLoadingMembers(true);
 
-      const groupRef = doc(db, "groups", groupId);
-      const groupSnap = await getDoc(groupRef);
-      if (!groupSnap.exists()) {
-        setIsLoadingMembers(false);
-        return;
-      }
-
-      const groupData = groupSnap.data();
-      setGroupName(groupData.name || "");
-      setOwnerUid(groupData.owner?.uid || null);
-
-      const membersRef = collection(db, "groups", groupId, "members");
-      const membersSnap = await getDocs(membersRef);
-      setMemberUids(membersSnap.docs.map((d) => d.id));
-
-      const membersData = await Promise.all(
-        membersSnap.docs.map(async (docSnap) => {
-          const { uid, role, admin = false, status } = docSnap.data();
-          const userSnap = await getDoc(doc(db, "users", uid));
-          const userData = userSnap.exists() ? userSnap.data() : {};
-          return {
-            uid,
-            role,
-            admin,
-            status,
-            name: userData.name || userData.displayName || "Unknown",
-            photoURL: userData.photoURL || "",
-          };
-        })
-      );
-
-      setMembers(membersData);
+    const groupRef = doc(db, "groups", groupId);
+    const groupSnap = await getDoc(groupRef);
+    if (!groupSnap.exists()) {
       setIsLoadingMembers(false);
-    };
+      return;
+    }
 
+    const groupData = groupSnap.data();
+    setGroupName(groupData.name || "");
+    setOwnerUid(groupData.owner?.uid || null);
+
+    const membersRef = collection(db, "groups", groupId, "members");
+    const membersSnap = await getDocs(membersRef);
+    setMemberUids(membersSnap.docs.map((d) => d.id));
+
+    const membersData = await Promise.all(
+      membersSnap.docs.map(async (docSnap) => {
+        const { uid, role, admin = false, status } = docSnap.data();
+        const userSnap = await getDoc(doc(db, "users", uid));
+        const userData = userSnap.exists() ? userSnap.data() : {};
+        return {
+          uid,
+          role,
+          admin,
+          status,
+          name: userData.name || userData.displayName || "Unknown",
+          photoURL: userData.photoURL || "",
+        };
+      })
+    );
+
+    setMembers(membersData);
+    setIsLoadingMembers(false);
+  };
+
+  useEffect(() => {
     if (visible) loadGroupAndMembers();
   }, [groupId, visible]);
 
@@ -130,6 +129,7 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
 
       setSearchValue("");
       setSearchResults([]);
+      await loadGroupAndMembers(); // 👈 actualiza después de invitar
     } catch (err) {
       console.error("Error al invitar:", err);
     } finally {
