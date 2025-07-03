@@ -196,8 +196,8 @@ export default function SettingsPage() {
       header: "Leave Group",
       acceptLabel: "Yes",
       rejectLabel: "Cancel",
-      acceptClassName: "btn-pistacho",
-      rejectClassName: "btn-pistacho-outline",
+      acceptClassName: "btn-pistacho mt-2",
+      rejectClassName: "btn-pistacho-outline mt-2",
       accept: () => handleLeaveGroup(group.id),
     });
   };

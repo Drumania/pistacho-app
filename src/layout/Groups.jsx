@@ -35,6 +35,7 @@ export default function Groups() {
       for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
         if (data.uid !== user.uid) continue;
+        if (data.status !== "active") continue; // ✅ solo miembros activos
 
         const groupRef = docSnap.ref.parent.parent;
         if (!groupRef) continue;
@@ -43,14 +44,13 @@ export default function Groups() {
         if (!groupSnap.exists()) continue;
 
         const group = groupSnap.data();
-        if (group.status !== "active") continue;
 
         myGroups.push({
           id: groupRef.id,
           slug: group.slug,
           name: group.name,
           photoURL: group.photoURL || "/group_placeholder.png",
-          order: group.order ?? 9999, // ✅ si no tiene order va al final
+          order: group.order ?? 9999,
         });
       }
 

@@ -71,6 +71,16 @@ export default function Navbar() {
                     </li>
                   </>
                 )}
+
+                <li>
+                  <Link
+                    to="/notifications"
+                    className="dropdown-item d-flex align-items-center gap-2"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <i className="bi bi-bell" /> Notifications
+                  </Link>
+                </li>
                 <li>
                   <Link
                     to="/settings"

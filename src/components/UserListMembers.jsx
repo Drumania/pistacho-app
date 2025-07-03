@@ -1,10 +1,13 @@
 import { Skeleton } from "primereact/skeleton";
 
-export default function UserListMembers({ user, extraContent = null }) {
+export default function UserListMembers({ user, right = null }) {
   const isLoading = !user;
 
   return (
-    <li className="d-flex align-items-center justify-content-between p-2">
+    <li
+      className="d-flex align-items-center justify-content-between p-2"
+      title={user?.email || ""}
+    >
       <div className="d-flex align-items-center gap-2">
         {isLoading ? (
           <>
@@ -24,6 +27,7 @@ export default function UserListMembers({ user, extraContent = null }) {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
+                backgroundColor: "#333333",
               }}
             />
             <div
@@ -38,6 +42,7 @@ export default function UserListMembers({ user, extraContent = null }) {
       </div>
 
       <div className="d-flex align-items-center gap-2">
+        {right}
         {!isLoading && (
           <>
             {user.status === "pending" && (
@@ -52,7 +57,6 @@ export default function UserListMembers({ user, extraContent = null }) {
           </>
         )}
         {isLoading && <Skeleton width="60px" height="20px" />}
-        {extraContent}
       </div>
     </li>
   );

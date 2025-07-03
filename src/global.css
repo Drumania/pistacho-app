@@ -668,7 +668,7 @@ h5 {
 }
 
 .color-red {
-  color: var(--red-color);
+  color: var(--red-color) !important;
 }
 
 .bg-red {
@@ -676,7 +676,7 @@ h5 {
 }
 
 .color-green {
-  color: var(--green-color);
+  color: var(--green-color) !important;
 }
 
 .bg-green {
@@ -762,15 +762,41 @@ h5 {
   background-color: #ccc;
 }
 
-.cs-list-group {
+.cs-list-group,
+.cs-list-notifications {
   background-color: var(--panel-inside);
   padding: var(--m-gap);
   min-height: 64px;
   border-radius: var(--border-radius);
 }
 
-.cs-list-group li:not(:last-child) {
+.cs-list-group li .admin-actions {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.cs-list-group li:hover .admin-actions {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.cs-list-group li:not(:last-child),
+.cs-list-notifications li:not(:last-child) {
   border-bottom: 1px solid var(--line-color);
+}
+
+.cs-list-notifications li {
+  display: flex;
+  color: var(--text-color);
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.cs-list-notifications li.not-unread {
+  background-color: var(--panel-hover);
+  border-radius: 8px;
+  border-bottom: 1px solid transparent;
 }
 
 .custom-width-input {

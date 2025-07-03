@@ -34,9 +34,9 @@ export default function TodoWidget({ groupId }) {
   useEffect(() => {
     const q = query(
       collection(db, `widget_data_todos/${groupId}/items`),
-      where("user_id", "==", user.uid),
       orderBy("created_at", "desc")
     );
+
     const unsub = onSnapshot(q, (snapshot) => {
       const now = new Date();
       const data = snapshot.docs
@@ -65,7 +65,7 @@ export default function TodoWidget({ groupId }) {
     });
 
     return () => unsub();
-  }, [user.uid, groupId]);
+  }, [groupId]);
 
   const colRef = collection(db, `widget_data_todos/${groupId}/items`);
 
@@ -88,6 +88,7 @@ export default function TodoWidget({ groupId }) {
     await updateDoc(doc(colRef, todo.id), {
       completed: !todo.completed,
       completed_at: !todo.completed ? new Date().toISOString() : null,
+      completed_by: !todo.completed ? user.displayName || user.email : null,
     });
   };
 

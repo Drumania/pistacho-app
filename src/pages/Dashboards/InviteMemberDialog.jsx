@@ -12,6 +12,8 @@ import {
   getDocs,
   deleteDoc,
   setDoc,
+  addDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import db from "@/firebase/firestore";
@@ -22,19 +24,16 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
 
   const [members, setMembers] = useState([]);
   const [ownerUid, setOwnerUid] = useState(null);
+  const [groupName, setGroupName] = useState("");
+  const [memberUids, setMemberUids] = useState([]);
   const [isLoadingMembers, setIsLoadingMembers] = useState(true);
 
   const [searchValue, setSearchValue] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [showInviteByEmail, setShowInviteByEmail] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const [groupName, setGroupName] = useState("");
-  const [memberUids, setMemberUids] = useState([]);
 
   const isOwner = user?.uid === ownerUid;
 
-  // 🔹 Cargar grupo y miembros
   useEffect(() => {
     const loadGroupAndMembers = async () => {
       if (!groupId) return;
@@ -57,13 +56,14 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
 
       const membersData = await Promise.all(
         membersSnap.docs.map(async (docSnap) => {
-          const { uid, role, admin = false } = docSnap.data();
+          const { uid, role, admin = false, status } = docSnap.data();
           const userSnap = await getDoc(doc(db, "users", uid));
           const userData = userSnap.exists() ? userSnap.data() : {};
           return {
             uid,
             role,
             admin,
+            status,
             name: userData.name || userData.displayName || "Unknown",
             photoURL: userData.photoURL || "",
           };
@@ -77,28 +77,23 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
     if (visible) loadGroupAndMembers();
   }, [groupId, visible]);
 
-  // 🔹 Buscar usuarios con debounce
   useEffect(() => {
     const delay = setTimeout(async () => {
       const val = searchValue.trim().toLowerCase();
       if (val.length < 3) {
         setSearchResults([]);
-        setShowInviteByEmail(false);
         return;
       }
 
-      // buscar por email exacto
       const qEmail = query(collection(db, "users"), where("email", "==", val));
       const snapEmail = await getDocs(qEmail);
 
       if (!snapEmail.empty) {
         const docUser = snapEmail.docs[0];
         setSearchResults([{ uid: docUser.id, ...docUser.data() }]);
-        setShowInviteByEmail(false);
         return;
       }
 
-      // buscar por coincidencia parcial en name
       const qAll = query(collection(db, "users"));
       const snapAll = await getDocs(qAll);
 
@@ -112,62 +107,39 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
         )
         .slice(0, 10);
       setSearchResults(filtered);
-      setShowInviteByEmail(filtered.length === 0);
     }, 400);
 
     return () => clearTimeout(delay);
   }, [searchValue]);
 
-  // 🔹 Invitar usuario registrado
   const handleInvite = async (userToAdd) => {
     setLoading(true);
     try {
+      // 1. Agregar al grupo con estado pending
       const memberRef = doc(db, "groups", groupId, "members", userToAdd.uid);
-      const inviteRef = doc(db, "invites", `${groupId}_${userToAdd.uid}`);
-
-      const inviteSnap = await getDoc(inviteRef);
-      if (inviteSnap.exists()) {
-        alert("This user has already been invited.");
-        setLoading(false);
-        return;
-      }
-
       await setDoc(memberRef, {
         uid: userToAdd.uid,
         role: "member",
-        admin: false,
-        owner: false,
         status: "pending",
       });
 
-      await setDoc(inviteRef, {
-        groupId,
-        groupName,
-        fromUid: user.uid,
-        fromName: user.name || user.displayName || "Unknown",
+      // 2. Crear notificación
+      await addDoc(collection(db, "notifications"), {
         toUid: userToAdd.uid,
-        toEmail: userToAdd.email,
+        type: "group_invite",
+        read: false,
+        createdAt: serverTimestamp(),
         status: "pending",
-        createdAt: new Date(),
+        data: {
+          groupId,
+          groupName,
+          fromUid: user.uid,
+          fromName: user.displayName || user.name || "Alguien",
+        },
       });
 
-      setMembers((prev) => [
-        ...prev,
-        {
-          uid: userToAdd.uid,
-          role: "member",
-          admin: false,
-          owner: false,
-          status: "pending",
-          name: userToAdd.name || userToAdd.displayName || "Unknown",
-          photoURL: userToAdd.photoURL || "",
-        },
-      ]);
-
-      setMemberUids((prev) => [...prev, userToAdd.uid]);
       setSearchValue("");
       setSearchResults([]);
-      setShowInviteByEmail(false);
     } catch (err) {
       console.error("Error al invitar:", err);
     } finally {
@@ -175,26 +147,23 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
     }
   };
 
-  // 🔹 Invitar por email (usuario no registrado)
-  const handleInviteByEmail = async (email) => {
-    setLoading(true);
-    try {
-      // 🔔 TODO: guardar en colección "invites"
-      alert(`Invitación pendiente creada para ${email} (a implementar)`);
-
-      setSearchValue("");
-      setShowInviteByEmail(false);
-    } catch (err) {
-      console.error("Error al invitar por email:", err);
-    } finally {
-      setLoading(false);
-    }
+  const handleRemoveMember = async (uidToRemove) => {
+    await deleteDoc(doc(db, "groups", groupId, "members", uidToRemove));
+    setMembers((prev) => prev.filter((m) => m.uid !== uidToRemove));
   };
 
-  const handleRemoveMember = async (uidToRemove) => {
-    const memberRef = doc(db, "groups", groupId, "members", uidToRemove);
-    await deleteDoc(memberRef);
-    setMembers((prev) => prev.filter((m) => m.uid !== uidToRemove));
+  const handleToggleAdmin = async (uidToToggle, isCurrentlyAdmin) => {
+    const memberRef = doc(db, "groups", groupId, "members", uidToToggle);
+    try {
+      await setDoc(memberRef, { admin: !isCurrentlyAdmin }, { merge: true });
+      setMembers((prev) =>
+        prev.map((m) =>
+          m.uid === uidToToggle ? { ...m, admin: !isCurrentlyAdmin } : m
+        )
+      );
+    } catch (err) {
+      console.error("Error al cambiar admin:", err);
+    }
   };
 
   return (
@@ -205,7 +174,6 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
       style={{ width: "90%", maxWidth: "500px" }}
     >
       <div className="p-fluid">
-        {/* 🔸 Miembros actuales */}
         <label className="mb-2">Members</label>
         <ul className="cs-list-group mb-4">
           {isLoadingMembers
@@ -217,21 +185,28 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
                   key={u.uid}
                   user={u}
                   right={
-                    isOwner &&
+                    user?.admin &&
                     u.uid !== user.uid && (
-                      <Button
-                        icon="pi pi-times"
-                        className="p-button-sm p-button-text text-danger"
-                        title="Remove from group"
-                        onClick={() => handleRemoveMember(u.uid)}
-                      />
+                      <div className="admin-actions d-flex align-items-center gap-1">
+                        <Button
+                          label="Remove from group"
+                          className="small text-danger"
+                          title="Remove from group"
+                          onClick={() => handleRemoveMember(u.uid)}
+                        />
+                        <Button
+                          label={u.admin ? "Remove admin" : "Make admin"}
+                          className="small text-info"
+                          title={u.admin ? "Remove admin" : "Make admin"}
+                          onClick={() => handleToggleAdmin(u.uid, u.admin)}
+                        />
+                      </div>
                     )
                   }
                 />
               ))}
         </ul>
 
-        {/* 🔸 Buscar usuario */}
         <label className="mb-2">Search user to invite</label>
         <InputText
           value={searchValue}
@@ -240,7 +215,6 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
           className="mb-3"
         />
 
-        {/* 🔸 Resultados */}
         {searchResults.length > 0 && (
           <ul className="list-group mb-2">
             {searchResults.map((u) => (
@@ -267,21 +241,6 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
               </li>
             ))}
           </ul>
-        )}
-
-        {/* 🔸 Invitación por email */}
-        {showInviteByEmail && (
-          <div className="mt-2">
-            <div className="mb-1 text-muted small">
-              No user found. Do you want to send an invite by email?
-            </div>
-            <Button
-              label="Invite by email"
-              onClick={() => handleInviteByEmail(searchValue)}
-              disabled={loading}
-              loading={loading}
-            />
-          </div>
         )}
       </div>
     </Dialog>

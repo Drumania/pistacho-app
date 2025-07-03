@@ -5,6 +5,7 @@ import LoginPage from "@/pages/LoginPage";
 import SettingsPage from "@/pages/SettingsPage";
 import AdminToolsPage from "@/pages/AdminToolsPage";
 import { useAuth } from "@/firebase/AuthContext";
+import NotificationsPage from "./pages/NotificationsPage";
 
 function App() {
   const { user, loading } = useAuth();
@@ -27,6 +28,7 @@ function App() {
             element={<Navigate to={`/g/${user.slug}`} replace />}
           />
           <Route path="/g/:groupId" element={<GroupDashboard />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/admintools" element={<AdminToolsPage />} />
           <Route

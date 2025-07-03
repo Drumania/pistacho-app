@@ -49,7 +49,14 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
           {completed && completed_at && (
             <div className="opacity-50 small">
               <i className="bi bi-check-circle me-1" />
-              Completada el {new Date(completed_at).toLocaleDateString("es-AR")}
+              Completada
+              {todo.completed_by && (
+                <>
+                  {" "}
+                  por <b>{todo.completed_by}</b>{" "}
+                </>
+              )}
+              el {new Date(completed_at).toLocaleDateString("es-AR")}
             </div>
           )}
         </div>
