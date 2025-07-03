@@ -1,28 +1,31 @@
-import { Checkbox } from "primereact/checkbox";
 import { Button } from "primereact/button";
 import CustomCheckbox from "@/components/CustomCheckbox";
 
 export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
   const { title, completed, priority, label, completed_at } = todo;
 
-  function renderWithMentions(text) {
-    const parts = text.split(/(@\w+)/g); // separa por menciones
+  const renderWithMentions = (text) => {
+    const parts = text.split(/(@\w+)/g);
     return parts.map((part, i) =>
       part.startsWith("@") ? (
         <strong key={i} className="mention">
-          @{part.slice(1)}
+          {part}
         </strong>
       ) : (
         part
       )
     );
-  }
+  };
+
+  const handleToggle = () => {
+    onToggle(todo);
+  };
 
   return (
     <li className="d-flex justify-content-between align-items-start todo-item">
       <div className="d-flex align-items-center gap-2">
         <div className="wrap-check-todo">
-          <CustomCheckbox checked={completed} onChange={() => onToggle(todo)} />
+          <CustomCheckbox checked={completed} onChange={handleToggle} />
         </div>
         <div className={`fw-semibold ${completed ? "opacity-50" : ""}`}>
           {renderWithMentions(title)}

@@ -1,10 +1,21 @@
 import { useEffect, useState, useRef } from "react";
-import { collection, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  getDoc,
+  query,
+  where,
+} from "firebase/firestore";
 import db from "@/firebase/firestore";
 
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
+
+import { useAuth } from "@/firebase/AuthContext";
+import useNotifications from "@/hooks/useNotifications";
 
 const TAG_COLORS = [
   { name: "Rojo", color: "#dc3545" },
@@ -42,6 +53,9 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
   const [loading, setLoading] = useState(false);
   const titleRef = useRef(null);
 
+  const { user } = useAuth();
+  const { sendNotification } = useNotifications();
+
   useEffect(() => {
     if (editingTodo) {
       setTitle(editingTodo.title || "");
@@ -60,7 +74,6 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
     }, 100);
   }, [editingTodo]);
 
-  // 🔁 cargar etiquetas
   useEffect(() => {
     if (!groupId) return;
     const fetchLabels = async () => {
@@ -73,7 +86,6 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
     fetchLabels();
   }, [groupId]);
 
-  // 🔁 cargar miembros
   useEffect(() => {
     if (!groupId) return;
     const fetchMembers = async () => {
@@ -95,6 +107,27 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
     fetchMembers();
   }, [groupId]);
 
+  const notifyMentions = async (text, todoId = null) => {
+    const mentions = [...text.matchAll(/@(\w+)/g)].map((m) => m[1]);
+    for (const name of mentions) {
+      try {
+        const q = query(collection(db, "users"), where("name", "==", name));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const userDoc = snap.docs[0];
+          await sendNotification(userDoc.id, "todo_mention", {
+            todoId,
+            todoTitle: text,
+            from: user?.name || "Alguien",
+            groupId,
+          });
+        }
+      } catch (err) {
+        console.error("❌ Error notificando a:", name, err);
+      }
+    }
+  };
+
   const saveLabelIfNew = async (name, color) => {
     if (!name || !groupId) return;
     const exists = labelList.some((l) => l.name === name);
@@ -113,11 +146,16 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
     setLoading(true);
     try {
       if (labelName) await saveLabelIfNew(labelName, labelColor);
+
       await onSubmit({
         title: title.trim(),
         priority,
         label: labelName ? { name: labelName, color: labelColor } : null,
       });
+
+      if (title.includes("@")) {
+        await notifyMentions(title.trim());
+      }
     } catch (err) {
       console.error("Error saving task", err);
     } finally {
@@ -125,7 +163,6 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
     }
   };
 
-  // 🔍 detectar @mención
   const handleTitleChange = (e) => {
     const value = e.target.value;
     setTitle(value);
@@ -253,7 +290,6 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
         disabled={loading}
       />
 
-      {/* CSS Inline o en tu .css */}
       <style>
         {`
           .mention-list {

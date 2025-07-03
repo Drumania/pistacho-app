@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
+import { Link } from "react-router-dom";
 
 export default function NotificationsPage() {
   const { user } = useAuth();
@@ -50,11 +51,7 @@ export default function NotificationsPage() {
 
   const handleAcceptInvite = async (notif) => {
     const notifRef = doc(db, "notifications", notif.id);
-
-    await updateDoc(notifRef, {
-      read: true,
-      status: "accepted",
-    });
+    await updateDoc(notifRef, { read: true, status: "accepted" });
 
     const memberRef = doc(
       db,
@@ -72,99 +69,142 @@ export default function NotificationsPage() {
 
   const handleRejectInvite = async (notif) => {
     const notifRef = doc(db, "notifications", notif.id);
+    await updateDoc(notifRef, { read: true, status: "rejected" });
+  };
 
-    await updateDoc(notifRef, {
-      read: true,
-      status: "rejected",
-    });
+  const getLinkFromNotification = (notif) => {
+    if (notif.data?.groupId) return `/g/${notif.data.groupId}`;
+    if (notif.data?.link) return notif.data.link;
+    return null;
   };
 
   const renderContent = (notif) => {
     const { type, data, status } = notif;
+    const link = getLinkFromNotification(notif);
+
+    const footerBtn = link && (
+      <div className="mt-2">
+        <Link to={link}>
+          <Button label="Ver" size="small" className="btn-pistacho-outline" />
+        </Link>
+      </div>
+    );
 
     switch (type) {
       case "group_invite":
         return (
-          <div className="d-flex flex-column">
+          <div className="d-flex  w-100 justify-content-between">
             <div>
-              <strong>{data.fromName}</strong> te invitó al grupo{" "}
-              <strong>{data.groupName}</strong>
+              <div>
+                <strong>{data.fromName}</strong> te invitó al grupo{" "}
+                <strong>{data.groupName}</strong>
+              </div>
+              <div>
+                {status === "accepted" && (
+                  <div className="mt-2 text-success small">
+                    ✓ Invitación aceptada
+                  </div>
+                )}
+                {status === "rejected" && (
+                  <div className="mt-2 text-danger small">
+                    ✗ Invitación rechazada
+                  </div>
+                )}
+                {status === "pending" && (
+                  <div className="mt-2 d-flex gap-2">
+                    <Button
+                      label="Aceptar"
+                      className="btn-transp-small color-green"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAcceptInvite(notif);
+                      }}
+                    />
+                    <Button
+                      label="Rechazar"
+                      className="btn-transp-small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRejectInvite(notif);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-
-            {status === "accepted" && (
-              <div className="mt-2 text-success small">
-                ✓ Invitación aceptada
-              </div>
-            )}
-            {status === "rejected" && (
-              <div className="mt-2 text-danger small">
-                ✗ Invitación rechazada
-              </div>
-            )}
-
-            {status === "pending" && (
-              <div className="mt-2 d-flex gap-2">
-                <Button
-                  label="Aceptar"
-                  className="btn-transp-small color-green"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAcceptInvite(notif);
-                  }}
-                />
-                <Button
-                  label="Rechazar"
-                  className="btn-transp-small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRejectInvite(notif);
-                  }}
-                />
-              </div>
-            )}
+            <div>{footerBtn}</div>
           </div>
         );
 
       case "admin_granted":
         return (
-          <div>
-            <strong>{data.fromName}</strong> te asignó como{" "}
-            <strong>admin</strong> en el grupo <strong>{data.groupName}</strong>
+          <div className="d-flex w-100 justify-content-between">
+            <div>
+              <strong>{data.fromName}</strong> te asignó como{" "}
+              <strong>admin</strong> en el grupo{" "}
+              <strong>{data.groupName}</strong>
+            </div>
+            <div>{footerBtn}</div>
           </div>
         );
 
       case "admin_revoked":
         return (
-          <div>
-            <strong>{data.fromName}</strong> te quitó los permisos de{" "}
-            <strong>admin</strong> en el grupo <strong>{data.groupName}</strong>
+          <div className="d-flex w-100 justify-content-between">
+            <div>
+              <strong>{data.fromName}</strong> te quitó los permisos de{" "}
+              <strong>admin</strong> en el grupo{" "}
+              <strong>{data.groupName}</strong>
+            </div>
+            <div>{footerBtn}</div>
           </div>
         );
 
       case "comment":
         return (
-          <div>
-            <strong>{data.fromName}</strong> comentó en{" "}
-            <strong>{data.groupName}</strong>:<br />
-            <span className="fst-italic">"{data.comment}"</span>
+          <div className="d-flex w-100 justify-content-between">
+            <div>
+              <strong>{data.fromName}</strong> comentó en{" "}
+              <strong>{data.groupName}</strong>:<br />
+              <span className="fst-italic">"{data.comment}"</span>
+            </div>
+            <div>{footerBtn}</div>
           </div>
         );
 
       case "reminder":
         return (
-          <div>
-            Recordatorio: <strong>{data.title}</strong> en{" "}
-            <strong>{data.groupName}</strong>
+          <div className="d-flex w-100 justify-content-between">
+            <div>
+              Recordatorio: <strong>{data.title}</strong> en{" "}
+              <strong>{data.groupName}</strong>
+            </div>
+            <div>{footerBtn}</div>
           </div>
         );
 
       case "group_removed":
         return (
-          <div>
-            <strong>{data.fromName}</strong> te removió del grupo{" "}
-            <strong>{data.groupName}</strong>
+          <div className="d-flex w-100 justify-content-between">
+            <div>
+              <strong>{data.fromName}</strong> te removió del grupo{" "}
+              <strong>{data.groupName}</strong>
+            </div>
+            <div>{footerBtn}</div>
           </div>
         );
+
+      case "todo_mention":
+        return (
+          <div className="d-flex w-100 justify-content-between">
+            <div>
+              <strong>{data.from}</strong> te mencionó en una tarea: <br />
+              <span className="fst-italic">"{data.todoTitle}"</span>
+            </div>
+            <div>{footerBtn}</div>
+          </div>
+        );
+
       default:
         return (
           <div>
@@ -175,28 +215,30 @@ export default function NotificationsPage() {
   };
 
   const getIcon = (type, read) => {
-    let icon = "pi-bell";
+    let icon = "pi pi-bell";
+
     switch (type) {
       case "group_invite":
-        icon = "pi-users";
+        icon = "pi pi-users";
         break;
       case "comment":
-        icon = "pi-comment";
+        icon = "pi pi-comment";
         break;
       case "reminder":
-        icon = "pi-calendar";
+        icon = "pi pi-calendar";
+        break;
+      case "todo_mention":
+        icon = "pi pi-at";
+        break;
+      case "admin_granted":
+        icon = "pi pi-user-plus";
+        break;
+      case "admin_revoked":
+        icon = "pi pi-user-minus";
         break;
     }
 
-    const color = read
-      ? "text-secondary"
-      : {
-          group_invite: "text-primary",
-          comment: "text-info",
-          reminder: "text-warning",
-        }[type] || "text-primary";
-
-    return `pi ${icon} ${color}`;
+    return `${icon} ${read ? "text-secondary" : "text-warning"}`;
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -204,7 +246,7 @@ export default function NotificationsPage() {
   return (
     <div className="container py-5" style={{ maxWidth: 600 }}>
       <h2 className="mb-4">
-        Notifications{" "}
+        Notificaciones{" "}
         {unreadCount > 0 && (
           <span className="badge bg-danger">{unreadCount}</span>
         )}
@@ -228,13 +270,12 @@ export default function NotificationsPage() {
                   new Date(notif.createdAt?.toDate?.() || notif.createdAt),
                   {
                     addSuffix: true,
-                    locale: es,
                   }
                 )}
               </div>
-              <div className="d-flex gap-3 align-items-start">
+              <div className="d-flex gap-3 w-100 align-items-start">
                 <i className={`${getIcon(notif.type, notif.read)} mt-1`} />
-                <div className="flex-grow-1">{renderContent(notif)}</div>
+                <div className="w-100">{renderContent(notif)}</div>
               </div>
             </li>
           ))}

@@ -80,17 +80,17 @@ export default function Navbar() {
                   </li>
                 )}
 
-                <li>
+                <li className="position-relative">
                   <Link
                     to="/notifications"
                     className="dropdown-item d-flex align-items-center gap-2"
                     onClick={() => setMenuOpen(false)}
                   >
                     <i className="bi bi-bell" /> Notifications
-                    {!menuOpen && unreadCount > 0 && (
+                    {unreadCount > 0 && (
                       <span
-                        className="badge bg-danger position-absolute top-0 end-0 translate-middle p-1 small rounded-circle d-flex align-items-center justify-content-center"
-                        style={{ width: 18, height: 18 }}
+                        className="badge bg-danger ms-auto"
+                        style={{ fontSize: 12, padding: "0.3em 0.5em" }}
                       >
                         {unreadCount}
                       </span>
