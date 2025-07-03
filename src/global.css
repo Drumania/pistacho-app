@@ -235,19 +235,11 @@ h5 {
   position: relative;
 }
 
-.user-avatar-clickable {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.user-avatar-clickable .p-avatar {
-  transition: border 0.2s ease;
-}
-
-.user-avatar-clickable:hover .p-avatar {
-  border: 2px solid var(--pistacho-color);
+.avatar-wrapper .rounded-circle {
+  top: 7px;
+  right: -15px;
+  width: 18px;
+  height: 18px;
 }
 
 .custom-menu {

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Avatar } from "primereact/avatar";
 import { useAuth } from "@/firebase/AuthContext";
 import { getUserAvatar } from "@/utils/getUserAvatar";
 import Groups from "@/layout/Groups";
+import useNotifications from "@/hooks/useNotifications";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -40,36 +41,43 @@ export default function Navbar() {
       {user && (
         <div className="navbar-user" ref={wrapperRef}>
           <div
+            className="avatar-wrapper position-relative"
             onMouseEnter={handleMouseEnter}
-            className="rounded-circle border"
-            style={{
-              width: 48,
-              height: 48,
-              backgroundImage: `url(${getUserAvatar(user)})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              cursor: "pointer",
-            }}
-          />
+          >
+            <div
+              className="rounded-circle border"
+              style={{
+                width: 48,
+                height: 48,
+                backgroundImage: `url(${getUserAvatar(user)})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                cursor: "pointer",
+              }}
+            />
+            {!menuOpen && unreadCount > 0 && (
+              <span
+                className="badge bg-danger position-absolute translate-middle p-1 small rounded-circle d-flex align-items-center justify-content-center"
+                style={{ width: 18, height: 18 }}
+              >
+                {unreadCount}
+              </span>
+            )}
+          </div>
 
           {menuOpen && (
             <div className="custom-menu">
               <ul className="user-panel mb-0">
                 {user.admin && (
-                  <>
-                    <li>
-                      <Link
-                        to="/admintools"
-                        className="dropdown-item d-flex align-items-center gap-2"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <i className="bi bi-shield-lock" /> Admin Tools
-                      </Link>
-                    </li>
-                    <li>
-                      <hr className="dropdown-divider" />
-                    </li>
-                  </>
+                  <li>
+                    <Link
+                      to="/admintools"
+                      className="dropdown-item d-flex align-items-center gap-2"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <i className="bi bi-shield-lock" /> Admin Tools
+                    </Link>
+                  </li>
                 )}
 
                 <li>
@@ -79,6 +87,14 @@ export default function Navbar() {
                     onClick={() => setMenuOpen(false)}
                   >
                     <i className="bi bi-bell" /> Notifications
+                    {!menuOpen && unreadCount > 0 && (
+                      <span
+                        className="badge bg-danger position-absolute top-0 end-0 translate-middle p-1 small rounded-circle d-flex align-items-center justify-content-center"
+                        style={{ width: 18, height: 18 }}
+                      >
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                 </li>
                 <li>
@@ -89,9 +105,6 @@ export default function Navbar() {
                   >
                     <i className="bi bi-gear" /> Settings
                   </Link>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
                 </li>
                 <li>
                   <button

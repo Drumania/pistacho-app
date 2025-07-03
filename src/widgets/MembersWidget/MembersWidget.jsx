@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
-import { Button } from "primereact/button";
-import InviteMemberDialog from "@/pages/Dashboards/InviteMemberDialog";
 import { useAuth } from "@/firebase/AuthContext";
 import db from "@/firebase/firestore";
+
+import InviteMemberDialog from "@/components/InviteMemberDialog";
 import UserListMembers from "@/components/UserListMembers";
+import { Button } from "primereact/button";
 
 export default function MembersWidget({ groupId }) {
   const { user } = useAuth();

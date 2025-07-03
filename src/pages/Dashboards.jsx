@@ -4,11 +4,11 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-import HeaderDashboard from "./HeaderDashboard";
+import HeaderDashboard from "@/components/HeaderDashboard";
 
-import InviteMemberDialog from "./InviteMemberDialog";
-import EditGroupDialog from "./EditGroupDialog";
-import AddWidgetDialog from "./AddWidgetDialog";
+import InviteMemberDialog from "@/components/InviteMemberDialog";
+import EditGroupDialog from "@/components/EditGroupDialog";
+import AddWidgetDialog from "@/components/AddWidgetDialog";
 
 import db from "@/firebase/firestore";
 import {

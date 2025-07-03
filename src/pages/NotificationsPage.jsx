@@ -6,11 +6,11 @@ import {
   collection,
   query,
   where,
-  getDocs,
   updateDoc,
   doc,
   orderBy,
   setDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
@@ -21,27 +21,25 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
-      if (!user?.uid) return;
+    if (!user?.uid) return;
 
-      setLoading(true);
-      const q = query(
-        collection(db, "notifications"),
-        where("toUid", "==", user.uid),
-        orderBy("createdAt", "desc")
-      );
-      const snap = await getDocs(q);
+    const q = query(
+      collection(db, "notifications"),
+      where("toUid", "==", user.uid),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snap) => {
       const items = snap.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-
       setNotifications(items);
       setLoading(false);
-    };
+    });
 
-    fetchNotifications();
-  }, [user]);
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   const markAsRead = async (id) => {
     setNotifications((prev) =>
@@ -53,13 +51,11 @@ export default function NotificationsPage() {
   const handleAcceptInvite = async (notif) => {
     const notifRef = doc(db, "notifications", notif.id);
 
-    // 🔹 Actualizar notificación
     await updateDoc(notifRef, {
       read: true,
       status: "accepted",
     });
 
-    // 🔹 Agregar al grupo como miembro activo
     const memberRef = doc(
       db,
       "groups",
@@ -72,30 +68,15 @@ export default function NotificationsPage() {
       role: "member",
       status: "active",
     });
-
-    // 🔹 Actualizar UI local
-    setNotifications((prev) =>
-      prev.map((n) =>
-        n.id === notif.id ? { ...n, read: true, status: "accepted" } : n
-      )
-    );
   };
 
   const handleRejectInvite = async (notif) => {
     const notifRef = doc(db, "notifications", notif.id);
 
-    // 🔹 Actualizar notificación
     await updateDoc(notifRef, {
       read: true,
       status: "rejected",
     });
-
-    // 🔹 Actualizar UI local
-    setNotifications((prev) =>
-      prev.map((n) =>
-        n.id === notif.id ? { ...n, read: true, status: "rejected" } : n
-      )
-    );
   };
 
   const renderContent = (notif) => {
@@ -144,6 +125,22 @@ export default function NotificationsPage() {
           </div>
         );
 
+      case "admin_granted":
+        return (
+          <div>
+            <strong>{data.fromName}</strong> te asignó como{" "}
+            <strong>admin</strong> en el grupo <strong>{data.groupName}</strong>
+          </div>
+        );
+
+      case "admin_revoked":
+        return (
+          <div>
+            <strong>{data.fromName}</strong> te quitó los permisos de{" "}
+            <strong>admin</strong> en el grupo <strong>{data.groupName}</strong>
+          </div>
+        );
+
       case "comment":
         return (
           <div>
@@ -161,8 +158,19 @@ export default function NotificationsPage() {
           </div>
         );
 
+      case "group_removed":
+        return (
+          <div>
+            <strong>{data.fromName}</strong> te removió del grupo{" "}
+            <strong>{data.groupName}</strong>
+          </div>
+        );
       default:
-        return <div>Notificación desconocida</div>;
+        return (
+          <div>
+            Tipo desconocido: <code>{notif.type}</code>
+          </div>
+        );
     }
   };
 

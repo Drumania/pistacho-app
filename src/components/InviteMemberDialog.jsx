@@ -12,15 +12,16 @@ import {
   getDocs,
   deleteDoc,
   setDoc,
-  addDoc,
-  serverTimestamp,
 } from "firebase/firestore";
 
 import db from "@/firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
+import useNotifications from "@/hooks/useNotifications";
 
 export default function InviteMemberDialog({ groupId, visible, onHide }) {
   const { user } = useAuth();
+
+  const { sendNotification } = useNotifications();
 
   const [members, setMembers] = useState([]);
   const [ownerUid, setOwnerUid] = useState(null);
@@ -115,7 +116,6 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
   const handleInvite = async (userToAdd) => {
     setLoading(true);
     try {
-      // 1. Agregar al grupo con estado pending
       const memberRef = doc(db, "groups", groupId, "members", userToAdd.uid);
       await setDoc(memberRef, {
         uid: userToAdd.uid,
@@ -123,19 +123,9 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
         status: "pending",
       });
 
-      // 2. Crear notificación
-      await addDoc(collection(db, "notifications"), {
-        toUid: userToAdd.uid,
-        type: "group_invite",
-        read: false,
-        createdAt: serverTimestamp(),
-        status: "pending",
-        data: {
-          groupId,
-          groupName,
-          fromUid: user.uid,
-          fromName: user.displayName || user.name || "Alguien",
-        },
+      await sendNotification(userToAdd.uid, "group_invite", {
+        groupId,
+        groupName,
       });
 
       setSearchValue("");
@@ -148,18 +138,34 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
   };
 
   const handleRemoveMember = async (uidToRemove) => {
-    await deleteDoc(doc(db, "groups", groupId, "members", uidToRemove));
-    setMembers((prev) => prev.filter((m) => m.uid !== uidToRemove));
+    try {
+      await deleteDoc(doc(db, "groups", groupId, "members", uidToRemove));
+      setMembers((prev) => prev.filter((m) => m.uid !== uidToRemove));
+
+      await sendNotification(uidToRemove, "group_removed", {
+        groupId,
+        groupName,
+      });
+    } catch (err) {
+      console.error("Error al remover miembro:", err);
+    }
   };
 
   const handleToggleAdmin = async (uidToToggle, isCurrentlyAdmin) => {
-    const memberRef = doc(db, "groups", groupId, "members", uidToToggle);
     try {
+      const memberRef = doc(db, "groups", groupId, "members", uidToToggle);
       await setDoc(memberRef, { admin: !isCurrentlyAdmin }, { merge: true });
+
       setMembers((prev) =>
         prev.map((m) =>
           m.uid === uidToToggle ? { ...m, admin: !isCurrentlyAdmin } : m
         )
+      );
+
+      await sendNotification(
+        uidToToggle,
+        isCurrentlyAdmin ? "admin_revoked" : "admin_granted",
+        { groupId, groupName }
       );
     } catch (err) {
       console.error("Error al cambiar admin:", err);
