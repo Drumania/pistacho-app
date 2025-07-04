@@ -22,6 +22,12 @@ export default function WorldClocksWidget({ groupId }) {
       if (snap.exists()) {
         const data = snap.data();
         setClocks(data.clocks || []);
+        // Initialize times with default values based on loaded clocks
+        const initialTimes = {};
+        data.clocks?.forEach((clock) => {
+          initialTimes[clock.code] = "--:--";
+        });
+        setTimes(initialTimes);
       }
     };
     loadConfig();
@@ -51,10 +57,19 @@ export default function WorldClocksWidget({ groupId }) {
 
   const handleSave = async (selected) => {
     setClocks(selected);
-    try {
-      await updateDoc(docRef, { clocks: selected });
-    } catch {
-      await setDoc(docRef, { clocks: selected });
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      try {
+        await updateDoc(docRef, { clocks: selected });
+      } catch (error) {
+        console.error("Error updating clocks:", error);
+      }
+    } else {
+      try {
+        await setDoc(docRef, { clocks: selected });
+      } catch (error) {
+        console.error("Error creating clocks:", error);
+      }
     }
   };
 
