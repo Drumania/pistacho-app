@@ -142,32 +142,35 @@ export default function Dashboards() {
   };
 
   const handleSaveTemplate = async () => {
-    const name = prompt("Template name:");
-    if (!name) return;
+    if (!user || !groupId || !widgetInstances.length) return;
 
-    const widgetsForTemplate = widgetInstances.map((w) => {
-      const layout = layouts.lg.find((l) => l.i === w.id);
-      return {
-        key: w.key,
-        layout: layout || { x: 0, y: 0, w: 1, h: 1 },
-        settings: w.settings || {},
-      };
-    });
-
-    const templateData = {
-      name,
-      description: "",
-      created_by: user?.uid,
-      created_at: serverTimestamp(),
-      widgets: widgetsForTemplate,
-    };
+    const templateName = prompt("Enter a name for this template:");
+    if (!templateName) return;
 
     try {
-      await addDoc(collection(db, "templates"), templateData);
-      showToast?.("success", "Saved", "Template saved successfully");
+      const widgetsData = widgetInstances
+        .filter((w) => w?.key) // validamos que tenga key
+        .map((w) => ({
+          widgetId: w.key, // usamos key como ID del widget
+          settings: w.settings ?? {},
+          layout: w.layout ?? {},
+        }));
+
+      if (!widgetsData.length) {
+        alert("❌ No widgets found to save. Please check your configuration.");
+        return;
+      }
+
+      await addDoc(collection(db, "templates"), {
+        name: templateName,
+        createdBy: user.uid,
+        createdAt: serverTimestamp(),
+        widgets: widgetsData,
+      });
+
+      console.log("✅ Template saved!");
     } catch (err) {
-      console.error("Error saving template:", err);
-      showToast?.("error", "Error", "Failed to save template");
+      console.error("❌ Error saving template:", err);
     }
   };
 
@@ -183,9 +186,10 @@ export default function Dashboards() {
         <>
           <HeaderDashboard
             key={groupId}
+            isAdmin={isAdmin}
+            isGroupAdmin={isGroupAdmin}
             groupName={groupData.name}
             groupPhoto={groupData.photoURL}
-            isAdmin={isGroupAdmin}
             widgetInstances={widgetInstances}
             handleSaveTemplate={handleSaveTemplate}
             setShowInviteDialog={setShowInviteDialog}

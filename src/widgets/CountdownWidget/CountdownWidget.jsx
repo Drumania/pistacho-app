@@ -8,23 +8,19 @@ const calculateTimeLeft = (targetDate) => {
   if (!targetDate) return null;
 
   const difference = +new Date(targetDate) - +new Date();
-  let timeLeft = {};
-
-  if (difference > 0) {
-    timeLeft = {
-      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-      minutes: Math.floor((difference / 1000 / 60) % 60),
-      seconds: Math.floor((difference / 1000) % 60),
-    };
-  } else {
+  if (difference <= 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   }
 
-  return timeLeft;
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
 };
 
-export default function CountdownWidget({ instance, editMode, groupId }) {
+export default function CountdownWidget({ widgetId, editMode, groupId }) {
   const [config, setConfig] = useState({
     title: "Countdown",
     targetDate: null,
@@ -39,7 +35,7 @@ export default function CountdownWidget({ instance, editMode, groupId }) {
       "widget_data",
       "countdown",
       groupId,
-      instance.id
+      widgetId
     );
 
     const unsubscribe = onSnapshot(widgetDataRef, (docSnap) => {
@@ -58,7 +54,7 @@ export default function CountdownWidget({ instance, editMode, groupId }) {
     });
 
     return () => unsubscribe();
-  }, [groupId, instance.id]);
+  }, [groupId, widgetId]);
 
   useEffect(() => {
     if (!config.targetDate) return;
@@ -85,14 +81,12 @@ export default function CountdownWidget({ instance, editMode, groupId }) {
     <div className="countdown-widget widget-container">
       <div className="widget-header">
         <h5 className="widget-title">{config.title}</h5>
-        {editMode && (
-          <button
-            className="btn btn-sm btn-outline-secondary"
-            onClick={() => setModalVisible(true)}
-          >
-            <i className="bi bi-gear"></i>
-          </button>
-        )}
+        <button
+          className="btn btn-sm btn-outline-secondary"
+          onClick={() => setModalVisible(true)}
+        >
+          <i className="bi bi-gear"></i>
+        </button>
       </div>
       <div className="countdown-display">
         {timeLeft ? (
@@ -127,7 +121,7 @@ export default function CountdownWidget({ instance, editMode, groupId }) {
             </div>
           )
         ) : (
-          <p className="text-muted">
+          <p className="opacity-75">
             {editMode ? "Click the gear to set a date." : "No date set."}
           </p>
         )}
@@ -137,7 +131,7 @@ export default function CountdownWidget({ instance, editMode, groupId }) {
         visible={modalVisible}
         onHide={() => setModalVisible(false)}
         groupId={groupId}
-        widgetId={instance.id}
+        widgetId={widgetId}
         initialConfig={config}
         onSave={handleSave}
       />

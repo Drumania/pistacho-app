@@ -45,17 +45,16 @@ export default function HeaderDashboard({
 
         {isAdmin && (
           <div className="border-start ps-3 ms-3">
-            {/* Si querés volver a usar el botón de plantilla */}
-            {/* {widgetInstances.length > 0 && (
-            <button
-              className="btn-pistacho-outline me-2"
-              onClick={handleSaveTemplate}
-              id="save-as-template"
-            >
-              <i className="bi bi-save me-1" />
-              Save as Template
-            </button>
-          )} */}
+            {widgetInstances.length > 0 && (
+              <button
+                className="btn-pistacho-outline me-2"
+                onClick={handleSaveTemplate}
+                id="save-as-template"
+              >
+                <i className="bi bi-save me-1" />
+                Save as Template
+              </button>
+            )}
 
             <button
               className={`btn-pistacho position-relative btn-start-here ${
