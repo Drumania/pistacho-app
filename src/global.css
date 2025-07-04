@@ -126,6 +126,7 @@ h5 {
   width: clac(100vw - 80px);
   margin-left: 80px;
   background-color: var(--bg-color);
+  min-height: 100vh;
 }
 
 /* nav groups */
@@ -133,6 +134,7 @@ h5 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   width: 80px;
   height: 100dvh;
   background-color: #0e141a;
@@ -541,6 +543,16 @@ h5 {
   padding: 0 var(--gap);
 }
 
+.dashboard-empty {
+  position: relative;
+  top: -10px;
+  left: 40px;
+
+  & .bi-arrow-up {
+    padding-left: 85px;
+  }
+}
+
 /* widget-zone */
 .widget-content {
   height: 100%;
@@ -734,13 +746,13 @@ h5 {
   height: 40px;
   line-height: 40px;
   background-color: transparent;
-  color: var(--pistacho-color);
+  color: var(--white-color);
   border: 1px dashed transparent;
   cursor: pointer;
 }
 
 .btn-pistacho-outline:hover {
-  border: 1px dashed var(--panel-hover);
+  color: var(--pistacho-color);
 }
 
 .btn-transp-small {

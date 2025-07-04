@@ -68,22 +68,6 @@ export default function HeaderDashboard({
             </button>
 
             <button
-              className="btn-pistacho-outline me-2"
-              onClick={() => setShowInviteDialog(true)}
-              id="invite-members"
-            >
-              <i className="bi bi-person-plus" title="Invite Members" />
-            </button>
-
-            <button
-              className="btn-pistacho-outline"
-              onClick={() => setShowEditDialog(true)}
-              id="setting-group"
-            >
-              <i className="bi bi-gear" title="Settings Group" />
-            </button>
-
-            <button
               className={
                 editMode
                   ? "btn-pistacho shine mx-2"
@@ -97,6 +81,22 @@ export default function HeaderDashboard({
               ) : (
                 <i className="bi bi-columns-gap" title="Edit Dashboard" />
               )}
+            </button>
+
+            <button
+              className="btn-pistacho-outline me-2"
+              onClick={() => setShowInviteDialog(true)}
+              id="invite-members"
+            >
+              <i className="bi bi-person-plus" title="Invite Members" />
+            </button>
+
+            <button
+              className="btn-pistacho-outline"
+              onClick={() => setShowEditDialog(true)}
+              id="setting-group"
+            >
+              <i className="bi bi-gear" title="Settings Group" />
             </button>
           </div>
         )}

@@ -27,8 +27,9 @@ import app from "./config";
 const AuthContext = createContext();
 const auth = getAuth(app);
 
+// ✅ Generar slug único
 async function generateUniqueSlug(base) {
-  const baseSlug = slugify(base, { lower: true, strict: true });
+  const baseSlug = slugify(base.trim(), { lower: true, strict: true });
   let slug = baseSlug;
   let counter = 1;
   const usersRef = collection(db, "users");
@@ -41,10 +42,20 @@ async function generateUniqueSlug(base) {
   return slug;
 }
 
-// ✅ grupo personal con order 0
+// ✅ Crear grupo personal con order 0
+// ✅ grupo personal con order 0 si no existe
 async function createPersonalGroup(slug, user) {
   const groupRef = doc(db, "groups", slug);
   const memberRef = doc(db, "groups", slug, "members", user.uid);
+
+  // 🚫 Evitar duplicado
+  const existing = await getDoc(groupRef);
+  if (existing.exists()) {
+    console.warn("⚠️ Grupo personal ya existe:", slug);
+    return;
+  }
+
+  console.log("✅ Creando grupo personal con slug:", slug);
 
   await setDoc(groupRef, {
     name: "Me",
@@ -62,24 +73,26 @@ async function createPersonalGroup(slug, user) {
   });
 }
 
+// ✅ Verificar y crear user y grupo si no existe
 async function ensureUserData(fbUser, fallbackName = "") {
   const ref = doc(db, "users", fbUser.uid);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
-    const display = fbUser.displayName || fallbackName || fbUser.email;
-    const slug = await generateUniqueSlug(display);
-
-    await createPersonalGroup(slug, fbUser);
+    const name = fallbackName || fbUser.displayName || "User";
+    const slug = await generateUniqueSlug(name);
 
     await setDoc(ref, {
       uid: fbUser.uid,
       email: fbUser.email,
-      name: display,
+      name,
       slug,
       photoURL: fbUser.photoURL || "",
       createdAt: serverTimestamp(),
     });
+
+    // 🔥 Crear grupo solo si es nuevo usuario
+    await createPersonalGroup(slug, { ...fbUser, uid: fbUser.uid });
   }
 
   const profileSnap = await getDoc(ref);

@@ -258,7 +258,7 @@ export default function Dashboards() {
           </ResponsiveGridLayout>
 
           {widgetInstances.length === 0 && (
-            <div className="text-end mt-3">
+            <div className="dashboard-empty">
               <h3 className="pe-5">
                 <i className="bi bi-arrow-up"></i>
               </h3>

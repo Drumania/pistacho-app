@@ -230,11 +230,16 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
               >
                 <div className="d-flex align-items-center gap-2">
                   <img
-                    src={u.photoURL || "/avatar_placeholder.png"}
+                    src={
+                      u.photoURL?.trim()
+                        ? u.photoURL
+                        : "/avatar_placeholder.png"
+                    }
                     alt={u.name}
                     className="rounded-circle"
-                    width={32}
-                    height={32}
+                    width="37px"
+                    height="37px"
+                    style={{ backgroundColor: "#333333" }}
                   />
                   <div>{u.name}</div>
                 </div>
@@ -243,6 +248,8 @@ export default function InviteMemberDialog({ groupId, visible, onHide }) {
                   onClick={() => handleInvite(u)}
                   disabled={loading}
                   loading={loading}
+                  style={{ width: "100px" }}
+                  className="btn-pistacho-small"
                 />
               </li>
             ))}
