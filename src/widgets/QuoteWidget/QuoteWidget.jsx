@@ -5,7 +5,7 @@ import db from "@/firebase/firestore";
 import QuoteSettingsDialog from "./QuoteSettingsDialog";
 import { Button } from "primereact/button";
 
-import "./QuoteWidget.css";
+// import "./QuoteWidget.css";
 
 export default function QuoteWidget({ groupId }) {
   const { user } = useAuth();
@@ -74,7 +74,7 @@ export default function QuoteWidget({ groupId }) {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Quote of the Day</h5>
         <Button
-          label="Settings"
+          label="+ Quotes"
           className="btn-transp-small"
           onClick={() => setShowDialog(true)}
         />
