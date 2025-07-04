@@ -3,6 +3,7 @@ import { Button } from "primereact/button";
 import { useState, useEffect } from "react";
 import { MultiSelect } from "primereact/multiselect";
 import { InputNumber } from "primereact/inputnumber";
+import quotes from "@/data/quotes.json";
 
 export default function QuoteSettingsDialog({
   visible,
@@ -74,23 +75,3 @@ export default function QuoteSettingsDialog({
     </Dialog>
   );
 }
-
-const quotes = [
-  {
-    text: "The only way to do great work is to love what you do.",
-    author: "Steve Jobs",
-  },
-  {
-    text: "Strive not to be a success, but rather to be of value.",
-    author: "Albert Einstein",
-  },
-  {
-    text: "Two roads diverged in a wood, and I—I took the one less traveled by, And that has made all the difference.",
-    author: "Robert Frost",
-  },
-  {
-    text: "The mind is everything. What you think you become.",
-    author: "Buddha",
-  },
-  // Add more quotes here...
-];

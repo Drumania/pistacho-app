@@ -4,6 +4,7 @@ import { useAuth } from "@/firebase/AuthContext";
 import db from "@/firebase/firestore";
 import QuoteSettingsDialog from "./QuoteSettingsDialog";
 import { Button } from "primereact/button";
+import quotes from "@/data/quotes.json";
 
 // import "./QuoteWidget.css";
 
@@ -74,12 +75,14 @@ export default function QuoteWidget({ groupId }) {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Quote of the Day</h5>
         <Button
-          label="+ Quotes"
+          label="Settings"
           className="btn-transp-small"
           onClick={() => setShowDialog(true)}
         />
       </div>
-      <p className="font-italic">{quote}</p>
+      <p key={quote} className="font-italic quote-text">
+        {quote}
+      </p>
       <QuoteSettingsDialog
         visible={showDialog}
         onHide={() => setShowDialog(false)}
@@ -90,23 +93,3 @@ export default function QuoteWidget({ groupId }) {
     </div>
   );
 }
-
-const quotes = [
-  {
-    text: "The only way to do great work is to love what you do.",
-    author: "Steve Jobs",
-  },
-  {
-    text: "Strive not to be a success, but rather to be of value.",
-    author: "Albert Einstein",
-  },
-  {
-    text: "Two roads diverged in a wood, and I—I took the one less traveled by, And that has made all the difference.",
-    author: "Robert Frost",
-  },
-  {
-    text: "The mind is everything. What you think you become.",
-    author: "Buddha",
-  },
-  // Add more quotes here...
-];
