@@ -1,0 +1,33 @@
+.countdown-widget {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.countdown-display {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.countdown-display .time-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  line-height: 1;
+  color: var(--pistacho-green);
+}
+
+.countdown-display .time-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  display: block;
+  color: var(--bs-secondary-color);
+}
+
+.countdown-finished {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--pistacho-green);
+}
