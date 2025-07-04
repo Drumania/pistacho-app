@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
 import db from "@/firebase/firestore";
 import QuoteSettingsDialog from "./QuoteSettingsDialog";
 import { Button } from "primereact/button";
-import quotes from "@/data/quotes.json";
+import quotes from "./quotes.json";
 
-// import "./QuoteWidget.css";
+import "./QuoteWidget.css";
 
 export default function QuoteWidget({ groupId }) {
   const { user } = useAuth();
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
   const [quote, setQuote] = useState("");
-  const [refreshInterval, setRefreshInterval] = useState(60); // Default: 60 seconds
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   const docRef = doc(db, "widget_data", "quote_widget", groupId, "main");
 
@@ -24,45 +24,54 @@ export default function QuoteWidget({ groupId }) {
       if (snap.exists()) {
         const data = snap.data();
         setSelectedAuthors(data.authors || []);
-        setRefreshInterval(data.refreshInterval || 60);
       }
     };
     loadConfig();
   }, [groupId]);
 
   useEffect(() => {
-    const fetchQuote = () => {
-      if (selectedAuthors.length === 0) {
-        setQuote("Please select at least one author in the settings.");
-        return;
-      }
-      const availableQuotes = quotes.filter((q) =>
-        selectedAuthors.includes(q.author)
+    if (selectedAuthors.length === 0) {
+      setQuote("Please select at least one author in the settings.");
+      return;
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const stored = JSON.parse(localStorage.getItem("quote_of_the_day")) || {};
+
+    if (stored.date === today && stored.quote) {
+      setQuote(stored.quote);
+      setLastUpdated(today);
+    } else {
+      getNewQuote(today);
+    }
+  }, [selectedAuthors]);
+
+  const getNewQuote = (dateToSet) => {
+    const availableQuotes = quotes.filter((q) =>
+      selectedAuthors.includes(q.author)
+    );
+    if (availableQuotes.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availableQuotes.length);
+      const newQuote = `"${availableQuotes[randomIndex].text}" - ${availableQuotes[randomIndex].author}`;
+      setQuote(newQuote);
+      setLastUpdated(dateToSet);
+      localStorage.setItem(
+        "quote_of_the_day",
+        JSON.stringify({ date: dateToSet, quote: newQuote })
       );
+    } else {
+      setQuote("No quotes found for the selected authors.");
+    }
+  };
 
-      if (availableQuotes.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableQuotes.length);
-        setQuote(
-          `"${availableQuotes[randomIndex].text}" - ${availableQuotes[randomIndex].author}`
-        );
-      } else {
-        setQuote("No quotes found for the selected authors.");
-      }
-    };
+  const handleRefresh = () => {
+    getNewQuote(lastUpdated); // mantiene misma fecha
+  };
 
-    fetchQuote();
-    const intervalId = setInterval(fetchQuote, refreshInterval * 1000);
-    return () => clearInterval(intervalId);
-  }, [selectedAuthors, refreshInterval]);
-
-  const handleSave = async (authors, interval) => {
+  const handleSave = async (authors) => {
     setSelectedAuthors(authors);
-    setRefreshInterval(interval);
     try {
-      await setDoc(docRef, {
-        authors: authors,
-        refreshInterval: interval,
-      });
+      await setDoc(docRef, { authors });
     } catch (error) {
       console.error("Error updating quote widget settings:", error);
     }
@@ -71,24 +80,41 @@ export default function QuoteWidget({ groupId }) {
   if (!user) return null;
 
   return (
-    <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="mb-0">Quote of the Day</h5>
-        <Button
-          label="Settings"
-          className="btn-transp-small"
-          onClick={() => setShowDialog(true)}
-        />
+    <div className="quote-widget-container position-relative p-3 rounded">
+      <div className="d-flex justify-content-between align-items-center mx-auto">
+        <div className="widget-controls d-flex gap-2">
+          <Button
+            icon="pi pi-refresh"
+            className="btn-icon btn-transp-small"
+            onClick={handleRefresh}
+            title="Next quote"
+            text
+            rounded
+          />
+          <Button
+            icon="pi pi-cog"
+            className="btn-transp-small"
+            onClick={() => setShowDialog(true)}
+            text
+            rounded
+          />
+        </div>
       </div>
-      <p key={quote} className="font-italic quote-text">
-        {quote}
-      </p>
+
+      {quote && (
+        <div className="quote-text text-center font-serif">
+          <div>{quote.split('"')[1]}</div>
+          <div className="small mt-2 opacity-50">
+            ({quote.split('"')[2]?.replace(" - ", "")})
+          </div>
+        </div>
+      )}
+
       <QuoteSettingsDialog
         visible={showDialog}
         onHide={() => setShowDialog(false)}
         onSave={handleSave}
         initialAuthors={selectedAuthors}
-        initialInterval={refreshInterval}
       />
     </div>
   );

@@ -1,35 +1,41 @@
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { useState, useEffect } from "react";
-import { MultiSelect } from "primereact/multiselect";
-import { InputNumber } from "primereact/inputnumber";
-import quotes from "@/data/quotes.json";
+import quotes from "./quotes.json";
+import "./QuoteWidget.css";
 
 export default function QuoteSettingsDialog({
   visible,
   onHide,
   onSave,
   initialAuthors,
-  initialInterval,
 }) {
-  const [selectedAuthors, setSelectedAuthors] = useState([]);
-  const [refreshInterval, setRefreshInterval] = useState(60);
+  const [selected, setSelected] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    setSelectedAuthors(initialAuthors || []);
-    setRefreshInterval(initialInterval || 60);
-  }, [initialAuthors, initialInterval, visible]);
+    setSelected(initialAuthors || []);
+    setSearch("");
+  }, [initialAuthors, visible]);
+
+  const handleToggle = (author) => {
+    const already = selected.includes(author);
+    if (already) {
+      setSelected(selected.filter((a) => a !== author));
+    } else {
+      setSelected([...selected, author]);
+    }
+  };
 
   const handleSave = () => {
-    onSave(selectedAuthors, refreshInterval);
+    onSave(selected);
     onHide();
   };
 
-  const authorOptions = Array.from(new Set(quotes.map((q) => q.author))).map(
-    (author) => ({
-      label: author,
-      value: author,
-    })
+  const authorOptions = Array.from(new Set(quotes.map((q) => q.author)));
+
+  const filtered = authorOptions.filter((a) =>
+    a.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -38,35 +44,28 @@ export default function QuoteSettingsDialog({
       visible={visible}
       onHide={onHide}
       style={{ width: "30rem" }}
+      className="quote-dialog"
     >
-      <div className="mb-3">
-        <label htmlFor="authors" className="form-label">
-          Select Authors:
-        </label>
-        <MultiSelect
-          id="authors"
-          value={selectedAuthors}
-          onChange={(e) => setSelectedAuthors(e.value)}
-          options={authorOptions}
-          placeholder="Select authors"
-          display="chip"
-          className="w-full"
-        />
-      </div>
+      <input
+        type="text"
+        placeholder="Search author..."
+        className="p-inputtext w-full mb-3"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
-      <div>
-        <label htmlFor="refreshInterval" className="form-label">
-          Refresh Interval (seconds):
-        </label>
-        <InputNumber
-          id="refreshInterval"
-          value={refreshInterval}
-          onValueChange={(e) => setRefreshInterval(e.value)}
-          min={10}
-          max={3600}
-          suffix=" seconds"
-          className="w-full"
-        />
+      <div className="author-list">
+        {filtered.map((author) => (
+          <div
+            key={author}
+            className={`d-flex align-items-center justify-content-between mb-2 panel-in-panels ${
+              selected.includes(author) ? "bg-pistacho" : ""
+            }`}
+            onClick={() => handleToggle(author)}
+          >
+            <span>{author}</span>
+          </div>
+        ))}
       </div>
 
       <div className="d-flex justify-end gap-2 mt-4">
