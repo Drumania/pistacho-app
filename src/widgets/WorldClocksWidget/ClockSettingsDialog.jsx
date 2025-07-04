@@ -54,25 +54,27 @@ export default function ClockSettingsDialog({
       />
 
       <div className="country-list">
-        {filtered.map((c) => (
-          <div
-            key={c.code}
-            className={`d-flex align-items-center justify-content-between mb-2 panel-in-panels ${
-              isSelected(c.code) ? "bg-pistacho" : " "
-            }`}
-            onClick={() => handleToggle(c)}
-          >
-            <img
-              src={`https://flagcdn.com/w40/${c.code}.png`}
-              alt={c.label}
-              width={24}
-              height={18}
-              style={{ borderRadius: "3px", objectFit: "cover" }}
-            />
-            <span>{c.label}</span>
-            <label className="text-opacity-50">{c.utc}</label>
-          </div>
-        ))}
+        {[{ label: "Empty", value: null }, ...templates]
+          .filter((t) => t.label.toLowerCase().includes(search.toLowerCase()))
+          .map((t) => (
+            <div
+              key={t.label}
+              className={`d-flex align-items-center justify-content-between mb-2 panel-in-panels ${
+                selectedTemplate?.label === t.label ||
+                (!selectedTemplate && !t.value)
+                  ? "bg-pistacho"
+                  : ""
+              }`}
+              onClick={() => setSelectedTemplate(t.value)}
+            >
+              <span>{t.label}</span>
+              {t.value?.data?.widgets?.length && (
+                <span className="text-opacity-50">
+                  {t.value.data.widgets.length} widgets
+                </span>
+              )}
+            </div>
+          ))}
       </div>
 
       <div className="d-flex justify-end gap-2 mt-4">

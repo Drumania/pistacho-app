@@ -4,10 +4,14 @@ import {
   serverTimestamp,
   getDocs,
   collection,
+  addDoc,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import slugify from "slugify";
 
+/**
+ * Genera un slug único para el grupo
+ */
 const generateGroupSlug = async (name) => {
   const base = slugify(name, { lower: true, strict: true });
   const random = Math.floor(1000 + Math.random() * 9000);
@@ -15,7 +19,7 @@ const generateGroupSlug = async (name) => {
 };
 
 export const useCreateGroup = () => {
-  const createGroup = async (name, currentUser) => {
+  const createGroup = async (name, currentUser, template = null) => {
     if (!name || !currentUser?.uid) throw new Error("Missing data");
 
     const slug = await generateGroupSlug(name);
@@ -44,6 +48,20 @@ export const useCreateGroup = () => {
       owner: true,
       admin: true,
     });
+
+    // 3. Si hay un template, clonar los widgets
+    if (template?.widgets?.length) {
+      for (const w of template.widgets) {
+        if (!w.widgetId) continue;
+        await addDoc(collection(db, "widget_data"), {
+          groupId: slug,
+          widgetId: w.widgetId,
+          layout: w.layout ?? {},
+          settings: w.settings ?? {},
+          createdAt: serverTimestamp(),
+        });
+      }
+    }
 
     return { slug, id: slug };
   };
