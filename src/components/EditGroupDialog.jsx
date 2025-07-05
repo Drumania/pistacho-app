@@ -1,14 +1,27 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { ConfirmDialog } from "primereact/confirmdialog";
+import { confirmDialog } from "primereact/confirmdialog";
+
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+} from "firebase/firestore";
+
 import {
   ref,
+  listAll,
+  deleteObject,
+  getStorage,
   uploadBytes,
   getDownloadURL,
-  getStorage,
-  deleteObject,
 } from "firebase/storage";
 
 import db from "@/firebase/firestore";
@@ -17,17 +30,19 @@ import { useAuth } from "@/firebase/AuthContext";
 
 export default function EditGroupDialog({ groupId, visible, onHide }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const storage = getStorage(app);
 
   const [name, setName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
   const [prevImagePath, setPrevImagePath] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
-    if (!groupId || !visible) return;
+    if (!groupId || !visible || !user?.uid) return;
 
-    const loadGroup = async () => {
+    const loadData = async () => {
       const refGroup = doc(db, "groups", groupId);
       const snap = await getDoc(refGroup);
       if (snap.exists()) {
@@ -36,10 +51,17 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
         setPhotoURL(data.photoURL || "");
         setPrevImagePath(data.photoPath || "");
       }
+
+      const memberRef = doc(db, "groups", groupId, "members", user.uid);
+      const memberSnap = await getDoc(memberRef);
+      if (memberSnap.exists()) {
+        const memberData = memberSnap.data();
+        setIsOwner(!!memberData.owner);
+      }
     };
 
-    loadGroup();
-  }, [groupId, visible]);
+    loadData();
+  }, [groupId, visible, user]);
 
   const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
@@ -82,6 +104,58 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = () => {
+    confirmDialog({
+      message:
+        "Are you sure you want to delete this group and all related data?",
+      header: "Delete Confirmation",
+      acceptLabel: "Delete",
+      rejectLabel: "Cancel",
+      acceptClassName: "btn btn-danger mt-3",
+      rejectClassName: "btn btn-dark mt-3 me-3",
+      accept: async () => {
+        setLoading(true);
+        try {
+          // 🔥 1. Borrar archivos del storage
+          const folderRef = ref(storage, `groups/${groupId}`);
+          const fileList = await listAll(folderRef);
+          await Promise.all(fileList.items.map((item) => deleteObject(item)));
+
+          // 🔥 2. Borrar subcolecciones relacionadas
+          const subcollections = [
+            "members",
+            "transactions",
+            "widgets",
+            "templates",
+            "itembags",
+            "special_rewards",
+            "item_bag_templates",
+            "events", // por si hay eventos asociados al grupo
+          ];
+
+          for (const sub of subcollections) {
+            const snap = await getDocs(collection(db, "groups", groupId, sub));
+            await Promise.all(
+              snap.docs.map((docu) =>
+                deleteDoc(doc(db, "groups", groupId, sub, docu.id))
+              )
+            );
+          }
+
+          // 🔥 3. Borrar grupo
+          await deleteDoc(doc(db, "groups", groupId));
+
+          // 🔁 4. Redirigir
+          navigate("/home");
+        } catch (err) {
+          console.error("❌ Error deleting group and related data:", err);
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
   };
 
   return (
@@ -131,6 +205,18 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
           disabled={!name}
           loading={loading}
         />
+
+        {isOwner && (
+          <div className="d-flex justify-content-end mt-4 pt-4 ">
+            <ConfirmDialog />
+            <div
+              className="text-danger cursor-pointer text-end"
+              onClick={handleDelete}
+            >
+              Delete Group
+            </div>
+          </div>
+        )}
       </div>
     </Dialog>
   );

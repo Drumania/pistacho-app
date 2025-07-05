@@ -54,27 +54,18 @@ export default function ClockSettingsDialog({
       />
 
       <div className="country-list">
-        {[{ label: "Empty", value: null }, ...templates]
-          .filter((t) => t.label.toLowerCase().includes(search.toLowerCase()))
-          .map((t) => (
-            <div
-              key={t.label}
-              className={`d-flex align-items-center justify-content-between mb-2 panel-in-panels ${
-                selectedTemplate?.label === t.label ||
-                (!selectedTemplate && !t.value)
-                  ? "bg-pistacho"
-                  : ""
-              }`}
-              onClick={() => setSelectedTemplate(t.value)}
-            >
-              <span>{t.label}</span>
-              {t.value?.data?.widgets?.length && (
-                <span className="text-opacity-50">
-                  {t.value.data.widgets.length} widgets
-                </span>
-              )}
-            </div>
-          ))}
+        {filtered.map((country) => (
+          <div
+            key={country.code}
+            className={`d-flex align-items-center justify-content-between mb-2 panel-in-panels ${
+              isSelected(country.code) ? "bg-pistacho" : ""
+            }`}
+            onClick={() => handleToggle(country)}
+          >
+            <span>{country.label}</span>
+            <span className="text-muted small">{country.utc}</span>
+          </div>
+        ))}
       </div>
 
       <div className="d-flex justify-end gap-2 mt-4">
