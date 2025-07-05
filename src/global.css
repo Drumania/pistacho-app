@@ -823,6 +823,28 @@ h5 {
   border-bottom: 1px solid transparent;
 }
 
+.custom-input {
+  line-height: 40px;
+  height: 40px;
+  background-color: var(--black-color);
+  width: 100%;
+  border-radius: 3px;
+  padding: 12px;
+  -moz-appearance: textfield;
+}
+
+/* Chrome, Safari, Edge */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .custom-width-input {
   width: 120px !important; /* fuerza el contenedor */
 }
@@ -841,7 +863,7 @@ h5 {
 }
 
 .cw-100 {
-  width: 100px;
+  width: 100px !important;
 }
 
 .cw-200 {
@@ -986,8 +1008,37 @@ h5 {
 }
 
 /* misc */
+
+.text-muted {
+  color: violet !important;
+}
+
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* .editable-text {
+  cursor: pointer;
+  border: 0;
+  padding: 10px;
+  border-radius: 6px;
+  background-color: var(--black-color);
+}
+
+.editable-text:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+} */
+
+.editable-text {
+  padding: 8px 12px;
+  background-color: var(--panel-inside);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editable-text:hover {
+  background-color: var(--panel-hover);
 }
 
 .shine {
