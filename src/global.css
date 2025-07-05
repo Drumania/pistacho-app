@@ -1056,6 +1056,42 @@ input[type="number"] {
 }
 
 /* primereact fixs */
+
+.fuel-table-row {
+  height: 48px !important; /* ajustá a tu gusto */
+}
+
+.p-datatable .p-datatable-thead {
+  background-color: transparent;
+}
+.p-datatable .p-datatable-thead > tr > th {
+  line-height: 40px;
+}
+
+.p-datatable .p-datatable-tbody > tr > td,
+.p-datatable .p-datatable-thead > tr > th {
+  border: none !important;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-color); /* opcional, si querés que el texto quede legible */
+  font-weight: 600; /* o ajustá según estilo */
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background: transparent !important;
+}
+
+.p-datatable .p-datatable-thead > tr {
+  background: transparent !important;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  background: transparent !important;
+}
+
 /* Más alto visualmente */
 .custom-datatable .p-datatable-tbody > tr {
   height: 30px;

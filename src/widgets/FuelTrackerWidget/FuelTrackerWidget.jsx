@@ -22,40 +22,20 @@ export default function FuelTrackerWidget({ groupId, widgetId }) {
       "FuelTrackerWidget",
       `${groupId}_${widgetId}`
     );
-    const q = query(ref, orderBy("date", "asc"));
+    const q = query(ref, orderBy("date", "desc"));
     const snap = await getDocs(q);
     const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     setEntries(data);
   };
 
-  const getStats = () => {
-    const stats = [];
-    for (let i = 0; i < entries.length - 1; i++) {
-      const current = entries[i];
-      const next = entries[i + 1];
-
-      const km = next.odometer - current.odometer;
-      const liters = next.liters;
-      const price = next.price;
-
-      const consumption = km > 0 ? (liters / km) * 100 : null;
-      const costPerKm = price && km > 0 ? price / km : null;
-
-      stats.push({
-        id: next.id,
-        date: new Date(next.date),
-        km,
-        liters,
-        price,
-        consumption: consumption ? Number(consumption.toFixed(2)) : null,
-        costPerKm: costPerKm ? Number(costPerKm.toFixed(2)) : null,
-      });
-    }
-
-    return stats.filter((r) => r.consumption);
-  };
-
-  const rows = getStats();
+  const withDifferences = entries.map((entry, i) => {
+    const next = entries[i + 1];
+    const diff = next ? entry.odometer - next.odometer : null;
+    return {
+      ...entry,
+      kmDiff: diff && diff > 0 ? diff : null,
+    };
+  });
 
   return (
     <div>
@@ -69,23 +49,32 @@ export default function FuelTrackerWidget({ groupId, widgetId }) {
       </div>
 
       <DataTable
-        value={rows}
+        value={withDifferences}
         className="p-datatable-sm"
         emptyMessage="No entries yet"
         scrollable
-        scrollHeight="300px"
-        size="small"
+        scrollHeight="100%"
+        stripedRows
+        paginator
+        rows={10}
+        rowClassName={() => "fuel-table-row"}
       >
         <Column
           field="date"
           header="Date"
-          body={(row) => format(row.date, "dd/MM/yyyy")}
+          body={(row, col) => {
+            const isInitial =
+              entries.length && row.id === entries[entries.length - 1]?.id;
+            return isInitial ? "—" : format(new Date(row.date), "dd/MM/yyyy");
+          }}
         />
-        <Column field="km" header="Km" />
+        <Column field="odometer" header="Odometer" />
+        <Column
+          field="kmDiff"
+          header="Km Recorridos"
+          body={(row) => (row.kmDiff != null ? row.kmDiff : "—")}
+        />
         <Column field="liters" header="Liters" />
-        <Column field="price" header="Total Price" />
-        <Column field="consumption" header="L/100km" />
-        <Column field="costPerKm" header="$ per km" />
       </DataTable>
 
       <DialogFuelEntry
