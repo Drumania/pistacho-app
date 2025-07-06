@@ -51,14 +51,8 @@
 }
 
 .badge-wrapper {
-  min-width: 80px;
+  min-width: 50px;
   display: flex;
-  justify-content: flex-end;
-}
-
-.badge-wrapper {
   flex-shrink: 0;
-  width: 80px;
-  display: flex;
   justify-content: flex-end;
 }

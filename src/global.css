@@ -560,7 +560,7 @@ h5 {
   border-radius: 0.5rem;
   padding: var(--gap);
   box-shadow: var(--shadow, 0 0 10px rgba(0, 0, 0, 0.1));
-  overflow: hidden;
+  overflow-y: auto;
   transition: all 0.2s ease;
   align-items: flex-start;
 }
