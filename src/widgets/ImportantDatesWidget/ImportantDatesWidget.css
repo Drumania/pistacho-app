@@ -1,0 +1,76 @@
+.important-dates-widget {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.important-dates-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 0.5rem;
+}
+
+.important-dates-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.important-dates-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.important-dates-list li:last-child {
+  border-bottom: none;
+}
+
+.important-dates-list li.past-date {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.important-dates-list .date-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  margin-right: 1rem;
+  overflow: hidden;
+}
+
+.important-dates-list .date-day {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.important-dates-list .date-text {
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.important-dates-list .date-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.important-dates-list .countdown-badge {
+  background-color: var(--pistacho-green-light);
+  color: var(--pistacho-green-dark);
+  padding: 0.2em 0.6em;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+
+.important-dates-list li.past-date .countdown-badge {
+  display: none;
+}
