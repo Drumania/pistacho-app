@@ -11,6 +11,8 @@ import {
   format,
 } from "date-fns";
 
+import "./ImportantDatesWidget.css";
+
 export default function ImportantDatesWidget({ groupId, widgetId, editMode }) {
   const [dates, setDates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
