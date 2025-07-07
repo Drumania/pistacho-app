@@ -1,0 +1,69 @@
+.groupexpenses-widget {
+  background-color: var(--panel-inside);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  color: var(--text-color);
+  box-shadow: var(--box-shadow);
+  min-height: 300px;
+}
+
+.groupexpenses-widget h5 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--white-color);
+}
+
+.groupexpenses-widget .expense-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.groupexpenses-widget .expense-item:last-child {
+  border-bottom: none;
+}
+
+.groupexpenses-widget .expense-description {
+  font-weight: 500;
+  color: var(--white-color);
+}
+
+.groupexpenses-widget .expense-amount {
+  color: var(--light-pistacho-color);
+  font-weight: 600;
+}
+
+.groupexpenses-widget .balance-list {
+  margin-top: 1rem;
+  background: var(--panel);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+}
+
+.groupexpenses-widget .balance-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  font-size: 0.95rem;
+  border-bottom: 1px dashed var(--line-color);
+}
+
+.groupexpenses-widget .balance-item:last-child {
+  border-bottom: none;
+}
+
+.groupexpenses-widget .balance-positive {
+  color: var(--pistacho-color);
+  font-weight: bold;
+}
+
+.groupexpenses-widget .balance-negative {
+  color: #e57373;
+  font-weight: bold;
+}
+
+.groupexpenses-widget .btn-add {
+  margin-bottom: 1rem;
+}
