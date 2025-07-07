@@ -1196,7 +1196,7 @@ input[type="number"] {
   .name-group {
     font-weight: bold;
     line-height: 40px;
-    max-width: 140px;
+    max-width: 230px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1208,7 +1208,18 @@ input[type="number"] {
   }
 
   .header-dashboard {
-    padding-left: 30px;
+    height: 110px;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px var(--gap) 0;
+    display: flex;
+  }
+
+  .gruop-admin-menu {
+    position: absolute;
+    top: 60px;
+    left: 36px;
   }
 
   .header-dashboard div {
@@ -1216,8 +1227,7 @@ input[type="number"] {
   }
 
   #save-as-template,
-  #edit-dashboard,
-  #add-widget {
+  #edit-dashboard {
     display: none !important;
   }
 

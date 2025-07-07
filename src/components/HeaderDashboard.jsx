@@ -58,7 +58,7 @@ export default function HeaderDashboard({
             )}
 
             {isGroupAdmin && (
-              <>
+              <div className="gruop-admin-menu">
                 <button
                   className={`btn-pistacho position-relative btn-start-here ${
                     widgetInstances.length === 0 ? "shine" : ""
@@ -111,7 +111,7 @@ export default function HeaderDashboard({
                   </button>
                   <div className="tooltip">Settings Group</div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}

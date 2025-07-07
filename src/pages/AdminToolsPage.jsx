@@ -47,11 +47,41 @@ export default function AdminTools() {
   };
 
   const fetchGroups = async () => {
-    const snapshot = await getDocs(collection(db, "groups"));
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const groupsSnap = await getDocs(collection(db, "groups"));
+    const usersSnap = await getDocs(collection(db, "users"));
+
+    // Crear un mapa rápido de usuarios por ID
+    const usersMap = {};
+    usersSnap.forEach((doc) => {
+      usersMap[doc.id] = doc.data(); // { name, email, etc. }
+    });
+
+    // Armar la lista de grupos con nombre del creador
+    const data = groupsSnap.docs.map((doc) => {
+      const group = doc.data();
+
+      const createdByUser = usersMap[group.created_by];
+
+      let created_by_name = "-";
+      if (createdByUser) {
+        created_by_name =
+          createdByUser.name ||
+          createdByUser.displayName ||
+          createdByUser.email ||
+          "-";
+      }
+
+      return {
+        id: doc.id,
+        ...group,
+        created_by_name,
+      };
+    });
+
     setGroups(data);
-    fetchMemberCounts(data); // 👈 agregá esto
+    fetchMemberCounts(data);
   };
+
   const toggleAdmin = async (user) => {
     const ref = doc(db, "users", user.id);
     await updateDoc(ref, { admin: !user.admin });
@@ -137,11 +167,12 @@ export default function AdminTools() {
             <Column field="id" header="ID" />
             <Column field="name" header="Group Name" />
             <Column field="slug" header="Slug" />
-            <Column field="created_by" header="Created By" />
+            <Column field="created_by_name" header="Created By" />
             <Column field="status" header="status" />
             <Column
               field="created_at"
               header="Created At"
+              sortable
               body={(row) =>
                 row.created_at?.toDate
                   ? row.created_at.toDate().toLocaleDateString()
