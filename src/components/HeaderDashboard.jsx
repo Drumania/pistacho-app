@@ -7,6 +7,7 @@ import { getUserAvatar } from "@/utils/getUserAvatar";
 export default function HeaderDashboard({
   groupName,
   isAdmin,
+  isGroupAdmin,
   widgetInstances,
   handleSaveTemplate,
   setShowInviteDialog,
@@ -43,11 +44,11 @@ export default function HeaderDashboard({
           {groupName}
         </h3>
 
-        {isAdmin && (
-          <div className="ps-1 ms-1 ps-lg-3 ms-lg-3">
-            {widgetInstances.length > 0 && (
+        {(isAdmin || isGroupAdmin) && (
+          <div className="ps-1 ms-1 ps-lg-3 ms-lg-3 d-flex align-items-center flex-wrap gap-2">
+            {isAdmin && widgetInstances.length > 0 && (
               <button
-                className="btn-pistacho-outline me-2"
+                className="btn-pistacho-outline"
                 onClick={handleSaveTemplate}
                 id="save-as-template"
               >
@@ -56,58 +57,62 @@ export default function HeaderDashboard({
               </button>
             )}
 
-            <button
-              className={`btn-pistacho position-relative btn-start-here ${
-                widgetInstances.length === 0 ? "shine" : ""
-              }`}
-              onClick={() => setShowAddWidgetDialog(true)}
-              id="add-widget"
-            >
-              Add Widget
-            </button>
+            {isGroupAdmin && (
+              <>
+                <button
+                  className={`btn-pistacho position-relative btn-start-here ${
+                    widgetInstances.length === 0 ? "shine" : ""
+                  }`}
+                  onClick={() => setShowAddWidgetDialog(true)}
+                  id="add-widget"
+                >
+                  Add Widget
+                </button>
 
-            <div
-              className="tooltip-wrapper d-inline-block mx-2"
-              id="edit-dashboard"
-            >
-              <button
-                className={
-                  editMode ? "btn-pistacho shine" : "btn-pistacho-outline"
-                }
-                onClick={() => setEditMode((prev) => !prev)}
-              >
-                {editMode ? (
-                  <i className="bi bi-check-lg" />
-                ) : (
-                  <i className="bi bi-columns-gap" />
-                )}
-              </button>
-              <div className="tooltip">
-                {editMode ? "Done" : "Edit Dashboard"}
-              </div>
-            </div>
+                <div
+                  className="tooltip-wrapper d-inline-block"
+                  id="edit-dashboard"
+                >
+                  <button
+                    className={
+                      editMode ? "btn-pistacho shine" : "btn-pistacho-outline"
+                    }
+                    onClick={() => setEditMode((prev) => !prev)}
+                  >
+                    {editMode ? (
+                      <i className="bi bi-check-lg" />
+                    ) : (
+                      <i className="bi bi-columns-gap" />
+                    )}
+                  </button>
+                  <div className="tooltip">
+                    {editMode ? "Done" : "Edit Dashboard"}
+                  </div>
+                </div>
 
-            <div className="tooltip-wrapper d-inline-block me-1 me-lg-2">
-              <button
-                className="btn-pistacho-outline"
-                onClick={() => setShowInviteDialog(true)}
-                id="invite-members"
-              >
-                <i className="bi bi-person-plus" />
-              </button>
-              <div className="tooltip">Invite Members</div>
-            </div>
+                <div className="tooltip-wrapper d-inline-block">
+                  <button
+                    className="btn-pistacho-outline"
+                    onClick={() => setShowInviteDialog(true)}
+                    id="invite-members"
+                  >
+                    <i className="bi bi-person-plus" />
+                  </button>
+                  <div className="tooltip">Invite Members</div>
+                </div>
 
-            <div className="tooltip-wrapper d-inline-block">
-              <button
-                className="btn-pistacho-outline"
-                onClick={() => setShowEditDialog(true)}
-                id="setting-group"
-              >
-                <i className="bi bi-gear" />
-              </button>
-              <div className="tooltip">Settings Group</div>
-            </div>
+                <div className="tooltip-wrapper d-inline-block">
+                  <button
+                    className="btn-pistacho-outline"
+                    onClick={() => setShowEditDialog(true)}
+                    id="setting-group"
+                  >
+                    <i className="bi bi-gear" />
+                  </button>
+                  <div className="tooltip">Settings Group</div>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
