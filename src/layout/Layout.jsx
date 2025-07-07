@@ -60,7 +60,7 @@ export default function Layout() {
         ref={navbarRef}
         className={`wrap-navbar ${mobileMenuOpen ? "wrap-navbar-open" : ""}`}
       >
-        <Navbar />
+        <Navbar onGroupClick={() => setMobileMenuOpen(false)} />
       </div>
 
       <main className="wrap-main">

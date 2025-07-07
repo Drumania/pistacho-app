@@ -3,9 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import {
   collectionGroup,
+  collection,
   getDocs,
   getDoc,
   getFirestore,
+  query,
+  where,
+  updateDoc,
 } from "firebase/firestore";
 
 import NewGroupDialog from "@/components/NewGroupDialog";
@@ -14,40 +18,53 @@ import { Skeleton } from "primereact/skeleton";
 
 const db = getFirestore();
 
-export default function Groups() {
+export default function Groups({ onGroupClick }) {
   const { user } = useAuth();
   const { groupId } = useParams();
   const navigate = useNavigate();
   const [showDialog, setShowDialog] = useState(false);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 600);
+    };
+    handleResize(); // inicializa al cargar
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const loadGroups = async () => {
     setLoading(true);
     if (!user?.uid) return setGroups([]);
 
     try {
-      const q = collectionGroup(db, "members");
+      const q = query(
+        collectionGroup(db, "members"),
+        where("uid", "==", user.uid)
+      );
       const snapshot = await getDocs(q);
+
+      const groupRefs = snapshot.docs
+        .map((docSnap) => docSnap.ref.parent.parent)
+        .filter(Boolean);
+
+      const groupSnaps = await Promise.all(groupRefs.map((ref) => getDoc(ref)));
 
       const myGroups = [];
 
-      for (const docSnap of snapshot.docs) {
-        const data = docSnap.data();
-        if (data.uid !== user.uid) continue;
+      for (let i = 0; i < groupSnaps.length; i++) {
+        const snap = groupSnaps[i];
+        if (!snap.exists()) continue;
 
-        const groupRef = docSnap.ref.parent.parent;
-        if (!groupRef) continue;
-
-        const groupSnap = await getDoc(groupRef);
-        if (!groupSnap.exists()) continue;
-
-        const group = groupSnap.data();
-
-        if (group.status !== "active") continue; // ✅ mover esta línea acá
+        const group = snap.data();
+        if (group.status !== "active") continue;
 
         myGroups.push({
-          id: groupRef.id,
+          id: snap.id,
           slug: group.slug,
           name: group.name,
           photoURL: group.photoURL || "/group_placeholder.png",
@@ -55,7 +72,6 @@ export default function Groups() {
         });
       }
 
-      // ✅ Ordenamos por el campo `order`
       myGroups.sort((a, b) => a.order - b.order);
       setGroups(myGroups);
       setLoading(false);
@@ -65,11 +81,73 @@ export default function Groups() {
     }
   };
 
+  const loadNotifications = async () => {
+    if (!user?.uid) return;
+
+    try {
+      const q = collection(db, "notifications");
+      const snapshot = await getDocs(q);
+
+      const pending = {};
+
+      snapshot.docs.forEach((doc) => {
+        const notif = doc.data();
+        if (
+          notif.toUid === user.uid &&
+          notif.status === "pending" &&
+          notif.read === false &&
+          notif.data?.groupId
+        ) {
+          const groupId = notif.data.groupId;
+          pending[groupId] = (pending[groupId] || 0) + 1;
+        }
+      });
+
+      setNotifications(pending);
+    } catch (err) {
+      console.error("Error al cargar notificaciones:", err);
+      setNotifications({});
+    }
+  };
+
   useEffect(() => {
     loadGroups();
+    loadNotifications();
   }, [user]);
 
   if (!user) return null;
+
+  useEffect(() => {
+    const markNotificationsAsRead = async () => {
+      if (!user?.uid || !groupId) return;
+
+      try {
+        const q = query(collection(db, "notifications"));
+        const snapshot = await getDocs(q);
+
+        const updates = snapshot.docs.filter((doc) => {
+          const notif = doc.data();
+          return (
+            notif.toUid === user.uid &&
+            notif.status === "pending" &&
+            notif.read === false &&
+            notif.data?.groupId === groupId
+          );
+        });
+
+        for (const doc of updates) {
+          await updateDoc(doc.ref, { read: true });
+        }
+
+        // Opcional: recargar notificaciones para que desaparezca el badge
+        loadNotifications();
+      } catch (err) {
+        console.error("Error al marcar como leídas:", err);
+      }
+    };
+
+    markNotificationsAsRead();
+  }, [groupId, user]);
 
   return (
     <nav className="v-navbar">
@@ -101,13 +179,26 @@ export default function Groups() {
                     className={`group-btn ${
                       group.slug === groupId ? "active" : ""
                     }`}
-                    onClick={() => navigate(`/g/${group.slug}`)}
+                    onClick={() => {
+                      navigate(`/g/${group.slug}`);
+                      if (isMobile && typeof onGroupClick === "function") {
+                        onGroupClick(); // ← colapsa el navbar
+                      }
+                    }}
                     style={{
                       backgroundImage: `url(${group.photoURL})`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                     }}
-                  />
+                  >
+                    {notifications[group.id] > 0 && (
+                      <span className="notification-badge">
+                        {notifications[group.id] > 9
+                          ? "9+"
+                          : notifications[group.id]}
+                      </span>
+                    )}
+                  </button>
                   <div className="tooltip">{group.name}</div>
                 </div>
               ))}

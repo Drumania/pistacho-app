@@ -38,13 +38,13 @@ export default function HeaderDashboard({
 
   return (
     <div className="header-dashboard">
-      <div className="d-flex">
-        <h3 className="fw-bold mb-0" style={{ marginBottom: "0" }}>
+      <div className="d-flex ps-3">
+        <h3 className="name-group" title={groupName}>
           {groupName}
         </h3>
 
         {isAdmin && (
-          <div className="border-start ps-3 ms-3">
+          <div className="ps-1 ms-1 ps-lg-3 ms-lg-3">
             {widgetInstances.length > 0 && (
               <button
                 className="btn-pistacho-outline me-2"
@@ -66,13 +66,15 @@ export default function HeaderDashboard({
               Add Widget
             </button>
 
-            <div className="tooltip-wrapper d-inline-block mx-2">
+            <div
+              className="tooltip-wrapper d-inline-block mx-2"
+              id="edit-dashboard"
+            >
               <button
                 className={
                   editMode ? "btn-pistacho shine" : "btn-pistacho-outline"
                 }
                 onClick={() => setEditMode((prev) => !prev)}
-                id="edit-dashboard"
               >
                 {editMode ? (
                   <i className="bi bi-check-lg" />
@@ -85,7 +87,7 @@ export default function HeaderDashboard({
               </div>
             </div>
 
-            <div className="tooltip-wrapper d-inline-block me-2">
+            <div className="tooltip-wrapper d-inline-block me-1 me-lg-2">
               <button
                 className="btn-pistacho-outline"
                 onClick={() => setShowInviteDialog(true)}
@@ -116,7 +118,7 @@ export default function HeaderDashboard({
             onMouseEnter={handleMouseEnter}
             className={`header-user ${menuOpen ? "header-user-open" : ""}`}
           >
-            <span className="pe-3">{user.name}</span>
+            <span className="d-none d-lg-block pe-3">{user.name}</span>
             <div className="avatar-wrapper position-relative">
               <div
                 className="rounded-circle border"
