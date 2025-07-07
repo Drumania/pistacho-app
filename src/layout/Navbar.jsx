@@ -124,9 +124,9 @@ export default function Groups() {
         visible={showDialog}
         user={user}
         onHide={() => setShowDialog(false)}
-        onCreate={(data) => {
+        onCreate={(group, widgets) => {
           loadGroups();
-          navigate(`/g/${data.slug}`);
+          navigate(`/g/${group.slug}`);
         }}
       />
     </nav>

@@ -98,33 +98,6 @@ export default function AdminTools() {
     />
   );
 
-  const handleMigrateMembers = async () => {
-    const auth = getAuth();
-    const currentUser = auth.currentUser;
-
-    if (!currentUser || currentUser.email !== "martinbrumana@gmail.com") {
-      alert("Acceso denegado.");
-      return;
-    }
-
-    console.log("🚀 Iniciando migración de members...");
-
-    for (const group of groups) {
-      if (!group.members || !Array.isArray(group.members)) continue;
-
-      const groupRef = doc(db, "groups", group.id);
-
-      for (const member of group.members) {
-        if (!member.uid) continue;
-
-        const memberRef = doc(groupRef, "members", member.uid);
-        await setDoc(memberRef, member, { merge: true });
-      }
-    }
-
-    alert("✅ Migración completada.");
-  };
-
   return (
     <div className="admin-panel container-fluid">
       <h4 className="mb-4 ps-2 pt-3">Admin Panel</h4>
@@ -160,7 +133,7 @@ export default function AdminTools() {
         </TabPanel>
 
         <TabPanel header="Groups" className="m-3">
-          <DataTable value={groups} paginator rows={10} className="mt-3">
+          <DataTable value={groups} paginator rows={30} className="mt-3">
             <Column field="id" header="ID" />
             <Column field="name" header="Group Name" />
             <Column field="slug" header="Slug" />

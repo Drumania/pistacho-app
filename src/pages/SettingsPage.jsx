@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDocTitle } from "@/hooks/useDocTitle";
 import {
   getFirestore,
   doc,
@@ -13,6 +14,7 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import { useAuth } from "@/firebase/AuthContext";
+import { Skeleton } from "primereact/skeleton";
 import app from "@/firebase/config";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
@@ -97,39 +99,54 @@ function SortableGroup({ group, onLeave }) {
 }
 
 export default function SettingsPage() {
+  useDocTitle("Settings");
   const { updateUserProfile } = useAuth();
   const user = auth.currentUser;
+  const [estimatedGroupCount, setEstimatedGroupCount] = useState(0);
   const [profile, setProfile] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingGroups, setLoadingGroups] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
   const [groups, setGroups] = useState([]);
 
   const loadGroups = async () => {
     if (!user?.uid) return;
-    const q = collectionGroup(db, "members");
-    const snap = await getDocs(q);
-    const list = [];
-    for (const d of snap.docs) {
-      const data = d.data();
-      if (data.uid !== user.uid) continue;
-      const gref = d.ref.parent.parent;
-      if (!gref) continue;
-      const gsnap = await getDoc(gref);
-      if (!gsnap.exists()) continue;
-      const g = gsnap.data();
-      list.push({
-        id: gref.id,
-        slug: g.slug,
-        name: g.name,
-        photoURL: g.photoURL,
-        order: g.order ?? 999,
-      });
+    setLoadingGroups(true); // ⬅️ nuevo
+
+    try {
+      const q = collectionGroup(db, "members");
+      const snap = await getDocs(q);
+
+      const userGroups = snap.docs.filter((d) => d.data().uid === user.uid);
+      setEstimatedGroupCount(userGroups.length);
+
+      const list = [];
+
+      for (const d of userGroups) {
+        const gref = d.ref.parent.parent;
+        if (!gref) continue;
+        const gsnap = await getDoc(gref);
+        if (!gsnap.exists()) continue;
+        const g = gsnap.data();
+        list.push({
+          id: gref.id,
+          slug: g.slug,
+          name: g.name,
+          photoURL: g.photoURL,
+          order: g.order ?? 999,
+        });
+      }
+
+      list.sort((a, b) => a.order - b.order);
+      setGroups(list);
+    } catch (err) {
+      console.error("Error loading groups", err);
+    } finally {
+      setLoadingGroups(false); // ⬅️ nuevo
     }
-    list.sort((a, b) => a.order - b.order);
-    setGroups(list);
   };
 
   useEffect(() => {
@@ -231,88 +248,103 @@ export default function SettingsPage() {
   return (
     <div className="container py-5" style={{ maxWidth: 600 }}>
       <h2 className="mb-4">Settings</h2>
-
-      <div className="mb-4">
-        <div className="position-relative d-inline-block">
-          <input
-            type="file"
-            id="upload-avatar"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={(e) => setPhotoFile(e.target.files[0])}
-          />
-          <label
-            htmlFor="upload-avatar"
-            className="position-relative cursor-pointer"
-          >
-            <div
-              className="rounded-circle border"
-              style={{
-                width: 100,
-                height: 100,
-                backgroundImage: `url(${
-                  photoFile
-                    ? URL.createObjectURL(photoFile)
-                    : profile.photoURL || "/default-avatar.png"
-                })`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                cursor: "pointer",
-              }}
+      <>
+        <div className="mb-4">
+          <div className="position-relative d-inline-block">
+            <input
+              type="file"
+              id="upload-avatar"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => setPhotoFile(e.target.files[0])}
             />
-            <div
-              className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center rounded-circle"
-              style={{
-                backgroundColor: "rgba(0,0,0,0.5)",
-                opacity: 0,
-                transition: "opacity 0.3s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+            <label
+              htmlFor="upload-avatar"
+              className="position-relative cursor-pointer"
             >
-              <i className="bi bi-pencil-fill text-white" />
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label text-light">Full Name</label>
-        <InputText
-          className="input-field mb-3 w-100"
-          value={profile.name || ""}
-          onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-        />
-      </div>
-
-      {error && <div className="alert alert-danger">{error}</div>}
-
-      <h4 className="text-light mb-3">Your Groups</h4>
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext
-          items={groups.map((g) => g.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <ul className="cs-list-group list-unstyled">
-            {groups.map((g) => (
-              <SortableGroup
-                key={g.id}
-                group={g}
-                onLeave={() => confirmLeaveGroup(g)}
+              <div
+                className="rounded-circle border"
+                style={{
+                  width: 100,
+                  height: 100,
+                  backgroundImage: `url(${
+                    photoFile
+                      ? URL.createObjectURL(photoFile)
+                      : profile.photoURL || "/default-avatar.png"
+                  })`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  cursor: "pointer",
+                }}
               />
-            ))}
+              <div
+                className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center rounded-circle"
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  opacity: 0,
+                  transition: "opacity 0.3s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+              >
+                <i className="bi bi-pencil-fill text-white" />
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label text-light">Full Name</label>
+          <InputText
+            className="input-field mb-3 w-100"
+            value={profile.name || ""}
+            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+          />
+        </div>
+
+        {error && <div className="alert alert-danger">{error}</div>}
+
+        <h4 className="text-light mb-3">Your Groups</h4>
+
+        {loadingGroups ? (
+          <ul className="cs-list-group list-unstyled">
+            <li className="pt-3 text-muted">Loading groups...</li>
           </ul>
-        </SortableContext>
-      </DndContext>
+        ) : (
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={groups.map((g) => g.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ul className="cs-list-group list-unstyled">
+                {groups.map((g) => (
+                  <SortableGroup
+                    key={g.id}
+                    group={g}
+                    onLeave={() => confirmLeaveGroup(g)}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
+        )}
 
-      <hr className="my-5" />
+        <hr className="my-5" />
 
-      <div className="d-flex align-items-center gap-3">
-        <button className="btn-pistacho" onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save changes"}
-        </button>
-        {showSaved && <span className="color-green fade-in">Saved...</span>}
-      </div>
+        <div className="d-flex align-items-center gap-3">
+          <button
+            className="btn-pistacho"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save changes"}
+          </button>
+          {showSaved && <span className="color-green fade-in">Saved...</span>}
+        </div>
+      </>
 
       <ConfirmDialog />
     </div>

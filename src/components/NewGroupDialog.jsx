@@ -11,6 +11,15 @@ import {
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 
+const WIDGET_TYPES = [
+  "BlockTextWidget",
+  "FuelTrackerWidget",
+  "ImageWidget",
+  "ImportantDatesWidget",
+  "TodoWidget",
+  "UsefulContactsWidget",
+];
+
 export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,36 +43,78 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
     fetchTemplates();
   }, []);
 
+  const getWidgetsForGroup = async (groupId) => {
+    const widgets = [];
+
+    for (const widgetId of WIDGET_TYPES) {
+      const ref = collection(
+        db,
+        "widget_data",
+        widgetId,
+        "groups",
+        groupId,
+        "items"
+      );
+      const snap = await getDocs(ref);
+
+      snap.forEach((doc) => {
+        widgets.push({
+          ...doc.data(),
+          widgetId,
+          docId: doc.id,
+        });
+      });
+    }
+
+    return widgets;
+  };
+
   const handleCreateGroup = async () => {
     if (!name || !user?.uid) return;
     setLoading(true);
-    try {
-      const group = await createGroup(name, user, selectedTemplate?.data);
 
+    try {
+      const group = await createGroup(name, user);
       const groupId = group.id || group?.groupId || group?.ref?.id;
       if (!groupId) throw new Error("Group ID not found");
 
       if (selectedTemplate?.widgets?.length) {
         for (const w of selectedTemplate.widgets) {
-          if (!w.widgetId) {
-            console.warn("⛔ widgetId missing in template widget:", w);
-            continue;
-          }
+          if (!w.widgetId) continue;
 
-          await addDoc(collection(db, "widget_data"), {
+          const widgetData = {
             groupId,
-            widgetId: w.widgetId,
+            key: w.widgetId,
             layout: w.layout ?? {},
             settings: w.settings ?? {},
             createdAt: serverTimestamp(),
+          };
+
+          // 1. Guardar en widget_data/{widgetId}/groups/{groupId}/items
+          const widgetRef = collection(
+            db,
+            "widget_data",
+            w.widgetId,
+            "groups",
+            groupId,
+            "items"
+          );
+          await addDoc(widgetRef, {
+            ...widgetData,
+            widgetId: w.widgetId, // solo en widget_data
           });
+
+          // 2. Guardar también en groups/{groupId}/widgets
+          const groupWidgetRef = collection(db, "groups", groupId, "widgets");
+          await addDoc(groupWidgetRef, widgetData);
         }
       }
 
-      if (onCreate) onCreate(group);
+      const widgets = await getWidgetsForGroup(groupId);
+      if (onCreate) onCreate(group, widgets);
       resetDialog();
     } catch (error) {
-      console.error("❌ Error creating group:", error);
+      console.error("❌ Error creando grupo o copiando widgets:", error);
     } finally {
       setLoading(false);
     }
@@ -83,51 +134,103 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
       visible={visible}
       onHide={resetDialog}
       header="New Group"
-      style={{ width: "30rem" }}
+      style={{ width: "70%", maxWidth: "800px" }}
       className="new-group-dialog"
     >
-      <div className="p-fluid">
-        <InputText
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          autoFocus
-          className="input-text-custom mb-3"
-          placeholder="Enter group name"
-        />
-
-        <div className="country-list">
-          {allTemplates.map((t) => {
-            const isSelected =
-              (t.value === null && selectedTemplate === null) ||
-              (t.value?.id && selectedTemplate?.id === t.value.id);
-
-            return (
-              <div
-                key={t.label}
-                className={`d-flex align-items-center justify-content-between mb-2 panel-in-panels ${
-                  isSelected ? "bg-pistacho" : ""
-                }`}
-                onClick={() => setSelectedTemplate(t.value)}
-              >
-                <span>{t.label}</span>
-                {t.value?.widgets?.length > 0 && (
-                  <span className="text-opacity-50">
-                    {t.value.widgets.length} widgets
-                  </span>
-                )}
-              </div>
-            );
-          })}
+      {loading ? (
+        <div className="text-center py-5">
+          <i className="pi pi-spinner pi-spin" style={{ fontSize: "2rem" }} />
+          <p className="mt-3">Creating group, please wait...</p>
         </div>
+      ) : (
+        <div className="p-fluid">
+          <div className="row">
+            <div className="col-12 mb-3">
+              <InputText
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoFocus
+                className="input-text-custom w-100"
+                placeholder="Enter group name"
+              />
+            </div>
 
-        <Button
-          label="Create Group"
-          onClick={handleCreateGroup}
-          className="btn-pistacho w-100"
-          disabled={!name}
-          loading={loading}
-        />
-      </div>
+            <div className="col-4">
+              <div
+                className={`p-2 panel-in-panels mt-4 ${
+                  selectedTemplate === null ? "bg-pistacho" : ""
+                }`}
+                onClick={() => setSelectedTemplate(null)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="d-flex py-1 justify-content-between align-items-center">
+                  <span>Empty</span>
+                  <span className="text-opacity-50 small">0 widgets</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-8 border-start">
+              <p className="text-muted small mb-2">
+                These templates are just a starting point – you can fully
+                customize them.
+              </p>
+              <div className="row g-2">
+                {templates.map((t) => {
+                  const isSelected =
+                    selectedTemplate?.id && selectedTemplate?.id === t.value.id;
+
+                  return (
+                    <div className="col-6" key={t.label}>
+                      <div
+                        className={`p-2 panel-in-panels ${
+                          isSelected ? "bg-pistacho" : ""
+                        }`}
+                        onClick={() => setSelectedTemplate(t.value)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span>{t.label}</span>
+                          {t.value?.widgets?.length > 0 && (
+                            <span className="text-opacity-50 small">
+                              {t.value.widgets.length} widgets
+                            </span>
+                          )}
+                        </div>
+
+                        {/* 👇 Mini preview de widgets */}
+                        {t.value?.widgets?.length > 0 && (
+                          <div className="d-flex flex-wrap gap-1 mt-2 cs-border-top pt-2 ">
+                            {t.value.widgets.map((w, i) => (
+                              <span
+                                key={i}
+                                className="badge text-bg-dark"
+                                style={{ fontSize: "0.7rem" }}
+                              >
+                                {w.widgetId.replace("Widget", "")}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="col-12 mt-4">
+              <Button
+                label="Create Group"
+                onClick={handleCreateGroup}
+                className="btn-pistacho w-100"
+                disabled={!name}
+                loading={loading}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </Dialog>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useDocTitle } from "@/hooks/useDocTitle";
 import { Button } from "primereact/button";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -17,6 +18,7 @@ import { useAuth } from "@/firebase/AuthContext";
 import { Link } from "react-router-dom";
 
 export default function NotificationsPage() {
+  useDocTitle("Notifications");
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);

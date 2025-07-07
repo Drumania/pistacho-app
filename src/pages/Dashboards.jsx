@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Responsive, WidthProvider } from "react-grid-layout";
+import { useDocTitle } from "@/hooks/useDocTitle";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
@@ -29,6 +30,7 @@ const widgetModules = import.meta.glob("@/widgets/*/*.jsx", { eager: true });
 export default function Dashboards() {
   const { groupId } = useParams();
   const { user, showToast } = useAuth();
+  const [, setDocumentTitle] = useDocTitle("Dashboard");
 
   const containerRef = useRef();
   const [containerWidth, setContainerWidth] = useState(1200);
@@ -71,6 +73,7 @@ export default function Dashboards() {
           name: data.name || "",
           photoURL: data.photoURL || "",
         });
+        setDocumentTitle(data.name || "Dashboard");
       }
     };
     if (groupId) loadGroupData();

@@ -1010,7 +1010,7 @@ input[type="number"] {
 /* misc */
 
 .text-muted {
-  color: violet !important;
+  color: #999 !important;
 }
 
 .cursor-pointer {
