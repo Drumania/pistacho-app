@@ -5,7 +5,6 @@ import {
   collectionGroup,
   getDocs,
   getDoc,
-  doc,
   getFirestore,
 } from "firebase/firestore";
 
@@ -94,30 +93,35 @@ export default function Groups() {
                 />
               ))
             : groups.map((group) => (
-                <button
+                <div
                   key={group.id}
-                  className={`group-btn tooltip-wrapper position-relative ${
-                    group.slug === groupId ? "active" : ""
-                  }`}
-                  onClick={() => navigate(`/g/${group.slug}`)}
-                  style={{
-                    backgroundImage: `url(${group.photoURL})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
+                  className="tooltip-wrapper position-relative d-flex justify-content-center"
                 >
+                  <button
+                    className={`group-btn ${
+                      group.slug === groupId ? "active" : ""
+                    }`}
+                    onClick={() => navigate(`/g/${group.slug}`)}
+                    style={{
+                      backgroundImage: `url(${group.photoURL})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
                   <div className="tooltip">{group.name}</div>
-                </button>
+                </div>
               ))}
         </div>
       </div>
 
-      <div
-        className="group-btn group-btn-new tooltip-wrapper mb-3"
-        onClick={() => setShowDialog(true)}
-      >
+      <div className="tooltip-wrapper mb-3 d-flex justify-content-center">
+        <div
+          className="group-btn group-btn-new"
+          onClick={() => setShowDialog(true)}
+        >
+          <i className="bi bi-plus-lg"></i>
+        </div>
         <div className="tooltip">New Group</div>
-        <i className="bi bi-plus-lg"></i>
       </div>
 
       <NewGroupDialog
