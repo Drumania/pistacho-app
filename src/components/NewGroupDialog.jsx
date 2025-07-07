@@ -163,9 +163,13 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
                 onClick={() => setSelectedTemplate(null)}
                 style={{ cursor: "pointer" }}
               >
-                <div className="d-flex py-1 justify-content-between align-items-center">
-                  <span>Empty</span>
-                  <span className="text-opacity-50 small">0 widgets</span>
+                <div className="py-1 ">
+                  <span className="fs-5 ">Empty</span>
+                  <div className="d-flex flex-wrap gap-1 mt-2 cs-border-top pt-2 ">
+                    <span className="" style={{ fontSize: "0.7rem" }}>
+                      No widgets
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -183,19 +187,14 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
                   return (
                     <div className="col-6" key={t.label}>
                       <div
-                        className={`p-2 panel-in-panels ${
+                        className={`p-3 panel-in-panels ${
                           isSelected ? "bg-pistacho" : ""
                         }`}
                         onClick={() => setSelectedTemplate(t.value)}
                         style={{ cursor: "pointer" }}
                       >
                         <div className="d-flex justify-content-between align-items-center">
-                          <span>{t.label}</span>
-                          {t.value?.widgets?.length > 0 && (
-                            <span className="text-opacity-50 small">
-                              {t.value.widgets.length} widgets
-                            </span>
-                          )}
+                          <span className="fs-5 ">{t.label}</span>
                         </div>
 
                         {/* 👇 Mini preview de widgets */}
