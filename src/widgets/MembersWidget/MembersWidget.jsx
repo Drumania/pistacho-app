@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { getDatabase, ref as rtdbRef, onValue } from "firebase/database";
 import { useAuth } from "@/firebase/AuthContext";
 import db from "@/firebase/firestore";
 
@@ -13,6 +14,7 @@ export default function MembersWidget({ groupId }) {
   const [ownerId, setOwnerId] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [onlineMap, setOnlineMap] = useState({});
 
   const isOwner = user?.uid === ownerId;
 
@@ -61,6 +63,30 @@ export default function MembersWidget({ groupId }) {
     fetchMembers();
   }, [groupId, showDialog]);
 
+  // Escuchamos el estado online en tiempo real
+  useEffect(() => {
+    const dbRT = getDatabase();
+    const unsubscribers = [];
+
+    members.forEach((m) => {
+      const statusRef = rtdbRef(dbRT, `/status/${m.uid}`);
+      const unsubscribe = onValue(statusRef, (snap) => {
+        const online = snap.val()?.state === "online";
+        setOnlineMap((prev) => ({ ...prev, [m.uid]: online }));
+      });
+      unsubscribers.push(unsubscribe);
+    });
+
+    return () => unsubscribers.forEach((u) => u?.());
+  }, [members]);
+
+  // Ordenar online arriba
+  const sortedMembers = [...members].sort((a, b) => {
+    const aOnline = onlineMap[a.uid] ? 1 : 0;
+    const bOnline = onlineMap[b.uid] ? 1 : 0;
+    return bOnline - aOnline;
+  });
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -77,7 +103,13 @@ export default function MembersWidget({ groupId }) {
       <ul className="cs-list-group mb-3">
         {isLoading
           ? [...Array(3)].map((_, i) => <UserListMembers key={i} user={null} />)
-          : members.map((u) => <UserListMembers key={u.uid} user={u} />)}
+          : sortedMembers.map((u) => (
+              <UserListMembers
+                key={u.uid}
+                user={u}
+                isOnline={onlineMap[u.uid]}
+              />
+            ))}
       </ul>
 
       <InviteMemberDialog

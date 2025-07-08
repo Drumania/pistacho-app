@@ -1,6 +1,6 @@
 import { Skeleton } from "primereact/skeleton";
 
-export default function UserListMembers({ user, right = null }) {
+export default function UserListMembers({ user, right = null, isOnline }) {
   const isLoading = !user;
 
   return (
@@ -8,6 +8,7 @@ export default function UserListMembers({ user, right = null }) {
       className="d-flex align-items-center justify-content-between p-2"
       title={user?.email || ""}
     >
+      {/* Avatar + nombre */}
       <div className="d-flex align-items-center gap-2">
         {isLoading ? (
           <>
@@ -37,10 +38,25 @@ export default function UserListMembers({ user, right = null }) {
             >
               {user.name}
             </div>
+
+            {/* Circulito de presencia */}
+            {isOnline !== undefined && (
+              <span
+                className="rounded-circle"
+                style={{
+                  width: 10,
+                  height: 10,
+                  backgroundColor: isOnline ? "limegreen" : "#888",
+                  display: "inline-block",
+                }}
+                title={isOnline ? "Online" : "Offline"}
+              />
+            )}
           </>
         )}
       </div>
 
+      {/* Badges + right slot */}
       <div className="d-flex align-items-center gap-2">
         {right}
         {!isLoading && (
