@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import db from "@/firebase/firestore";
 
 export default function UsefulContactsModal({
@@ -31,8 +31,23 @@ export default function UsefulContactsModal({
 
   const handleSave = async () => {
     const ref = doc(db, "widget_data", "useful_contacts", groupId, "main");
-    await setDoc(ref, { contacts }, { merge: true });
-    onSave(contacts);
+    const snap = await getDoc(ref);
+    const existing = snap.exists() ? snap.data().contacts || [] : [];
+
+    // merge simple por nombre (podés mejorar esto con ID si querés)
+    const updated = [...existing];
+
+    contacts.forEach((newContact) => {
+      const index = updated.findIndex((c) => c.name === newContact.name);
+      if (index !== -1) {
+        updated[index] = newContact;
+      } else {
+        updated.push(newContact);
+      }
+    });
+
+    await setDoc(ref, { contacts: updated }, { merge: true });
+    onSave(updated);
     onHide();
   };
 
@@ -61,7 +76,14 @@ export default function UsefulContactsModal({
             <InputText
               placeholder="Phone"
               value={c.phone}
-              onChange={(e) => handleChange(i, "phone", e.target.value)}
+              onChange={(e) => {
+                // Solo permitir números, espacios, paréntesis, guiones y "+"
+                const value = e.target.value.replace(/[^\d\s()+-]/g, "");
+                handleChange(i, "phone", value);
+              }}
+              type="tel"
+              inputMode="tel"
+              pattern="[0-9\s()+-]*"
               className="w-30"
             />
             <Button
