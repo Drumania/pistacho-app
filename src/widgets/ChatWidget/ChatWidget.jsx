@@ -119,8 +119,8 @@ export default function ChatWidget({ groupId, widgetId }) {
   };
 
   return (
-    <div className="chat-widget h-100 d-flex flex-column bg-panel-inside rounded p-2">
-      <div className="chat-messages flex-grow-1 overflow-auto px-2">
+    <div className="chat-widget h-100 d-flex flex-column bg-panel-inside rounded ">
+      <div className="chat-messages flex-grow-1 overflow-auto p-2 ">
         {messages.map((m, i) => {
           const prevMsg = i > 0 ? messages[i - 1] : null;
           const isFirstOfGroup = !prevMsg || prevMsg.user_id !== m.user_id;
@@ -134,30 +134,31 @@ export default function ChatWidget({ groupId, widgetId }) {
             : null;
           const showDateDivider = currDate !== prevDate;
 
+          const isCurrentUser = m.user_id === user.uid;
+
           return (
             <div key={m.id}>
               {showDateDivider && (
-                <div className="text-center text-muted small my-2">
+                <div className="text-center text-muted small my-3">
                   {formatDateToLabel(m.created_at)}
                 </div>
               )}
 
               <div
-                className={`chat-message d-flex gap-2 mb-1 ${
-                  m.user_id === user.uid
-                    ? "justify-content-end flex-row-reverse"
-                    : ""
-                }`}
+                className={`chat-message-block d-flex flex-column ${
+                  isCurrentUser ? "align-items-end" : "align-items-start"
+                } ${isFirstOfGroup ? "mt-4" : "mt-1"}`}
               >
-                <img
-                  src={m.photoURL || "/avatar_placeholder.png"}
-                  alt={m.name}
-                  className={`chat-avatar ${isFirstOfGroup ? "" : "invisible"}`}
-                />
-
-                <div>
-                  {isFirstOfGroup && (
-                    <div className="chat-name small text-muted mb-1">
+                {isFirstOfGroup && (
+                  <div className="d-flex align-items-center gap-2 mb-1">
+                    {!isCurrentUser && (
+                      <img
+                        src={m.photoURL || "/avatar_placeholder.png"}
+                        alt={m.name}
+                        className="chat-avatar"
+                      />
+                    )}
+                    <div className="chat-name small text-muted">
                       {m.name} ·{" "}
                       {new Date(
                         m.created_at?.toDate?.() || m.created_at
@@ -166,17 +167,17 @@ export default function ChatWidget({ groupId, widgetId }) {
                         minute: "2-digit",
                       })}
                     </div>
-                  )}
-
-                  <div
-                    className={`chat-bubble p-2 rounded-3 mb-1 ${
-                      m.user_id === user.uid
-                        ? "bg-pistacho text-black"
-                        : "bg-dark text-white"
-                    }`}
-                  >
-                    {m.text}
                   </div>
+                )}
+
+                <div
+                  className={`chat-bubble p-2 rounded-3 mb-1 ${
+                    isCurrentUser
+                      ? "bg-pistacho text-black"
+                      : "bg-dark text-white"
+                  }`}
+                >
+                  {m.text}
                 </div>
               </div>
             </div>

@@ -1,10 +1,9 @@
 .chat-widget {
-  background-color: var(--panel-inside);
+  background: var(--panel-inside);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   display: flex;
   flex-direction: column;
-  padding: 1rem;
   height: 100%;
 }
 
@@ -17,13 +16,11 @@
 }
 
 .chat-messages {
+  background-image: url("/bk-chat.png");
+  background-size: contain;
   overflow-y: auto;
   flex-grow: 1;
-  padding: 0.5rem 0.75rem;
-}
-
-.chat-message {
-  max-width: 85%;
+  max-width: 100%;
 }
 
 .chat-bubble {
@@ -45,6 +42,7 @@
   font-size: 1rem;
   color: var(--text-color);
   width: 100%;
+  margin: 2px 10px 10px;
 }
 
 .chat-input:focus {
@@ -64,4 +62,16 @@
   opacity: 0.6;
   margin-top: 0.5rem;
   margin-left: 0.75rem;
+}
+
+.chat-message-block {
+  max-width: 100%;
+}
+
+.align-items-end .chat-bubble {
+  text-align: right;
+}
+
+.chat-message-block.mt-4 {
+  margin-top: 1.25rem !important;
 }

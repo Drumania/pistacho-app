@@ -1,0 +1,62 @@
+.meeting-widget {
+  background-color: var(--panel-inside);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  box-shadow: var(--box-shadow);
+  color: var(--text-color);
+}
+
+.meeting-widget h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.meeting-widget .date-row {
+  border-bottom: 1px solid var(--line-color);
+  padding: 0.6rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meeting-widget .date-label {
+  font-size: 0.95rem;
+}
+
+.meeting-widget .response-dots {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.meeting-widget .response-dots .badge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.meeting-widget .p-button-sm.p-button-rounded {
+  width: 1.8rem;
+  height: 1.8rem;
+  font-size: 0.75rem;
+  padding: 0;
+}
+
+.meeting-widget .calendar-wrapper {
+  margin-top: 1rem;
+}
+
+.meeting-widget .p-dialog-content {
+  padding: 1rem;
+}
+
+.meeting-widget .p-dialog-footer {
+  text-align: right;
+}
+
+.meeting-widget .p-calendar .p-inputtext {
+  background: var(--panel);
+  border: none;
+  color: var(--text-color);
+}
