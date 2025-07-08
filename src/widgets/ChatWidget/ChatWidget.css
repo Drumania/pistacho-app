@@ -21,6 +21,8 @@
   overflow-y: auto;
   flex-grow: 1;
   max-width: 100%;
+  position: relative;
+  max-height: 100%;
 }
 
 .chat-bubble {
@@ -43,6 +45,11 @@
   color: var(--text-color);
   width: 100%;
   margin: 2px 10px 10px;
+
+  resize: none;
+  min-height: 40px;
+  max-height: 100px;
+  overflow-y: auto;
 }
 
 .chat-input:focus {

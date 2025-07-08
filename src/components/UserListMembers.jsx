@@ -31,15 +31,6 @@ export default function UserListMembers({ user, right = null, isOnline }) {
                 backgroundColor: "#333333",
               }}
             />
-            <div
-              className={`fs-cs-09 ${
-                user.status === "pending" ? "fst-italic opacity-50" : ""
-              }`}
-            >
-              {user.name}
-            </div>
-
-            {/* Circulito de presencia */}
             {isOnline !== undefined && (
               <span
                 className="rounded-circle"
@@ -52,6 +43,16 @@ export default function UserListMembers({ user, right = null, isOnline }) {
                 title={isOnline ? "Online" : "Offline"}
               />
             )}
+
+            <div
+              className={`fs-cs-09 ${
+                user.status === "pending" ? "fst-italic opacity-50" : ""
+              }`}
+            >
+              {user.name}
+            </div>
+
+            {/* Circulito de presencia */}
           </>
         )}
       </div>

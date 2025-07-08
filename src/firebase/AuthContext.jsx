@@ -175,7 +175,19 @@ export function AuthProvider({ children }) {
     await sendPasswordResetEmail(auth, email);
   };
 
-  const logout = () => signOut(auth);
+  const logout = async () => {
+    const uid = auth.currentUser?.uid;
+    if (uid) {
+      const db = getDatabase();
+      const userRef = ref(db, `/status/${uid}`);
+      await set(userRef, {
+        state: "offline",
+        last_changed: Date.now(),
+      });
+    }
+
+    await signOut(auth);
+  };
 
   const updateUserProfile = (data) =>
     updateProfile(auth.currentUser, data).then(() => {

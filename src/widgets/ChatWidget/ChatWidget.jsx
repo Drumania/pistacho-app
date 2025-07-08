@@ -1,17 +1,15 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  collection,
-  addDoc,
-  onSnapshot,
-  serverTimestamp,
-  query,
-  orderBy,
-  doc,
-  setDoc,
-  deleteDoc,
-} from "firebase/firestore";
+  getDatabase,
+  ref,
+  onChildAdded,
+  push,
+  set,
+  onValue,
+  remove,
+  serverTimestamp as rtdbTimestamp,
+} from "firebase/database";
 import { useAuth } from "@/firebase/AuthContext";
-import db from "@/firebase/firestore";
 import "./ChatWidget.css";
 
 export default function ChatWidget({ groupId, widgetId }) {
@@ -21,95 +19,83 @@ export default function ChatWidget({ groupId, widgetId }) {
   const [typingUsers, setTypingUsers] = useState([]);
   const bottomRef = useRef(null);
   const typingTimeout = useRef(null);
+  const db = getDatabase();
 
-  const messagesRef = collection(
-    db,
-    `widget_data_chat/${groupId}_${widgetId}/messages`
-  );
-  const typingRef = collection(
-    db,
-    `widget_data_chat/${groupId}_${widgetId}/typing`
-  );
+  const messagesRef = ref(db, `chat/${groupId}_${widgetId}/messages`);
+  const typingRef = ref(db, `chat/${groupId}_${widgetId}/typing`);
 
   useEffect(() => {
-    if (!groupId || !widgetId) return;
+    const msgs = [];
 
-    const q = query(messagesRef, orderBy("created_at", "asc"));
-    const unsub = onSnapshot(q, (snap) => {
-      const msgs = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setMessages(msgs);
+    const unsubscribe = onChildAdded(messagesRef, (snap) => {
+      msgs.push({ id: snap.key, ...snap.val() });
+      setMessages([...msgs]);
       setTimeout(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 50);
     });
 
-    return () => unsub();
+    return () => unsubscribe();
   }, [groupId, widgetId]);
 
   useEffect(() => {
-    if (!groupId || !widgetId) return;
-
-    const unsub = onSnapshot(typingRef, (snap) => {
-      const usersTyping = snap.docs
-        .map((doc) => doc.data())
-        .filter((d) => d.user_id !== user.uid);
-      setTypingUsers(usersTyping);
+    const unsubscribe = onValue(typingRef, (snap) => {
+      const data = snap.val() || {};
+      const active = Object.values(data).filter((u) => u.user_id !== user.uid);
+      setTypingUsers(active);
     });
 
-    return () => unsub();
+    return () => unsubscribe();
   }, [groupId, widgetId]);
 
-  const handleTyping = async (e) => {
+  const handleTyping = (e) => {
     const value = e.target.value;
     setText(value);
 
-    const typingDoc = doc(
+    const userTypingRef = ref(
       db,
-      `widget_data_chat/${groupId}_${widgetId}/typing/${user.uid}`
+      `chat/${groupId}_${widgetId}/typing/${user.uid}`
     );
-    await setDoc(typingDoc, {
+    set(userTypingRef, {
       user_id: user.uid,
       name: user.displayName || user.email,
-      updated_at: serverTimestamp(),
+      updated_at: Date.now(),
     });
 
     clearTimeout(typingTimeout.current);
-    typingTimeout.current = setTimeout(async () => {
-      await deleteDoc(typingDoc);
+    typingTimeout.current = setTimeout(() => {
+      remove(userTypingRef);
     }, 3000);
   };
 
-  const sendMessage = async (e) => {
+  const sendMessage = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+
     if (!text.trim()) return;
 
-    await addDoc(messagesRef, {
+    const newMsg = {
       text: text.trim(),
-      created_at: serverTimestamp(),
+      created_at: Date.now(),
       user_id: user.uid,
       name: user.displayName || user.email,
       photoURL: user.photoURL || "",
-    });
+    };
 
-    const typingDoc = doc(
-      db,
-      `widget_data_chat/${groupId}_${widgetId}/typing/${user.uid}`
-    );
-    await deleteDoc(typingDoc);
-
+    push(messagesRef, newMsg);
+    remove(ref(db, `chat/${groupId}_${widgetId}/typing/${user.uid}`));
     setText("");
   };
 
-  const formatDateToLabel = (dateObj) => {
+  const formatDateToLabel = (timestamp) => {
+    const d = new Date(timestamp);
     const today = new Date();
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
-    const d = new Date(dateObj?.toDate?.() || dateObj);
-    const dDate = d.toDateString();
-
-    if (dDate === today.toDateString()) return "Hoy";
-    if (dDate === yesterday.toDateString()) return "Ayer";
+    const dStr = d.toDateString();
+    if (dStr === today.toDateString()) return "Hoy";
+    if (dStr === yesterday.toDateString()) return "Ayer";
 
     return d.toLocaleDateString("es-AR", {
       weekday: "long",
@@ -119,26 +105,20 @@ export default function ChatWidget({ groupId, widgetId }) {
   };
 
   return (
-    <div className="chat-widget h-100 d-flex flex-column bg-panel-inside rounded ">
-      <div className="chat-messages flex-grow-1 overflow-auto p-2 ">
+    <div className="chat-widget h-100 d-flex flex-column bg-panel-inside rounded">
+      <div className="chat-messages flex-grow-1 overflow-auto p-2">
         {messages.map((m, i) => {
-          const prevMsg = i > 0 ? messages[i - 1] : null;
-          const isFirstOfGroup = !prevMsg || prevMsg.user_id !== m.user_id;
-          const currDate = new Date(
-            m.created_at?.toDate?.() || m.created_at
-          ).toDateString();
-          const prevDate = prevMsg
-            ? new Date(
-                prevMsg.created_at?.toDate?.() || prevMsg.created_at
-              ).toDateString()
-            : null;
-          const showDateDivider = currDate !== prevDate;
-
-          const isCurrentUser = m.user_id === user.uid;
+          const prev = i > 0 ? messages[i - 1] : null;
+          const showDate =
+            !prev ||
+            new Date(prev.created_at).toDateString() !==
+              new Date(m.created_at).toDateString();
+          const isMine = m.user_id === user.uid;
+          const isFirst = !prev || prev.user_id !== m.user_id;
 
           return (
             <div key={m.id}>
-              {showDateDivider && (
+              {showDate && (
                 <div className="text-center text-muted small my-3">
                   {formatDateToLabel(m.created_at)}
                 </div>
@@ -146,12 +126,12 @@ export default function ChatWidget({ groupId, widgetId }) {
 
               <div
                 className={`chat-message-block d-flex flex-column ${
-                  isCurrentUser ? "align-items-end" : "align-items-start"
-                } ${isFirstOfGroup ? "mt-4" : "mt-1"}`}
+                  isMine ? "align-items-end" : "align-items-start"
+                } ${isFirst ? "mt-4" : "mt-1"}`}
               >
-                {isFirstOfGroup && (
+                {isFirst && (
                   <div className="d-flex align-items-center gap-2 mb-1">
-                    {!isCurrentUser && (
+                    {!isMine && (
                       <img
                         src={m.photoURL || "/avatar_placeholder.png"}
                         alt={m.name}
@@ -160,9 +140,7 @@ export default function ChatWidget({ groupId, widgetId }) {
                     )}
                     <div className="chat-name small text-muted">
                       {m.name} ·{" "}
-                      {new Date(
-                        m.created_at?.toDate?.() || m.created_at
-                      ).toLocaleTimeString("es-AR", {
+                      {new Date(m.created_at).toLocaleTimeString("es-AR", {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
@@ -172,9 +150,7 @@ export default function ChatWidget({ groupId, widgetId }) {
 
                 <div
                   className={`chat-bubble p-2 rounded-3 mb-1 ${
-                    isCurrentUser
-                      ? "bg-pistacho text-black"
-                      : "bg-dark text-white"
+                    isMine ? "bg-pistacho text-black" : "bg-dark text-white"
                   }`}
                 >
                   {m.text}
@@ -183,7 +159,6 @@ export default function ChatWidget({ groupId, widgetId }) {
             </div>
           );
         })}
-
         <div ref={bottomRef} />
       </div>
 
@@ -196,12 +171,20 @@ export default function ChatWidget({ groupId, widgetId }) {
       <form
         onSubmit={sendMessage}
         className="d-flex border-top border-dark pt-2 gap-2"
+        autoComplete="off"
       >
-        <input
+        <textarea
           value={text}
           onChange={handleTyping}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage(e);
+            }
+          }}
           placeholder="Escribí un mensaje..."
-          className="chat-input border-0"
+          className="chat-input border-0 flex-grow-1"
+          rows={1}
         />
         <button className="btn btn-outline-light" type="submit">
           Enviar
