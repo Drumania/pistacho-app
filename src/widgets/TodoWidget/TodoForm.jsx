@@ -8,6 +8,10 @@ import { Button } from "primereact/button";
 
 import { useAuth } from "@/firebase/AuthContext";
 import useNotifications from "@/hooks/useNotifications";
+import {
+  replaceMentionsWithUsernames,
+  replaceUsernamesWithUIDs,
+} from "@/utils/userHelpers";
 
 const TAG_COLORS = [
   { name: "Rojo", color: "#dc3545" },
@@ -42,6 +46,7 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
   const [members, setMembers] = useState([]);
   const [mentionQuery, setMentionQuery] = useState("");
   const [showMentions, setShowMentions] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const titleRef = useRef(null);
 
@@ -49,22 +54,27 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
   const { sendNotification } = useNotifications();
 
   useEffect(() => {
-    if (editingTodo) {
-      setTitle(editingTodo.title || "");
-      setPriority(editingTodo.priority || "normal");
-      setLabelName(editingTodo.label?.name || "");
-      setLabelColor(editingTodo.label?.color || TAG_COLORS[0].color);
-    } else {
-      setTitle("");
-      setPriority("normal");
-      setLabelName("");
-      setLabelColor(TAG_COLORS[0].color);
-    }
+    const loadTitle = async () => {
+      if (editingTodo) {
+        const replaced = await replaceMentionsWithUsernames(
+          editingTodo.title,
+          members
+        );
+        setTitle(replaced);
+        setPriority(editingTodo.priority || "normal");
+        setLabelName(editingTodo.label?.name || "");
+        setLabelColor(editingTodo.label?.color || TAG_COLORS[0].color);
+      } else {
+        setTitle("");
+        setPriority("normal");
+        setLabelName("");
+        setLabelColor(TAG_COLORS[0].color);
+      }
+    };
 
-    setTimeout(() => {
-      titleRef.current?.focus();
-    }, 100);
-  }, [editingTodo]);
+    loadTitle();
+    setTimeout(() => titleRef.current?.focus(), 100);
+  }, [editingTodo, members]);
 
   useEffect(() => {
     if (!groupId) return;
@@ -72,8 +82,7 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
       const snapshot = await getDocs(
         collection(db, `widget_data_todos/${groupId}/labels`)
       );
-      const labels = snapshot.docs.map((doc) => doc.data());
-      setLabelList(labels);
+      setLabelList(snapshot.docs.map((doc) => doc.data()));
     };
     fetchLabels();
   }, [groupId]);
@@ -134,14 +143,16 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
     try {
       if (labelName) await saveLabelIfNew(labelName, labelColor);
 
+      const finalTitle = await replaceUsernamesWithUIDs(title.trim(), groupId);
+
       await onSubmit({
-        title: title.trim(),
+        title: finalTitle,
         priority,
         label: labelName ? { name: labelName, color: labelColor } : null,
       });
 
-      if (title.includes("@")) {
-        await notifyMentions(title.trim());
+      if (finalTitle.includes("@{")) {
+        await notifyMentions(finalTitle);
       }
     } catch (err) {
       console.error("Error saving task", err);
@@ -163,10 +174,30 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (!showMentions || filteredMentions.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev + 1) % filteredMentions.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedIndex(
+        (prev) => (prev - 1 + filteredMentions.length) % filteredMentions.length
+      );
+    } else if (e.key === "Enter") {
+      const user = filteredMentions[highlightedIndex];
+      if (user) {
+        e.preventDefault();
+        handleMentionClick(user);
+      }
+    }
+  };
+
   const handleMentionClick = (user) => {
     const newTitle = title.replace(/@([^\s@{]*)$/, `@{${user.uid}} `);
     setTitle(newTitle);
     setShowMentions(false);
+    setHighlightedIndex(0);
   };
 
   const colorTemplate = (option) => (
@@ -197,16 +228,19 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
           ref={titleRef}
           value={title}
           onChange={handleTitleChange}
+          onKeyDown={handleKeyDown}
           placeholder="Tarea..."
           className={`w-100 ${showMentions ? "with-mentions" : ""}`}
         />
         {showMentions && filteredMentions.length > 0 && (
           <ul className="mention-list">
-            {filteredMentions.map((m) => (
+            {filteredMentions.map((m, i) => (
               <li
                 key={m.uid}
                 onClick={() => handleMentionClick(m)}
-                className="mention-item"
+                className={`mention-item ${
+                  i === highlightedIndex ? "active" : ""
+                }`}
               >
                 {m.photoURL && (
                   <img
@@ -278,39 +312,38 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
         disabled={loading}
       />
 
-      <style>
-        {`
-          .mention-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            z-index: 1000;
-            background: var(--panel-inside, #2c2c2c);
-            list-style: none;
-            margin: 0;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            box-shadow: var(--box-shadow);
-            width: 100%;
-            max-height: 150px;
-            overflow-y: auto;
-          }
-          .mention-item {
-            padding: 0.4rem 0.5rem;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            border-radius: 0.4rem;
-          }
-          .mention-item:hover {
-            background-color: var(--panel-hover, #394b5e);
-          }
-          .with-mentions {
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-          }
-        `}
-      </style>
+      <style>{`
+        .mention-list {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          z-index: 1000;
+          background: var(--panel-inside, #2c2c2c);
+          list-style: none;
+          margin: 0;
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          box-shadow: var(--box-shadow);
+          width: 100%;
+          max-height: 150px;
+          overflow-y: auto;
+        }
+        .mention-item {
+          padding: 0.4rem 0.5rem;
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          border-radius: 0.4rem;
+        }
+        .mention-item:hover,
+        .mention-item.active {
+          background-color: var(--panel-hover, #394b5e);
+        }
+        .with-mentions {
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+        }
+      `}</style>
     </form>
   );
 }
