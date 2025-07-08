@@ -17,6 +17,7 @@ import { useAuth } from "@/firebase/AuthContext";
 import db from "@/firebase/firestore";
 import TodoForm from "./TodoForm";
 import TodoItem from "./TodoItem";
+import { isToday, isYesterday, parseISO } from "date-fns";
 
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
@@ -31,6 +32,7 @@ export default function TodoWidget({ groupId }) {
   const [editingTodo, setEditingTodo] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [usersMap, setUsersMap] = useState({});
+  const [showOldCompleted, setShowOldCompleted] = useState(false);
 
   if (!user || !user.uid || !groupId) return null;
 
@@ -73,6 +75,20 @@ export default function TodoWidget({ groupId }) {
 
     fetchMembers();
   }, [groupId]);
+
+  const incompleteTodos = todos.filter((t) => !t.completed);
+
+  const completedToday = todos.filter(
+    (t) => t.completed && isToday(parseISO(t.completed_at))
+  );
+
+  const completedOld = todos.filter(
+    (t) =>
+      t.completed &&
+      t.completed_at &&
+      !isToday(parseISO(t.completed_at)) &&
+      !isYesterday(parseISO(t.completed_at)) === false // incluye solo ayer
+  );
 
   const handleAddOrUpdate = async (data) => {
     if (editingTodo) {
@@ -129,19 +145,75 @@ export default function TodoWidget({ groupId }) {
             </li>
           </>
         ) : (
-          todos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              usersMap={usersMap}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-              onEdit={() => {
-                setEditingTodo(todo);
-                setShowDialog(true);
-              }}
-            />
-          ))
+          <>
+            {incompleteTodos.map((todo) => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                usersMap={usersMap}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                onEdit={() => {
+                  setEditingTodo(todo);
+                  setShowDialog(true);
+                }}
+              />
+            ))}
+
+            {completedToday.map((todo) => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                usersMap={usersMap}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                onEdit={() => {
+                  setEditingTodo(todo);
+                  setShowDialog(true);
+                }}
+              />
+            ))}
+
+            {completedOld.length > 0 && (
+              <>
+                <Button
+                  className="btn-transp-small mt-3"
+                  onClick={() => setShowOldCompleted((prev) => !prev)}
+                  label={
+                    showOldCompleted ? (
+                      <>
+                        <i className="bi bi-caret-up-fill"></i> Hide completed
+                        tasks
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-caret-down-fill"></i> Show completed
+                        tasks
+                      </>
+                    )
+                  }
+                />
+
+                {showOldCompleted && (
+                  <>
+                    {completedOld.map((todo) => (
+                      <TodoItem
+                        key={todo.id}
+                        todo={todo}
+                        usersMap={usersMap}
+                        onToggle={handleToggle}
+                        onDelete={handleDelete}
+                        onEdit={() => {
+                          setEditingTodo(todo);
+                          setShowDialog(true);
+                        }}
+                      />
+                    ))}
+                  </>
+                )}
+              </>
+            )}
+          </>
         )}
       </ul>
 
