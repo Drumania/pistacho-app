@@ -10,6 +10,8 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
+  getDocs,
+  getDoc,
 } from "firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
 import db from "@/firebase/firestore";
@@ -28,46 +30,49 @@ export default function TodoWidget({ groupId }) {
   const [loading, setLoading] = useState(true);
   const [editingTodo, setEditingTodo] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [usersMap, setUsersMap] = useState({});
 
   if (!user || !user.uid || !groupId) return null;
 
+  const colRef = collection(db, `widget_data_todos/${groupId}/items`);
+
   useEffect(() => {
-    const q = query(
-      collection(db, `widget_data_todos/${groupId}/items`),
-      orderBy("created_at", "desc")
-    );
-
-    const unsub = onSnapshot(q, (snapshot) => {
-      const now = new Date();
-      const data = snapshot.docs
-        .map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
-        .filter((todo) => {
-          if (!todo.completed) return true;
-          if (!todo.completed_at) return true;
-
-          const completedAt = new Date(todo.completed_at);
-          const diffInDays =
-            (now.getTime() - completedAt.getTime()) / (1000 * 60 * 60 * 24);
-
-          return diffInDays <= 1;
-        });
-
-      const sorted = data.sort((a, b) => {
-        if (a.completed !== b.completed) return a.completed ? 1 : -1;
-        return (a.due_date || "") > (b.due_date || "") ? 1 : -1;
-      });
-
-      setTodos(sorted);
+    // 🔄 Escucha en tiempo real
+    const q = query(colRef, orderBy("created_at", "desc"));
+    const unsubscribe = onSnapshot(q, (snap) => {
+      const data = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTodos(data);
       setLoading(false);
     });
 
-    return () => unsub();
+    return () => unsubscribe();
   }, [groupId]);
 
-  const colRef = collection(db, `widget_data_todos/${groupId}/items`);
+  useEffect(() => {
+    const fetchMembers = async () => {
+      const snap = await getDocs(collection(db, `groups/${groupId}/members`));
+      const map = {};
+
+      for (const docRef of snap.docs) {
+        const { uid } = docRef.data();
+        const userSnap = await getDoc(doc(db, "users", uid));
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          map[uid] = {
+            name: data.name || data.displayName || "Usuario",
+            photoURL: data.photoURL || "",
+          };
+        }
+      }
+
+      setUsersMap(map);
+    };
+
+    fetchMembers();
+  }, [groupId]);
 
   const handleAddOrUpdate = async (data) => {
     if (editingTodo) {
@@ -128,6 +133,7 @@ export default function TodoWidget({ groupId }) {
             <TodoItem
               key={todo.id}
               todo={todo}
+              usersMap={usersMap}
               onToggle={handleToggle}
               onDelete={handleDelete}
               onEdit={() => {

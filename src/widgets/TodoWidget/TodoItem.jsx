@@ -1,20 +1,30 @@
 import { Button } from "primereact/button";
 import CustomCheckbox from "@/components/CustomCheckbox";
 
-export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
+export default function TodoItem({
+  todo,
+  usersMap,
+  onToggle,
+  onEdit,
+  onDelete,
+}) {
   const { title, completed, priority, label, completed_at } = todo;
 
-  const renderWithMentions = (text) => {
-    const parts = text.split(/(@\w+)/g);
-    return parts.map((part, i) =>
-      part.startsWith("@") ? (
-        <strong key={i} className="mention">
-          {part}
-        </strong>
-      ) : (
-        part
-      )
-    );
+  const renderWithMentions = (text, usersMap) => {
+    const parts = text.split(/(@\{[^}]+\})/g);
+    return parts.map((part, i) => {
+      const match = part.match(/@\{([^}]+)\}/);
+      if (match) {
+        const uid = match[1];
+        const user = usersMap[uid];
+        return (
+          <strong key={i} className="mention" title={user?.name || uid}>
+            @{user?.name || "usuario"}
+          </strong>
+        );
+      }
+      return part;
+    });
   };
 
   const handleToggle = () => {
@@ -28,7 +38,7 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
           <CustomCheckbox checked={completed} onChange={handleToggle} />
         </div>
         <div className={`fw-semibold ${completed ? "opacity-50" : ""}`}>
-          {renderWithMentions(title)}
+          {renderWithMentions(title, usersMap)}
 
           {(priority === "high" || label) && (
             <div>

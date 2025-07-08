@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
-import { MultiSelect } from "primereact/multiselect";
+import CustomCheckbox from "@/components/CustomCheckbox";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
+import "./GroupExpensesWidget.css";
 
 export default function GroupExpensesModal({
   visible,
@@ -84,21 +85,51 @@ export default function GroupExpensesModal({
 
           <div className="mb-3">
             <label>Shared with</label>
-            <MultiSelect
-              value={sharedWith}
-              options={members}
-              optionLabel="name"
-              onChange={(e) => setSharedWith(e.value)}
-              className="w-100"
-              placeholder="Select members"
-            />
+
+            {/* Select All Checkbox */}
+            <div className="d-flex align-items-center mb-2">
+              <CustomCheckbox
+                checked={sharedWith.length === members.length}
+                onChange={() => {
+                  if (sharedWith.length === members.length) {
+                    setSharedWith([]);
+                  } else {
+                    setSharedWith(members);
+                  }
+                }}
+              />
+              <span className="ms-2">Select all</span>
+            </div>
+
+            {/* Lista de miembros */}
+            <div className="d-flex flex-column gap-2 ps-2">
+              {members.map((member) => (
+                <div key={member.uid} className="d-flex align-items-center">
+                  <CustomCheckbox
+                    checked={sharedWith.some((m) => m.uid === member.uid)}
+                    onChange={() => {
+                      const already = sharedWith.some(
+                        (m) => m.uid === member.uid
+                      );
+                      if (already) {
+                        setSharedWith(
+                          sharedWith.filter((m) => m.uid !== member.uid)
+                        );
+                      } else {
+                        setSharedWith([...sharedWith, member]);
+                      }
+                    }}
+                  />
+                  <span className="ms-2">{member.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <Button
             label="Add Expense"
-            icon="pi pi-check"
             onClick={handleSave}
-            className="w-100"
+            className="btn-pistacho"
           />
         </>
       )}

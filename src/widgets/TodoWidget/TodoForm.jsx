@@ -1,13 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  doc,
-  getDoc,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
 import db from "@/firebase/firestore";
 
 import { InputText } from "primereact/inputtext";
@@ -108,22 +100,17 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
   }, [groupId]);
 
   const notifyMentions = async (text, todoId = null) => {
-    const mentions = [...text.matchAll(/@(\w+)/g)].map((m) => m[1]);
-    for (const name of mentions) {
+    const mentions = [...text.matchAll(/@{([^}]+)}/g)].map((m) => m[1]);
+    for (const uid of mentions) {
       try {
-        const q = query(collection(db, "users"), where("name", "==", name));
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-          const userDoc = snap.docs[0];
-          await sendNotification(userDoc.id, "todo_mention", {
-            todoId,
-            todoTitle: text,
-            from: user?.name || "Alguien",
-            groupId,
-          });
-        }
+        await sendNotification(uid, "todo_mention", {
+          todoId,
+          todoTitle: text,
+          from: user?.name || "Alguien",
+          groupId,
+        });
       } catch (err) {
-        console.error("❌ Error notificando a:", name, err);
+        console.error("❌ Error notificando a:", uid, err);
       }
     }
   };
@@ -166,8 +153,9 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
   const handleTitleChange = (e) => {
     const value = e.target.value;
     setTitle(value);
-    const match = value.match(/@(\w+)$/);
-    if (match) {
+
+    const match = value.match(/@([^\s@{]*)$/);
+    if (match && match[1]) {
       setMentionQuery(match[1].toLowerCase());
       setShowMentions(true);
     } else {
@@ -175,8 +163,8 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
     }
   };
 
-  const handleMentionClick = (name) => {
-    const newTitle = title.replace(/@(\w+)$/, `@${name} `);
+  const handleMentionClick = (user) => {
+    const newTitle = title.replace(/@([^\s@{]*)$/, `@{${user.uid}} `);
     setTitle(newTitle);
     setShowMentions(false);
   };
@@ -210,14 +198,14 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
           value={title}
           onChange={handleTitleChange}
           placeholder="Tarea..."
-          className="w-100"
+          className={`w-100 ${showMentions ? "with-mentions" : ""}`}
         />
         {showMentions && filteredMentions.length > 0 && (
           <ul className="mention-list">
             {filteredMentions.map((m) => (
               <li
                 key={m.uid}
-                onClick={() => handleMentionClick(m.name)}
+                onClick={() => handleMentionClick(m)}
                 className="mention-item"
               >
                 {m.photoURL && (
@@ -316,6 +304,10 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
           }
           .mention-item:hover {
             background-color: var(--panel-hover, #394b5e);
+          }
+          .with-mentions {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
           }
         `}
       </style>

@@ -36,7 +36,10 @@ export default function GroupExpensesWidget({ groupId, widgetId }) {
   const loadMembers = async () => {
     const q = collection(db, "groups", groupId, "members");
     const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((doc) => doc.data());
+    const data = snapshot.docs.map((doc) => ({
+      uid: doc.id, // importante
+      ...doc.data(), // debe incluir name
+    }));
     setMembers(data);
   };
 
