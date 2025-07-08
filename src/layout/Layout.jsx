@@ -1,11 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { Outlet } from "react-router-dom";
+import { Toast } from "primereact/toast";
+import useNotificationToasts from "@/hooks/useNotificationToasts"; // tu hook
 import Navbar from "./Navbar";
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const navbarRef = useRef();
+  const toastRef = useRef(null);
+
+  useNotificationToasts(toastRef);
 
   // Detectar si es mobile
   useEffect(() => {
@@ -43,6 +48,8 @@ export default function Layout() {
 
   return (
     <div className="app-wrapper position-relative">
+      <Toast ref={toastRef} position="bottom-right" />
+
       {isMobile && (
         <button
           onClick={() => setMobileMenuOpen((prev) => !prev)}
