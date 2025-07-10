@@ -16,7 +16,7 @@
 }
 
 .chat-messages {
-  background-image: url("/bk-chat.png");
+  /* background-image: url("/bk-chat.png"); */
   background-size: contain;
   overflow-y: auto;
   flex-grow: 1;
@@ -27,8 +27,8 @@
 
 .chat-bubble {
   border-radius: 1rem;
-  padding: 0.6rem 0.9rem;
-  line-height: 1.4;
+  padding: 0.2rem 0.9rem;
+  line-height: 1.2;
 }
 
 .chat-name {

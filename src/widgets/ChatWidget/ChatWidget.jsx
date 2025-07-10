@@ -124,22 +124,20 @@ export default function ChatWidget({ groupId, widgetId }) {
                 </div>
               )}
 
-              <div
-                className={`chat-message-block d-flex flex-column ${
-                  isMine ? "align-items-end" : "align-items-start"
-                } ${isFirst ? "mt-4" : "mt-1"}`}
-              >
+              <div className="chat-message-block d-flex flex-column">
                 {isFirst && (
-                  <div className="d-flex align-items-center gap-2 mb-1">
-                    {!isMine && (
-                      <img
-                        src={m.photoURL || "/avatar_placeholder.png"}
-                        alt={m.name}
-                        className="chat-avatar"
-                      />
-                    )}
-                    <div className="chat-name small text-muted">
-                      {m.name} ·{" "}
+                  <div className="d-flex align-items-center gap-2">
+                    <img
+                      src={m.photoURL || "/avatar_placeholder.png"}
+                      alt={m.name}
+                      className="chat-avatar"
+                    />
+                    <div
+                      className={`chat-name ${
+                        isMine ? "mine color-pistacho" : "other"
+                      }`}
+                    >
+                      {m.name} &middot;{" "}
                       {new Date(m.created_at).toLocaleTimeString("es-AR", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -149,9 +147,9 @@ export default function ChatWidget({ groupId, widgetId }) {
                 )}
 
                 <div
-                  className={`chat-bubble p-2 rounded-3 mb-1 ${
-                    isMine ? "bg-pistacho text-black" : "bg-dark text-white"
-                  }`}
+                  className={`chat-bubble ${
+                    isMine ? "mine color-pistacho" : "other"
+                  } mb-2`}
                 >
                   {m.text}
                 </div>
