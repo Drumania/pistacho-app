@@ -126,7 +126,7 @@ export default function ChatWidget({ groupId, widgetId }) {
 
               <div className="chat-message-block d-flex flex-column">
                 {isFirst && (
-                  <div className="d-flex align-items-center gap-2">
+                  <div className="d-flex align-items-center gap-2 mt-3">
                     <img
                       src={m.photoURL || "/avatar_placeholder.png"}
                       alt={m.name}

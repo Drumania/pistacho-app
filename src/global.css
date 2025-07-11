@@ -1097,6 +1097,19 @@ input[type="number"] {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
+.btn-tag {
+  background-color: var(--panel-hover);
+  border: none;
+  padding: 0.3rem 0.8rem;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  color: var(--text-color);
+}
+.btn-tag-active {
+  background-color: var(--pistacho-color);
+  color: black;
+}
+
 /* primereact fixs */
 
 .fuel-table-row {

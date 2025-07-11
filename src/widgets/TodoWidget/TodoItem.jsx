@@ -7,8 +7,9 @@ export default function TodoItem({
   onToggle,
   onEdit,
   onDelete,
+  showGroupName = false, // nuevo prop
 }) {
-  const { title, completed, priority, label, completed_at } = todo;
+  const { title, completed, priority, label, completed_at, groupName } = todo;
 
   const renderWithMentions = (text, usersMap) => {
     const parts = text.split(/(@\{[^}]+\})/g);
@@ -40,8 +41,12 @@ export default function TodoItem({
         <div className={`fw-semibold ${completed ? "opacity-50" : ""}`}>
           {renderWithMentions(title, usersMap)}
 
+          {showGroupName && (
+            <div className="small text-muted mt-1">{groupName}</div>
+          )}
+
           {(priority === "high" || label) && (
-            <div>
+            <div className="mt-1">
               {priority === "high" && (
                 <span className="me-1 badge bg-danger">Alta prioridad</span>
               )}
@@ -60,13 +65,13 @@ export default function TodoItem({
           )}
 
           {completed && completed_at && (
-            <div className="opacity-50 small">
+            <div className="opacity-50 small mt-1">
               <i className="bi bi-check-circle me-1" />
               Completada
               {todo.completed_by && (
                 <>
                   {" "}
-                  por <b>{todo.completed_by}</b>{" "}
+                  por <b>{todo.completed_by}</b>
                 </>
               )}
               el {new Date(completed_at).toLocaleDateString("es-AR")}
