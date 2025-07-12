@@ -71,12 +71,16 @@ export default function Landing() {
 
       {/* HERO */}
       <section id="hero" className="container pb-5 text-center text-md-start">
-        <div className="row widget-content align-items-center">
-          <div className="col-md-6">
-            <h1 className="display-6 fw-bold">
-              The latest electronics: <br />
-              discover innovation at your fingertips
+        <div className="row widget-content align-items-center position-relative">
+          <div className="col-12 col-md-6 legend">
+            <h1 className="display-6">
+              Your <strong>Custom dashboards</strong> personal and shared
             </h1>
+            <h5 className="mt-3">
+              Organize your tasks, events, notes and more — all in one place.{" "}
+              <br />
+              Use smart widgets to manage your day, your projects and your life.
+            </h5>
             <div className="input-group mt-4">
               <input
                 type="text"
@@ -88,12 +92,17 @@ export default function Landing() {
               </span>
             </div>
           </div>
-          <div className="col-md-6 text-center mt-4 mt-md-0">
-            <div className="hero-placeholder bg-light rounded p-5">
-              [Hero Image]
-            </div>
-          </div>
         </div>
+        <img
+          className="d-none d-lg-block img-prod"
+          src="/screen_desktop.png"
+          title="desktop"
+        />
+        <img
+          className="d-block d-lg-none img-prod"
+          src="/screen_mobile.png"
+          title="desktop"
+        />
       </section>
 
       <section className="container py-5" id="what-for">

@@ -46,6 +46,20 @@ body {
   padding-top: 180px;
 }
 
+#hero .legend {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  padding-top: 80px;
+}
+
+#hero .img-prod {
+  position: absolute;
+  top: 50px;
+  width: 890px;
+  right: 40px;
+}
+
 .feature-box {
   background-color: var(--focuspit-panel);
   border-radius: 16px;
