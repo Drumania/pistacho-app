@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "@/layout/Layout";
-import GroupDashboard from "@/pages/Dashboards";
+import Landing from "@/pages/Landing";
 import LoginPage from "@/pages/LoginPage";
+import GroupDashboard from "@/pages/Dashboards";
+
 import SettingsPage from "@/pages/SettingsPage";
 import AdminToolsPage from "@/pages/AdminToolsPage";
 import { useAuth } from "@/firebase/AuthContext";
@@ -17,6 +19,7 @@ function App() {
       {!user ? (
         // si NO hay usuario, solo puede ver AuthPage
         <>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<Navigate to="/login" />} />
         </>
