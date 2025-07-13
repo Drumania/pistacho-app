@@ -89,6 +89,46 @@
   justify-content: center;
 }
 
+/* grid */
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* ← antes estaba en auto-fit */
+  grid-auto-rows: 160px;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .template-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.template-box {
+  position: relative;
+  color: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  font-weight: bold;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  background-color: var(--panel);
+}
+
+.template-box span {
+  position: relative;
+  z-index: 2;
+}
+
+/* Algunas variaciones */
+.template-box.tall {
+  grid-row: span 2;
+}
+.template-box.wide {
+  grid-column: span 2;
+}
+
 .landing-footer {
   background-color: var(--focuspit-panel);
   margin-top: auto;

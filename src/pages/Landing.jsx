@@ -176,73 +176,24 @@ export default function Landing() {
           Start with a pre-built setup and customize it your way.
         </p>
 
-        <div className="row g-4">
-          <div className="col-12 col-md-6">
-            <div
-              className="template-box rounded text-white p-3 position-relative"
-              style={{ backgroundColor: "#f7d469" }}
-            >
-              <img
-                src="template_1.png"
-                alt="Daily Panel"
-                className="img-fluid position-absolute top-50 start-50 translate-middle"
-                style={{ maxHeight: "80px" }}
-              />
-              <div className="position-absolute bottom-0 start-0 p-3 fw-bold">
-                Daily panel
-              </div>
-            </div>
+        <div className="template-grid">
+          <div className="template-box tall">
+            <span>Daily Panel</span>
           </div>
-
-          <div className="col-12 col-md-6">
-            <div
-              className="template-box rounded text-white p-3 position-relative"
-              style={{ backgroundColor: "#ea805c" }}
-            >
-              <img
-                src="template_2.png"
-                alt="House Organizer"
-                className="img-fluid position-absolute top-50 start-50 translate-middle"
-                style={{ maxHeight: "80px" }}
-              />
-              <div className="position-absolute bottom-0 start-0 p-3 fw-bold">
-                Home tasks
-              </div>
-            </div>
+          <div className="template-box wide">
+            <span>Home Tasks</span>
           </div>
-
-          <div className="col-12 col-md-6">
-            <div
-              className="template-box rounded text-white p-3 position-relative"
-              style={{ backgroundColor: "#93c4e4" }}
-            >
-              <img
-                src="https://via.placeholder.com/150x100"
-                alt="Car maintenance"
-                className="img-fluid position-absolute top-50 start-50 translate-middle"
-                style={{ maxHeight: "80px" }}
-              />
-              <div className="position-absolute bottom-0 start-0 p-3 fw-bold">
-                Car care
-              </div>
-            </div>
+          <div className="template-box">
+            <span>Car Care</span>
           </div>
-
-          <div className="col-12 col-md-6">
-            <div
-              className="template-box rounded text-white p-3 position-relative"
-              style={{ backgroundColor: "#d96060" }}
-            >
-              <img
-                src="https://via.placeholder.com/150x100"
-                alt="Finance"
-                className="img-fluid position-absolute top-50 start-50 translate-middle"
-                style={{ maxHeight: "80px" }}
-              />
-              <div className="position-absolute bottom-0 start-0 p-3 fw-bold">
-                Work project
-              </div>
-            </div>
+          <div className="template-box">
+            <span>Work Project</span>
+          </div>
+          <div className="template-box wide">
+            <span>Finance</span>
+          </div>
+          <div className="template-box">
+            <span>Tracker</span>
           </div>
         </div>
       </section>
