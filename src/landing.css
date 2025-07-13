@@ -1,6 +1,11 @@
-body {
+.landing {
+  --font-size: 16px;
+}
+
+.landing {
   background-color: var(--focuspit-bg);
   color: var(--text-color);
+  font-size: var(--font-size);
   font-family: "Inter", sans-serif;
   height: 100%;
   overflow-x: hidden;
@@ -55,7 +60,7 @@ body {
 
 #hero .img-prod {
   position: absolute;
-  top: 50px;
+  top: 110px;
   width: 890px;
   right: 40px;
 }

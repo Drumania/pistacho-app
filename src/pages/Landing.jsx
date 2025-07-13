@@ -70,7 +70,10 @@ export default function Landing() {
       </nav>
 
       {/* HERO */}
-      <section id="hero" className="container pb-5 text-center text-md-start">
+      <section
+        id="hero"
+        className="container pb-5 my-5 text-center text-md-start"
+      >
         <div className="row widget-content align-items-center position-relative">
           <div className="col-12 col-md-6 legend">
             <h1 className="display-6">
@@ -105,63 +108,67 @@ export default function Landing() {
         />
       </section>
 
-      <section className="container py-5" id="what-for">
-        <h2 className="text-center mb-4">What is it for?</h2>
-        <p className="lead text-center mb-5">
-          Focuspit helps you organize everything in your life, your projects and
-          your routines — visually and in one place.
-        </p>
+      {/* WHAT FOR */}
+      <div className="mt-5 pt-5" style={{ backgroundColor: "#141d29" }}>
+        <section className="container py-5" id="what-for">
+          <h2 className="text-center mb-4 color-pistacho">What is it for?</h2>
+          <p className="text-center text-muted mb-5">
+            Focuspit helps you organize everything in your life, your projects
+            and your routines — visually and in one place.
+          </p>
 
-        <div className="row gy-4">
-          <div className="col-md-6">
-            <h5>🔹 Personal use</h5>
-            <ul className="list-unstyled ps-3">
-              <li>✔️ Plan your day with a custom dashboard</li>
-              <li>✔️ Keep track of tasks, events, shopping and reminders</li>
-              <li>
-                ✔️ Build routines like "drink water", "take vitamins", or "go
-                for a run"
-              </li>
-            </ul>
-          </div>
+          <div className="row g-4">
+            {/* Personal use */}
+            <div className="col-12 col-md-6">
+              <div className="rounded p-4 widget-content position-relative">
+                <h3 className="fw-bold mb-3">Personal use</h3>
+                <ul className="small lh-lg ps-3">
+                  <li>Plan your day with a custom dashboard</li>
+                  <li>Track tasks, events, shopping and reminders</li>
+                  <li>Build routines like "drink water"</li>
+                </ul>
+                {/* Agregá tu imagen como <img> o con background-image aquí si querés */}
+              </div>
+            </div>
 
-          <div className="col-md-6">
-            <h5>🔹 Shared life</h5>
-            <ul className="list-unstyled ps-3">
-              <li>
-                ✔️ Organize housework and errands with your partner or family
-              </li>
-              <li>✔️ Coordinate who does what and when</li>
-              <li>
-                ✔️ Stay in sync with shared widgets like to-do lists, calendar,
-                groceries, and expenses
-              </li>
-            </ul>
-          </div>
+            {/* Shared life */}
+            <div className="col-12 col-md-6">
+              <div className="rounded p-4 widget-content position-relative">
+                <h3 className="fw-bold mb-3">Shared life</h3>
+                <ul className="small lh-lg ps-3">
+                  <li>Organize housework with your partner or family</li>
+                  <li>Coordinate who does what and when</li>
+                  <li>Use shared widgets like to-do lists and calendars</li>
+                </ul>
+              </div>
+            </div>
 
-          <div className="col-md-6">
-            <h5>🔹 Projects & teams</h5>
-            <ul className="list-unstyled ps-3">
-              <li>✔️ Manage simple projects without complex tools</li>
-              <li>✔️ Share dashboards with collaborators or clients</li>
-              <li>✔️ Use templates to set up everything in minutes</li>
-            </ul>
-          </div>
+            {/* Projects & teams */}
+            <div className="col-12 col-md-6">
+              <div className="rounded p-4 widget-content position-relative">
+                <h3 className="fw-bold mb-3">Projects & teams</h3>
+                <ul className="small lh-lg ps-3">
+                  <li>Manage simple projects without complex tools</li>
+                  <li>Share dashboards with collaborators or clients</li>
+                  <li>Use templates to get started fast</li>
+                </ul>
+              </div>
+            </div>
 
-          <div className="col-md-6">
-            <h5>🔹 Creative freedom</h5>
-            <ul className="list-unstyled ps-3">
-              <li>✔️ Add and remove widgets like Lego pieces</li>
-              <li>
-                ✔️ Rearrange your layout to match how <em>you</em> think
-              </li>
-              <li>
-                ✔️ Combine widgets into templates for any kind of workflow
-              </li>
-            </ul>
+            {/* Creative freedom */}
+            <div className="col-12 col-md-6">
+              <div className="rounded p-4 widget-content position-relative">
+                <h3 className="fw-bold mb-3">Creative freedom</h3>
+                <ul className="small lh-lg ps-3">
+                  <li>Add and remove widgets like Lego pieces</li>
+                  <li>Rearrange your layout to match how you think</li>
+                  <li>Create templates for any kind of workflow</li>
+                </ul>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <section className="container py-5" id="templates">
         <h2 className="text-center mb-4">Templates</h2>
