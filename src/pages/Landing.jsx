@@ -109,9 +109,9 @@ export default function Landing() {
       </section>
 
       {/* WHAT FOR */}
-      <div className="mt-5 pt-5" style={{ backgroundColor: "#141d29" }}>
+      <div className="mt-5 py-5" style={{ backgroundColor: "#141d29" }}>
         <section className="container py-5" id="what-for">
-          <h2 className="text-center mb-4 color-pistacho">What is it for?</h2>
+          <h2 className="text-center mb-4">What is it for?</h2>
           <p className="text-center text-muted mb-5">
             Focuspit helps you organize everything in your life, your projects
             and your routines — visually and in one place.
@@ -183,7 +183,7 @@ export default function Landing() {
               style={{ backgroundColor: "#f7d469" }}
             >
               <img
-                src="https://via.placeholder.com/150x100"
+                src="template_1.png"
                 alt="Daily Panel"
                 className="img-fluid position-absolute top-50 start-50 translate-middle"
                 style={{ maxHeight: "80px" }}
@@ -200,7 +200,7 @@ export default function Landing() {
               style={{ backgroundColor: "#ea805c" }}
             >
               <img
-                src="https://via.placeholder.com/150x100"
+                src="template_2.png"
                 alt="House Organizer"
                 className="img-fluid position-absolute top-50 start-50 translate-middle"
                 style={{ maxHeight: "80px" }}
@@ -240,7 +240,7 @@ export default function Landing() {
                 style={{ maxHeight: "80px" }}
               />
               <div className="position-absolute bottom-0 start-0 p-3 fw-bold">
-                Finances
+                Work project
               </div>
             </div>
           </div>
