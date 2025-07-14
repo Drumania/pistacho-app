@@ -16,13 +16,70 @@ export default function Landing() {
   ];
 
   const allWidgets = [
-    { name: "To-do list", category: "Tasks", color: "#90b083" },
-    { name: "Calendar", category: "Time", color: "#748d6a" },
-    { name: "Notes", category: "Notes", color: "#5d6e7e" },
-    { name: "Expenses", category: "Finance", color: "#c97c63" },
-    { name: "Weather", category: "Weather", color: "#69b1d9" },
-    { name: "Shopping list", category: "Shopping", color: "#d96060" },
-    { name: "Pomodoro", category: "Time", color: "#e8aa42" },
+    {
+      name: "To-do list",
+
+      color: "#1a232f",
+      img: "/widget_todos.png",
+    },
+    {
+      name: "Calendar",
+
+      color: "#141d29",
+      img: "/widget_calendar.png",
+    },
+    {
+      name: "Notes",
+
+      color: "#394b5e",
+      img: "/widget_notas.png",
+    },
+    {
+      name: "Weather",
+
+      color: "#394b5e71",
+      img: "/widget_weather.png",
+    },
+    {
+      name: "Pomodoro",
+      color: "#141d29",
+      img: "/widget_pomodoro.png",
+    },
+    {
+      name: "Weight Tracker",
+      color: "#1a232f",
+      img: "/widget_weight.png",
+    },
+    {
+      name: "Chat",
+      color: "#394b5e",
+      img: "/widget_chat.png",
+    },
+    {
+      name: "Shared Rent",
+      color: "#1a232f",
+      img: "/widget_split.png",
+    },
+    {
+      name: "Fuel Tracker",
+      color: "#141d29",
+      img: "/widget_fuel.png",
+    },
+    {
+      name: "Fuel Tracker",
+      color: "#394b5e71",
+      img: "/widget_fuel.png",
+    },
+    {
+      name: "World Clocks",
+      color: "#394b5e",
+      img: "/widget_watches.png",
+    },
+    {
+      name: "Image",
+      color: "#1a232f",
+      img: "/widget_imagen.png",
+    },
   ];
 
   const filteredWidgets =
@@ -204,26 +261,10 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* WIDGETS FILTER */}
-      <section className="container py-4" id="widgets">
-        <h5 className="mb-3">Browse widgets by category</h5>
-        <div className="d-flex flex-wrap gap-2">
-          {widgetCategories.map((cat, i) => (
-            <button
-              key={i}
-              className={`btn btn-sm px-3 py-1 rounded-pill ${
-                selectedCategory === cat ? "btn-dark" : "btn-outline-secondary"
-              }`}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </section>
-
       {/* WIDGET GRID */}
-      <section className="container pb-5">
+      <section className="container py-5" id="widgets">
+        <h2 className="text-center mb-4">Widget</h2>
+        <p className="text-center text-muted mb-5">New widgets every week</p>
         <div className="row g-4">
           {filteredWidgets.map((w, i) => (
             <div className="col-6 col-md-4" key={i}>
@@ -232,6 +273,7 @@ export default function Landing() {
                 style={{ backgroundColor: w.color }}
               >
                 {w.name}
+                <img width="200px" src={w.img} />
               </div>
             </div>
           ))}

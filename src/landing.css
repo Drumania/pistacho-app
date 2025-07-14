@@ -66,7 +66,8 @@
 }
 
 #what-for h2,
-#templates h2 {
+#templates h2,
+#widgets h2 {
   font-size: 6rem;
   font-weight: bold;
   padding: 3rem 10px;
@@ -154,5 +155,5 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 1.2rem;
+  font-size: 2rem;
 }
