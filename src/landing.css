@@ -119,6 +119,9 @@
 .template-box span {
   position: relative;
   z-index: 2;
+  font-size: 3rem;
+  word-break: break-word;
+  color: #d1d1d1;
 }
 
 /* Algunas variaciones */

@@ -179,21 +179,27 @@ export default function Landing() {
         <div className="template-grid">
           <div className="template-box tall">
             <span>Daily Panel</span>
+            <img width="200px" src="/tempalte_daily.png" />
           </div>
           <div className="template-box wide">
-            <span>Home Tasks</span>
+            <span>Family</span>
+            <img width="200px" src="/tempalte_family.png" />
           </div>
           <div className="template-box">
             <span>Car Care</span>
+            <img width="200px" src="/tempalte_car.png" />
           </div>
           <div className="template-box">
             <span>Work Project</span>
+            <img width="200px" src="/tempalte_project.png" />
           </div>
           <div className="template-box wide">
-            <span>Finance</span>
+            <span>Home</span>
+            <img width="200px" src="/tempalte_home.png" />
           </div>
           <div className="template-box">
-            <span>Tracker</span>
+            <span>Group of friends</span>
+            <img width="200px" src="/tempalte_group.png" />
           </div>
         </div>
       </section>
