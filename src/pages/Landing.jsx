@@ -236,7 +236,7 @@ export default function Landing() {
         <div className="template-grid">
           <div className="template-box tall">
             <span>Daily Panel</span>
-            <img width="200px" src="/tempalte_daily.png" />
+            <img className="img-daily" src="/tempalte_daily.png" />
           </div>
           <div className="template-box wide">
             <span>Family</span>

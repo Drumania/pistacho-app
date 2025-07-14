@@ -88,8 +88,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
+.img-daily {
+  width: 270px;
+}
 /* grid */
 
 .template-grid {
