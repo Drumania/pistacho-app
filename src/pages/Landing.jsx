@@ -1,19 +1,12 @@
-import { useState } from "react";
+import { Link } from "react-router-dom";
 import "@/landing.css";
 import logo from "/icon-192_v2.png"; // cambiá por tu logo real
+import { Dialog } from "primereact/dialog";
+import { useState } from "react";
 
 export default function Landing() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const widgetCategories = [
-    "All",
-    "Tasks",
-    "Time",
-    "Notes",
-    "Finance",
-    "Weather",
-    "Shopping",
-  ];
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const allWidgets = [
     {
@@ -82,11 +75,6 @@ export default function Landing() {
     },
   ];
 
-  const filteredWidgets =
-    selectedCategory === "All"
-      ? allWidgets
-      : allWidgets.filter((w) => w.category === selectedCategory);
-
   return (
     <div className="landing">
       {/* NAVBAR */}
@@ -142,14 +130,9 @@ export default function Landing() {
               Use smart widgets to manage your day, your projects and your life.
             </h5>
             <div className="input-group mt-4">
-              <input
-                type="text"
-                className="form-control form-control-lg"
-                placeholder="What are you looking for?"
-              />
-              <span className="input-group-text">
-                <i className="bi bi-search"></i>
-              </span>
+              <button href="/login" className="btn-pistacho fs-4 px-5">
+                Build My Dashboards
+              </button>
             </div>
           </div>
         </div>
@@ -169,9 +152,9 @@ export default function Landing() {
       <div className="mt-5 py-5" style={{ backgroundColor: "#141d29" }}>
         <section className="container py-5" id="what-for">
           <h2 className="text-center mb-4">What is it for?</h2>
-          <p className="text-center text-muted mb-5">
-            Focuspit helps you organize everything in your life, your projects
-            and your routines — visually and in one place.
+          <p className="text-center text-muted lead mb-5">
+            Focuspit helps you bring order to your life, projects and routines —
+            in a clear, visual and flexible way.
           </p>
 
           <div className="row g-4">
@@ -184,7 +167,6 @@ export default function Landing() {
                   <li>Track tasks, events, shopping and reminders</li>
                   <li>Build routines like "drink water"</li>
                 </ul>
-                {/* Agregá tu imagen como <img> o con background-image aquí si querés */}
               </div>
             </div>
 
@@ -234,30 +216,59 @@ export default function Landing() {
         </p>
 
         <div className="template-grid">
-          <div className="template-box tall">
+          <Link
+            to="/login"
+            className="template-box tall"
+            style={{ backgroundColor: "#da525b" }}
+          >
             <span>Daily Panel</span>
             <img className="img-daily" src="/tempalte_daily.png" />
-          </div>
-          <div className="template-box wide">
+          </Link>
+
+          <Link
+            to="/login"
+            className="template-box wide"
+            style={{ backgroundColor: "#7332b8" }}
+          >
             <span>Family</span>
-            <img width="200px" src="/tempalte_family.png" />
-          </div>
-          <div className="template-box">
+            <img className="img-family" src="/tempalte_family.png" />
+          </Link>
+
+          <Link
+            to="/login"
+            className="template-box"
+            style={{ backgroundColor: "#0d7bc8" }}
+          >
             <span>Car Care</span>
-            <img width="200px" src="/tempalte_car.png" />
-          </div>
-          <div className="template-box">
-            <span>Work Project</span>
-            <img width="200px" src="/tempalte_project.png" />
-          </div>
-          <div className="template-box wide">
-            <span>Home</span>
-            <img width="200px" src="/tempalte_home.png" />
-          </div>
-          <div className="template-box">
+            <img className="img-car" src="/tempalte_car.png" />
+          </Link>
+
+          <Link
+            to="/login"
+            className="template-box"
+            style={{ backgroundColor: "#b74c98" }}
+          >
             <span>Group of friends</span>
-            <img width="200px" src="/tempalte_group.png" />
-          </div>
+            <img className="img-friends" src="/tempalte_group.png" />
+          </Link>
+
+          <Link
+            to="/login"
+            className="template-box wide"
+            style={{ backgroundColor: "#1b8d4d" }}
+          >
+            <span>Work Project</span>
+            <img className="img-work" src="/tempalte_project.png" />
+          </Link>
+
+          <Link
+            to="/login"
+            className="template-box"
+            style={{ backgroundColor: "#d5a961" }}
+          >
+            <span>Home</span>
+            <img className="img-home" src="/tempalte_home.png" />
+          </Link>
         </div>
       </section>
 
@@ -266,55 +277,350 @@ export default function Landing() {
         <h2 className="text-center mb-4">Widget</h2>
         <p className="text-center text-muted mb-5">New widgets every week</p>
         <div className="row g-4">
-          {filteredWidgets.map((w, i) => (
+          {allWidgets.map((w, i) => (
             <div className="col-6 col-md-4" key={i}>
-              <div
+              <Link
+                to="/login"
                 className="category-box p-4 rounded text-white text-center fw-bold"
                 style={{ backgroundColor: w.color }}
               >
                 {w.name}
                 <img width="200px" src={w.img} />
-              </div>
+              </Link>
             </div>
           ))}
         </div>
       </section>
 
-      {/* NEWSLETTER */}
-      <section className="widget-content py-5">
-        <div className="container text-center">
-          <h4>Join the newsletter</h4>
-          <p className="text-muted">
-            Stay in the loop with our newsletter for exclusive deals, tech
-            trends, and updates.
-          </p>
-          <div className="d-flex justify-content-center mt-3">
-            <input
-              type="email"
-              className="form-control w-50"
-              placeholder="E-Mail"
-            />
-            <button className="btn btn-primary ms-2">Sign me up</button>
+      <section className="prefooter py-5 bg-dark text-white">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-md-6 mb-4 mb-md-0 text-center">
+              <img
+                src="/imgprev.png"
+                alt="Focuspit widgets preview"
+                className="img-fluid"
+                style={{ maxHeight: "500px" }}
+              />
+            </div>
+            <div className="col-md-6 text-center text-md-start">
+              <h2 className="fw-bold mb-3">
+                Start today and take control of your day.
+              </h2>
+              <p className="lead mb-4">
+                Focuspit helps you organize your life with smart & simple
+                widgets — so you can stay focused and get things done.
+              </p>
+              <button href="/login" className="btn-pistacho fs-4 px-5">
+                Build My Dashboard
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="py-4 bg-dark text-center text-muted">
-        <div className="container small">
-          <div className="d-flex justify-content-center gap-3 mb-2">
-            <i className="bi bi-twitter"></i>
-            <i className="bi bi-facebook"></i>
-            <i className="bi bi-instagram"></i>
-            <i className="bi bi-pinterest"></i>
-            <i className="bi bi-tiktok"></i>
+      <>
+        <footer className="py-4 text-center text-muted">
+          <div className="container small">
+            <div className="d-flex justify-content-center gap-3 mb-2">
+              <a
+                href="https://www.instagram.com/focuspit.ok"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted"
+              >
+                <i className="bi bi-instagram fs-5"></i>
+              </a>
+              <a
+                href="https://www.reddit.com/r/FocusPit/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted"
+              >
+                <i className="bi bi-reddit fs-5"></i>
+              </a>
+            </div>
+
+            <div>
+              <button
+                className="btn btn-link text-muted small p-0"
+                onClick={() => setShowPrivacy(true)}
+              >
+                Privacy Policy
+              </button>
+              <span className="px-3">|</span>
+              <button
+                className="btn btn-link text-muted small p-0"
+                onClick={() => setShowTerms(true)}
+              >
+                Terms of Use
+              </button>
+              <span className="px-3">|</span>
+              <a
+                href="mailto:contact@focuspit.com"
+                className="btn btn-link text-muted small p-0"
+              >
+                Contact Us
+              </a>
+            </div>
+
+            <div className="text-muted small mt-2">
+              © {new Date().getFullYear()} Focuspit. All rights reserved.
+            </div>
           </div>
-          <div>
-            <span className="me-3">privacy policy</span>
-            <span>shipping & returns</span>
+        </footer>
+
+        <Dialog
+          header="Privacy Policy"
+          visible={showPrivacy}
+          onHide={() => setShowPrivacy(false)}
+          style={{ width: "90vw", maxWidth: "600px" }}
+          breakpoints={{ "960px": "95vw", "640px": "100vw" }}
+          className="bg-dark text-white"
+          draggable={false}
+          closable
+        >
+          <div className="small">
+            Privacy Policy Last updated: July 15, 2025 This Privacy Policy
+            describes how Focuspit (“we”, “us”, or “our”) collects, uses, and
+            shares information about you when you use our website, mobile
+            applications, and related services (collectively, the “Service”). By
+            using the Service, you consent to the collection and use of your
+            personal information as described in this Privacy Policy. If you do
+            not agree with any part of this policy, you must not use our
+            Service.
+            <br />
+            <br />
+            1. Information We Collect 1.1 Personal Information We may collect
+            personal information you voluntarily provide, including but not
+            limited to: Name Email address Profile photo or avatar Login
+            credentials (via email or third-party providers like Google)
+            Usernames or identifiers 1.2 Automatically Collected Information
+            When you use the Service, we may automatically collect: IP address
+            Browser type and version Device type and OS Date and time of access
+            Pages visited and usage patterns Referring URLs 1.3 Cookies and
+            Tracking Technologies We use cookies, localStorage, and similar
+            technologies to: Authenticate users Maintain session state Analyze
+            traffic Improve performance You may disable cookies in your browser
+            settings; however, doing so may limit certain functionalities.
+            <br />
+            <br />
+            2. Use of Information We use collected information to: Provide,
+            maintain, and improve the Service Authenticate users and manage
+            sessions Personalize your experience Communicate with you (e.g.,
+            service updates) Prevent fraud and ensure security Comply with legal
+            obligations
+            <br />
+            <br />
+            3. Legal Basis for Processing (GDPR) If you are in the European
+            Economic Area (EEA), we process your information under the following
+            lawful bases: Your consent Performance of a contract Legal
+            obligations Legitimate interests (e.g., product improvement, fraud
+            prevention) <br />
+            <br />
+            4. Data Sharing and Disclosure We do not sell your personal data. We
+            may share information with: 4.1 Service Providers Third parties who
+            provide services on our behalf, such as: Hosting (e.g., Firebase by
+            Google) Analytics (e.g., Google Analytics) Authentication (e.g.,
+            Firebase Auth) These providers are contractually bound to protect
+            your data and may only use it as instructed by us. 4.2 Legal
+            Requirements We may disclose information if required by law or in
+            response to valid legal requests, such as subpoenas, court orders,
+            or to comply with applicable laws. 4.3 Business Transfers If
+            Focuspit is involved in a merger, acquisition, or asset sale, your
+            information may be transferred as part of that transaction. <br />
+            <br />
+            5. Data Retention We retain your information for as long as
+            necessary to: Provide the Service Comply with legal obligations
+            Resolve disputes Enforce agreements Inactive accounts may be deleted
+            after prolonged inactivity, subject to our discretion. <br />
+            <br />
+            6. Data Security We implement appropriate technical and
+            organizational measures to protect your data, including: Secure
+            HTTPS connections Encrypted data storage (when applicable) Access
+            controls and authentication However, no system is 100% secure. Use
+            of the Service is at your own risk. <br />
+            <br />
+            7. International Transfers We operate globally. By using our
+            Service, you acknowledge that your information may be transferred to
+            and processed in countries outside of your jurisdiction, including
+            the United States, where data protection laws may differ. <br />
+            <br />
+            8. Your Rights Depending on your location, you may have the right
+            to: Access the personal information we hold about you Correct or
+            update your personal data Request deletion of your data Object to or
+            restrict processing Withdraw consent at any time To exercise these
+            rights, contact: privacy@focuspit.com <br />
+            <br />
+            9. Children's Privacy The Service is not intended for children under
+            the age of 13 (or equivalent minimum age in your jurisdiction). We
+            do not knowingly collect personal data from children. If we discover
+            such data has been collected, we will delete it promptly. <br />
+            <br />
+            10. California Residents (CCPA) If you are a California resident,
+            you have the right to: Know what personal data we collect and how we
+            use it Request deletion of your data Opt out of the sale of personal
+            data (we do not sell data) Requests can be made via
+            privacy@focuspit.com. <br />
+            <br />
+            11. Changes to This Policy We reserve the right to update this
+            Privacy Policy at any time. Changes will be effective upon posting
+            on this page. We encourage users to review this policy periodically.{" "}
+            <br />
+            <br />
+            12. Contact Us If you have any questions or concerns about this
+            Privacy Policy or our practices, please contact us at: Focuspit
+            Email: privacy@focuspit.com
           </div>
-        </div>
-      </footer>
+        </Dialog>
+
+        <Dialog
+          header="Terms of Use"
+          visible={showTerms}
+          onHide={() => setShowTerms(false)}
+          style={{ width: "90vw", maxWidth: "700px" }}
+          breakpoints={{ "960px": "95vw", "640px": "100vw" }}
+          className="bg-dark text-white"
+          draggable={false}
+          closable
+        >
+          <div
+            className="small"
+            style={{ maxHeight: "60vh", overflowY: "auto" }}
+          >
+            <p>
+              These Terms of Use (“Terms”) constitute a legally binding
+              agreement between you (“User”, “you”, or “your”) and Focuspit
+              (“we”, “us”, “our”, or “the Company”) governing your access to and
+              use of the Focuspit application, website, software, and related
+              services (collectively, the “Service”).
+            </p>
+
+            <h6>1. Acceptance of Terms</h6>
+            <p>
+              By accessing, registering for, or using the Service in any
+              capacity, you expressly agree to be bound by these Terms. If you
+              do not agree to all the provisions herein, you must immediately
+              discontinue use of the Service.
+            </p>
+
+            <h6>2. Modification of Terms</h6>
+            <p>
+              We reserve the unilateral right, at our sole discretion, to
+              modify, amend, revise, or otherwise update these Terms at any
+              time, with or without prior notice. Continued use of the Service
+              after such changes shall constitute your consent to the updated
+              Terms.
+            </p>
+
+            <h6>3. Eligibility</h6>
+            <p>
+              You represent and warrant that you are at least thirteen (13)
+              years of age or the age of legal majority in your jurisdiction.
+              Use of the Service by individuals under such age without
+              verifiable parental or legal guardian consent is strictly
+              prohibited.
+            </p>
+
+            <h6>4. Use of the Service</h6>
+            <p>
+              You agree to use the Service solely for lawful purposes and in
+              accordance with these Terms. You shall not, under any
+              circumstances:
+              <ul>
+                <li>
+                  Attempt to gain unauthorized access to the Service, accounts,
+                  or systems
+                </li>
+                <li>
+                  Use the Service to distribute malware, spam, or abusive
+                  content
+                </li>
+                <li>Engage in reverse-engineering, scraping, or data mining</li>
+                <li>Violate any applicable law or third-party rights</li>
+                <li>Impersonate any individual or entity</li>
+              </ul>
+            </p>
+
+            <h6>5. Intellectual Property</h6>
+            <p>
+              All content, design elements, graphics, code, text, trademarks,
+              and other materials provided via the Service are the exclusive
+              property of Focuspit or its licensors. You are granted a limited,
+              non-exclusive, non-transferable, revocable license to access and
+              use the Service for personal, non-commercial purposes. Any
+              reproduction, modification, distribution, or commercial
+              exploitation is strictly prohibited without prior written consent.
+            </p>
+
+            <h6>6. Termination and Suspension</h6>
+            <p>
+              We reserve the right, without limitation, to suspend, terminate,
+              or restrict your access to the Service at our sole discretion,
+              without notice or liability, for conduct we believe violates these
+              Terms, applicable law, or is otherwise harmful to other users or
+              the Company.
+            </p>
+
+            <h6>7. Disclaimers</h6>
+            <p>
+              THE SERVICE IS PROVIDED ON AN “AS IS” AND “AS AVAILABLE” BASIS. WE
+              DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+              LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+              PARTICULAR PURPOSE, NON-INFRINGEMENT, AND ACCURACY. WE DO NOT
+              WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR
+              SECURE.
+            </p>
+
+            <h6>8. Limitation of Liability</h6>
+            <p>
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL
+              FOCUSPIT, ITS AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS,
+              OR LICENSORS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+              EXEMPLARY, OR CONSEQUENTIAL DAMAGES WHATSOEVER, INCLUDING BUT NOT
+              LIMITED TO LOSS OF DATA, PROFITS, USE, OR GOODWILL, ARISING OUT OF
+              OR IN CONNECTION WITH THE USE OF OR INABILITY TO USE THE SERVICE.
+            </p>
+
+            <h6>9. Indemnification</h6>
+            <p>
+              You agree to indemnify, defend, and hold harmless Focuspit and its
+              affiliates from and against any and all claims, liabilities,
+              damages, losses, and expenses (including reasonable attorneys'
+              fees) arising out of or in any way connected with your access to
+              or use of the Service, your violation of these Terms, or your
+              infringement of any intellectual property or other right of any
+              person or entity.
+            </p>
+
+            <h6>10. Governing Law and Jurisdiction</h6>
+            <p>
+              These Terms shall be governed by and construed in accordance with
+              the laws of the jurisdiction in which Focuspit is legally
+              registered. Any legal action or proceeding arising out of or
+              relating to these Terms shall be brought exclusively in the
+              competent courts of said jurisdiction.
+            </p>
+
+            <h6>11. Severability</h6>
+            <p>
+              If any provision of these Terms is held to be invalid, illegal, or
+              unenforceable under applicable law, such provision shall be deemed
+              severed and the remaining provisions shall remain in full force
+              and effect.
+            </p>
+
+            <h6>12. Contact Information</h6>
+            <p>
+              For any questions or concerns regarding these Terms, please
+              contact us at:
+              <br />
+              <strong>Email:</strong> support@focuspit.com
+            </p>
+          </div>
+        </Dialog>
+      </>
     </div>
   );
 }

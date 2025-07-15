@@ -91,8 +91,61 @@
   position: relative;
 }
 
+.template-box::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* para que no bloquee clics */
+  border-radius: 13px;
+}
+
+.template-box:hover::after {
+  opacity: 1;
+}
+
 .img-daily {
-  width: 270px;
+  width: 260px;
+  top: 0px;
+  position: absolute;
+  right: 0;
+}
+
+.img-family {
+  width: 200px;
+  top: -40px;
+  position: absolute;
+  right: 20px;
+}
+
+.img-car {
+  width: 190px;
+  top: 0px;
+  position: absolute;
+  right: 0;
+}
+
+.img-work {
+  width: 160px;
+  top: 0px;
+  position: absolute;
+  right: 20px;
+}
+
+.img-home {
+  width: 180px;
+  top: -10px;
+  position: absolute;
+  right: -10px;
+}
+
+.img-friends {
+  width: 190px;
+  top: 0px;
+  position: absolute;
+  right: 0;
 }
 /* grid */
 
@@ -154,10 +207,35 @@
 }
 
 .category-box {
+  position: relative;
   min-height: 160px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   font-size: 2rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.category-box img {
+  margin-top: 10px;
+  max-width: 100%;
+}
+
+.category-box::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.15); /* opacidad leve */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.category-box:hover::after {
+  opacity: 1;
 }
