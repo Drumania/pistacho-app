@@ -10,6 +10,17 @@ import "primeicons/primeicons.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./global.css";
 
+import { registerSW } from "virtual:pwa-register";
+
+registerSW({
+  onNeedRefresh() {
+    console.log("Hay una nueva versión disponible");
+  },
+  onOfflineReady() {
+    console.log("App lista para usar sin conexión");
+  },
+});
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
@@ -19,9 +30,3 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </React.StrictMode>
 );
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(console.error);
-  });
-}

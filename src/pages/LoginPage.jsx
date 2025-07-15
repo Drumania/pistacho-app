@@ -86,7 +86,7 @@ export default function LoginPage() {
         ) : (
           <>
             <div className="text-center mb-4">
-              <img src="icon-192.png" width="100" className="mb-3 mx-auto" />
+              <img src="icon-192_v2.png" width="100" className="mb-3 mx-auto" />
               <h4 className="fw-semibold text-white">Welcome to FocusPit</h4>
               <p className="text-light small mb-1">
                 {mode === "login"

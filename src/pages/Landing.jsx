@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "@/landing.css";
-import logo from "/icon-192.png"; // cambiá por tu logo real
+import logo from "/icon-192_v2.png"; // cambiá por tu logo real
 
 export default function Landing() {
   const [selectedCategory, setSelectedCategory] = useState("All");

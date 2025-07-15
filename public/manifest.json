@@ -1,18 +1,20 @@
 {
   "name": "Focuspit",
   "short_name": "Focuspit",
-  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "start_url": "/?source=pwa",
   "display": "standalone",
   "background_color": "#0a131f",
-  "theme_color": "#90b083",
+  "theme_color": "#141d29",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/icon-192_v2.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-512_v2.png",
       "sizes": "512x512",
       "type": "image/png"
     }
