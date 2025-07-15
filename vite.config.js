@@ -27,11 +27,13 @@ export default defineConfig({
             src: "/icon-192_v2.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any maskable",
           },
           {
             src: "/icon-512_v2.png",
             sizes: "512x512",
             type: "image/png",
+            purpose: "any maskable",
           },
         ],
       },
