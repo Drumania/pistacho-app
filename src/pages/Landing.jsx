@@ -3,6 +3,7 @@ import "@/landing.css";
 import logo from "/icon-192_v2.png"; // cambiá por tu logo real
 import { Dialog } from "primereact/dialog";
 import { useState } from "react";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 export default function Landing() {
   const [showPrivacy, setShowPrivacy] = useState(false);
@@ -78,39 +79,56 @@ export default function Landing() {
   return (
     <div className="landing">
       {/* NAVBAR */}
-      <nav id="menu" className="navbar navbar-expand-md px-4 py-3 ">
+      <nav
+        id="menu"
+        className="navbar navbar-expand-md px-lg-1 px-lg-4 py-1 py-lg-3  "
+      >
         <div className="container">
           <a className="navbar-brand d-flex align-items-center" href="#">
             <img src={logo} width="60px" height="60px" />
             <h2>FocusPit</h2>
           </a>
-          <ul className="navbar-nav ms-auto gap-3">
-            <li className="nav-item">
-              <a className="nav-link " href="#">
-                Home
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link " href="#what-for">
-                What is it for?
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link " href="#templates">
-                Templates
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link " href="#widgets">
-                Widgets
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-login" href="/login">
-                Login / Register
-              </a>
-            </li>
-          </ul>
+          <button
+            className="navbar-toggler border-0"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainMenu"
+            aria-controls="mainMenu"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <i className="bi bi-list text-white fs-1"></i>
+          </button>
+
+          <div className="collapse navbar-collapse" id="mainMenu">
+            <ul className="navbar-nav ms-auto gap-3">
+              <li className="nav-item">
+                <a className="nav-link " href="#">
+                  Home
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link " href="#what-for">
+                  What is it for?
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link " href="#templates">
+                  Templates
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link " href="#widgets">
+                  Widgets
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-login px-3" href="/login">
+                  Login / Register
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       </nav>
 
@@ -130,7 +148,7 @@ export default function Landing() {
               Use smart widgets to manage your day, your projects and your life.
             </h5>
             <div className="input-group mt-4">
-              <button href="/login" className="btn-pistacho fs-4 px-5">
+              <button href="/login" className="btn-pistacho fs-4 mx-auto px-5">
                 Build My Dashboards
               </button>
             </div>
