@@ -122,7 +122,7 @@ export default function TodoWidget({ groupId }) {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">To-Do List</h5>
         <Button
-          label="+ Task"
+          label="+ To do"
           className="btn-transp-small"
           onClick={() => {
             setEditingTodo(null);

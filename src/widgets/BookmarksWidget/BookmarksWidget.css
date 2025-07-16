@@ -1,0 +1,48 @@
+.bookmark-preview-box {
+  padding: var(--s-gap);
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+}
+
+.bookmark-content {
+  flex: 1;
+}
+
+.bookmark-header {
+  margin-bottom: 0.25rem;
+}
+
+.bookmark-title {
+  font-size: 1rem;
+  color: var(--text-color);
+  display: block;
+}
+
+.bookmark-link {
+  font-size: 0.75rem;
+  color: var(--pistacho-color);
+  word-break: break-all;
+  text-decoration: none;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.bookmark-description {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  margin-top: 0.5rem;
+}
+
+.bookmark-image-box {
+  width: 50px;
+  flex-shrink: 0;
+}
+
+.bookmark-image {
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius);
+  object-fit: cover;
+}
