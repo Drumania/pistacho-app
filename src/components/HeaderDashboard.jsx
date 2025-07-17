@@ -20,12 +20,20 @@ export default function HeaderDashboard({
   const { unreadCount } = useNotifications();
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapperRef = useRef(null);
+  const timerRef = useRef(null);
+  const [fadeOut, setFadeOut] = useState(false);
 
   // Abre con hover
   const handleMouseEnter = () => {
     setMenuOpen(true);
+    clearTimeout(timerRef.current);
   };
 
+  const handleMouseLeave = () => {
+    timerRef.current = setTimeout(() => {
+      setMenuOpen(false);
+    }, 3000);
+  };
   // Cierra con click afuera
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -121,6 +129,7 @@ export default function HeaderDashboard({
         <div className="wrap-user" ref={wrapperRef}>
           <div
             onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave} // nuevo
             className={`header-user ${menuOpen ? "header-user-open" : ""}`}
           >
             <span className="d-none d-lg-block pe-3">{user.name}</span>
@@ -146,7 +155,11 @@ export default function HeaderDashboard({
             </div>
           </div>
           {menuOpen && (
-            <div className="custom-menu">
+            <div
+              className="custom-menu"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
               <ul className="user-panel mb-0">
                 {user.admin && (
                   <li>
