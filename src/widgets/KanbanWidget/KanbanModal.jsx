@@ -1,9 +1,7 @@
-// KanbanModal.jsx
 import { useEffect, useState, useRef } from "react";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import { Dropdown } from "primereact/dropdown";
 import { SelectButton } from "primereact/selectbutton";
 import { Button } from "primereact/button";
 import { v4 as uuidv4 } from "uuid";
@@ -12,27 +10,26 @@ export default function KanbanModal({
   visible,
   onHide,
   onSave,
+  onDelete,
   editingTask,
-  users = [],
+  // el usuario logueado
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [assignedTo, setAssignedTo] = useState(null);
   const [importance, setImportance] = useState("normal");
-  const [status, setStatus] = useState("todo");
 
   const inputRef = useRef(null);
 
   useEffect(() => {
     if (!visible) return;
+
+    // Foco automático
     setTimeout(() => inputRef.current?.focus(), 100);
 
     if (editingTask) {
       setTitle(editingTask.title || "");
       setDescription(editingTask.description || "");
-      setAssignedTo(editingTask.assignedTo || null);
       setImportance(editingTask.importance || "normal");
-      setStatus(editingTask.status || "todo");
     } else {
       resetForm();
     }
@@ -41,9 +38,7 @@ export default function KanbanModal({
   const resetForm = () => {
     setTitle("");
     setDescription("");
-    setAssignedTo(null);
     setImportance("normal");
-    setStatus("todo");
   };
 
   const handleSubmit = () => {
@@ -53,9 +48,8 @@ export default function KanbanModal({
       id: editingTask?.id || uuidv4(),
       title: title.trim(),
       description: description.trim(),
-      assignedTo,
       importance,
-      status,
+      status: editingTask?.status || "todo",
       createdAt: editingTask?.createdAt || Date.now(),
     };
 
@@ -95,19 +89,6 @@ export default function KanbanModal({
         </div>
 
         <div className="field mb-3">
-          <label htmlFor="assignedTo">Assigned to</label>
-          <Dropdown
-            id="assignedTo"
-            value={assignedTo}
-            options={users}
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Select user"
-            className="w-100"
-          />
-        </div>
-
-        <div className="field mb-3">
           <label htmlFor="importance">Importance</label>
           <SelectButton
             id="importance"
@@ -117,28 +98,26 @@ export default function KanbanModal({
           />
         </div>
 
-        {editingTask && (
-          <div className="field mb-3">
-            <label htmlFor="status">Status</label>
-            <Dropdown
-              id="status"
-              value={status}
-              options={[
-                { label: "To Do", value: "todo" },
-                { label: "In Progress", value: "inprogress" },
-                { label: "Done", value: "done" },
-              ]}
-              onChange={(e) => setStatus(e.value)}
-              className="w-100"
+        <div className="d-flex gap-2 justify-content-end">
+          {editingTask && (
+            <Button
+              label="Delete"
+              icon="pi pi-trash"
+              className="p-button-danger"
+              onClick={() => {
+                if (confirm("Are you sure you want to delete this task?")) {
+                  onDelete(editingTask.id);
+                  onHide();
+                }
+              }}
             />
-          </div>
-        )}
-
-        <Button
-          label="Save"
-          className="btn-pistacho w-100"
-          onClick={handleSubmit}
-        />
+          )}
+          <Button
+            label="Save"
+            className="btn-pistacho"
+            onClick={handleSubmit}
+          />
+        </div>
       </div>
     </Dialog>
   );

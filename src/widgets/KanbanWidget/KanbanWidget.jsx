@@ -107,6 +107,22 @@ export default function KanbanWidget({ groupId, widgetId }) {
     });
   };
 
+  const handleDeleteTask = async (taskId) => {
+    const columnKey = getColumnByTaskId(taskId);
+    if (!columnKey) return;
+
+    const updated = {
+      ...tasks,
+      [columnKey]: tasks[columnKey].filter((t) => t.id !== taskId),
+    };
+
+    setTasks(updated);
+
+    await updateDoc(getDocRef(), {
+      tasks: [...updated.todo, ...updated.inprogress, ...updated.done],
+    });
+  };
+
   return (
     <div className="kanban-widget widget-container">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -168,8 +184,8 @@ export default function KanbanWidget({ groupId, widgetId }) {
         visible={modalVisible}
         onHide={() => setModalVisible(false)}
         editingTask={editingTask}
+        onDelete={handleDeleteTask}
         onSave={handleSaveTask}
-        users={[]}
       />
     </div>
   );

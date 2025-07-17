@@ -18,18 +18,17 @@ body,
   gap: 16px;
   overflow-x: auto;
   padding-bottom: 16px;
+  flex: 1;
 }
 
 .kanban-column {
   flex: 1;
-  min-width: 280px;
+  display: flex;
+  flex-direction: column;
   background-color: var(--panel-inside);
   border-radius: var(--border-radius);
   padding: 12px;
-  display: flex;
-  flex-direction: column;
-  max-height: 70vh;
-  overflow-y: auto;
+  overflow: hidden; /* para que el body se encargue del scroll */
   border: 1px solid var(--line-color);
   transition: background-color 0.2s;
 }
@@ -48,7 +47,7 @@ body,
 
 .kanban-card {
   background-color: var(--panel);
-  border-radius: 8px;
+  border-radius: 0 8px 8px 0;
   padding: 10px 12px;
   margin-bottom: 10px;
   box-shadow: var(--box-shadow);
@@ -111,6 +110,23 @@ body,
 
 .kanban-card-settings:hover {
   opacity: 1;
+}
+
+.kanban-column-header {
+  padding: 4px 0 var(--gap) 0;
+  margin-bottom: var(--gap);
+}
+
+.kanban-column-header.todo {
+  border-bottom: 2px solid #b3941a; /* amarillo */
+}
+
+.kanban-column-header.inprogress {
+  border-bottom: 2px solid #3877a1; /* azul */
+}
+
+.kanban-column-header.done {
+  border-bottom: 2px solid #299154; /* verde */
 }
 
 @media (max-width: 768px) {

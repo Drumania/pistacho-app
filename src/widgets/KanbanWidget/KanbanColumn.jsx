@@ -14,8 +14,8 @@ export function KanbanColumn({
   const isDragging = !!active;
 
   return (
-    <div className={`kanban-column ${isDragging ? "is-active-dropzone" : ""}`}>
-      <div className="kanban-column-header">{title}</div>
+    <div className={`kanban-column  ${isDragging ? "is-active-dropzone" : ""}`}>
+      <div className={`kanban-column-header ${columnKey}`}>{title}</div>
       <div
         ref={setNodeRef}
         className={`kanban-column-body ${isOver ? "droppable-hover" : ""}`}
