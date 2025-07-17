@@ -246,107 +246,109 @@ export default function SettingsPage() {
   if (loading) return <p className="text-center mt-5">Loading...</p>;
 
   return (
-    <div className="container py-5" style={{ maxWidth: 600 }}>
-      <h2 className="mb-4">Settings</h2>
-      <>
-        <div className="mb-4">
-          <div className="position-relative d-inline-block">
-            <input
-              type="file"
-              id="upload-avatar"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={(e) => setPhotoFile(e.target.files[0])}
-            />
-            <label
-              htmlFor="upload-avatar"
-              className="position-relative cursor-pointer"
-            >
-              <div
-                className="rounded-circle border"
-                style={{
-                  width: 100,
-                  height: 100,
-                  backgroundImage: `url(${
-                    photoFile
-                      ? URL.createObjectURL(photoFile)
-                      : profile.photoURL || "/default-avatar.png"
-                  })`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  cursor: "pointer",
-                }}
+    <div className="container py-5" style={{ maxWidth: 800 }}>
+      <div className="widget-content">
+        <h2 className="mb-4">Settings</h2>
+        <>
+          <div className="mb-4">
+            <div className="position-relative d-inline-block">
+              <input
+                type="file"
+                id="upload-avatar"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => setPhotoFile(e.target.files[0])}
               />
-              <div
-                className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center rounded-circle"
-                style={{
-                  backgroundColor: "rgba(0,0,0,0.5)",
-                  opacity: 0,
-                  transition: "opacity 0.3s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+              <label
+                htmlFor="upload-avatar"
+                className="position-relative cursor-pointer"
               >
-                <i className="bi bi-pencil-fill text-white" />
-              </div>
-            </label>
+                <div
+                  className="rounded-circle border"
+                  style={{
+                    width: 100,
+                    height: 100,
+                    backgroundImage: `url(${
+                      photoFile
+                        ? URL.createObjectURL(photoFile)
+                        : profile.photoURL || "/default-avatar.png"
+                    })`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    cursor: "pointer",
+                  }}
+                />
+                <div
+                  className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center rounded-circle"
+                  style={{
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    opacity: 0,
+                    transition: "opacity 0.3s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+                >
+                  <i className="bi bi-pencil-fill text-white" />
+                </div>
+              </label>
+            </div>
           </div>
-        </div>
 
-        <div className="mb-3">
-          <label className="form-label text-light">Full Name</label>
-          <InputText
-            className="input-field mb-3 w-100"
-            value={profile.name || ""}
-            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-          />
-        </div>
+          <div className="mb-3">
+            <label className="form-label text-light">Full Name</label>
+            <InputText
+              className="input-field mb-3 w-100"
+              value={profile.name || ""}
+              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+            />
+          </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+          {error && <div className="alert alert-danger">{error}</div>}
 
-        <h4 className="text-light mb-3">Your Groups</h4>
+          <h4 className="text-light mb-3">Your Groups</h4>
 
-        {loadingGroups ? (
-          <ul className="cs-list-group list-unstyled">
-            <li className="pt-3 text-muted">Loading groups...</li>
-          </ul>
-        ) : (
-          <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={groups.map((g) => g.id)}
-              strategy={verticalListSortingStrategy}
+          {loadingGroups ? (
+            <ul className="cs-list-group list-unstyled">
+              <li className="pt-3 text-muted">Loading groups...</li>
+            </ul>
+          ) : (
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              <ul className="cs-list-group list-unstyled">
-                {groups.map((g) => (
-                  <SortableGroup
-                    key={g.id}
-                    group={g}
-                    onLeave={() => confirmLeaveGroup(g)}
-                  />
-                ))}
-              </ul>
-            </SortableContext>
-          </DndContext>
-        )}
+              <SortableContext
+                items={groups.map((g) => g.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <ul className="cs-list-group list-unstyled">
+                  {groups.map((g) => (
+                    <SortableGroup
+                      key={g.id}
+                      group={g}
+                      onLeave={() => confirmLeaveGroup(g)}
+                    />
+                  ))}
+                </ul>
+              </SortableContext>
+            </DndContext>
+          )}
 
-        <hr className="my-5" />
+          <hr className="my-5" />
 
-        <div className="d-flex align-items-center gap-3">
-          <button
-            className="btn-pistacho"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save changes"}
-          </button>
-          {showSaved && <span className="color-green fade-in">Saved...</span>}
-        </div>
-      </>
+          <div className="d-flex align-items-center gap-3">
+            <button
+              className="btn-pistacho"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save changes"}
+            </button>
+            {showSaved && <span className="color-green fade-in">Saved...</span>}
+          </div>
+        </>
 
-      <ConfirmDialog />
+        <ConfirmDialog />
+      </div>
     </div>
   );
 }

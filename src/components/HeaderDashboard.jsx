@@ -173,6 +173,16 @@ export default function HeaderDashboard({
                   </li>
                 )}
 
+                <li>
+                  <Link
+                    to="/resume"
+                    className="dropdown-item d-flex align-items-center gap-2"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <i className="bi bi-list-task" /> Resume
+                  </Link>
+                </li>
+
                 <li className="position-relative">
                   <Link
                     to="/notifications"

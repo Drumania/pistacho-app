@@ -154,44 +154,46 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="container py-5" style={{ maxWidth: 600 }}>
-      <h2 className="mb-4">
-        Notificaciones{" "}
-        {unreadCount > 0 && (
-          <span className="badge bg-danger">{unreadCount}</span>
-        )}
-      </h2>
+    <div className="container py-5" style={{ maxWidth: 800 }}>
+      <div className="widget-content">
+        <h2 className="mb-4">
+          Notificaciones{" "}
+          {unreadCount > 0 && (
+            <span className="badge bg-danger">{unreadCount}</span>
+          )}
+        </h2>
 
-      {loading ? (
-        <div className="text-muted">Cargando notificaciones...</div>
-      ) : notifications.length === 0 ? (
-        <div className="text-muted">No tenés notificaciones</div>
-      ) : (
-        <ul className="cs-list-notifications">
-          {notifications.map((notif) => (
-            <li
-              key={notif.id}
-              className={`p-3 mb-3 ${notif.read ? "" : "not-unread"}`}
-              onClick={() => markAsRead(notif.id)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className="opacity-75 small">
-                {formatDistanceToNow(
-                  new Date(notif.createdAt?.toDate?.() || notif.createdAt),
-                  {
-                    addSuffix: true,
-                    locale: es,
-                  }
-                )}
-              </div>
-              <div className="d-flex gap-3 w-100 align-items-start">
-                <i className={`${getIcon(notif.type, notif.read)} mt-1`} />
-                <div className="w-100">{renderContent(notif)}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+        {loading ? (
+          <div className="text-muted">Cargando notificaciones...</div>
+        ) : notifications.length === 0 ? (
+          <div className="text-muted">No tenés notificaciones</div>
+        ) : (
+          <ul className="cs-list-notifications">
+            {notifications.map((notif) => (
+              <li
+                key={notif.id}
+                className={`p-3 mb-3 ${notif.read ? "" : "not-unread"}`}
+                onClick={() => markAsRead(notif.id)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="opacity-75 small">
+                  {formatDistanceToNow(
+                    new Date(notif.createdAt?.toDate?.() || notif.createdAt),
+                    {
+                      addSuffix: true,
+                      locale: es,
+                    }
+                  )}
+                </div>
+                <div className="d-flex gap-3 w-100 align-items-start">
+                  <i className={`${getIcon(notif.type, notif.read)} mt-1`} />
+                  <div className="w-100">{renderContent(notif)}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
