@@ -67,7 +67,8 @@
 
 #what-for h2,
 #templates h2,
-#widgets h2 {
+#widgets h2,
+#pricing h2 {
   font-size: 6rem;
   font-weight: bold;
   padding: 3rem 10px;
@@ -264,7 +265,8 @@
 
   #what-for h2,
   #templates h2,
-  #widgets h2 {
+  #widgets h2,
+  #pricing h2 {
     font-size: 4rem;
     padding: 1rem 10px;
   }

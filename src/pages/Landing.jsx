@@ -2,6 +2,11 @@ import { Link } from "react-router-dom";
 import "@/landing.css";
 import logo from "/icon-192_v2.png"; // cambiá por tu logo real
 import { Dialog } from "primereact/dialog";
+import { Message } from "primereact/message";
+import { Card } from "primereact/card";
+import { Button } from "primereact/button";
+import { Tag } from "primereact/tag";
+
 import { useState } from "react";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
@@ -78,6 +83,13 @@ export default function Landing() {
 
   return (
     <div className="landing">
+      {/* Beta Banner */}
+      <Message
+        severity="info"
+        text=" Public Beta — Try Focuspit free with basic widgets. Your feedback is welcome!"
+        className="w-100 py-2 justify-content-center rounded-0 text-center"
+        style={{ position: "sticky", top: 0, zIndex: 1070 }}
+      />
       {/* NAVBAR */}
       <nav
         id="menu"
@@ -122,6 +134,12 @@ export default function Landing() {
                   Widgets
                 </a>
               </li>
+              <li className="nav-item">
+                <a className="nav-link " href="#pricing">
+                  Plans & Pricing
+                </a>
+              </li>
+
               <li className="nav-item">
                 <a className="nav-login px-3" href="/login">
                   Login / Register
@@ -307,6 +325,70 @@ export default function Landing() {
               </Link>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="container py-5" id="pricing">
+        <h2 className="text-center mb-4">Plans & Pricing</h2>
+        <p className="text-center text-muted mb-5">
+          Start for free and upgrade anytime.
+        </p>
+
+        <div className="row justify-content-center g-4">
+          {/* Free Plan */}
+          <div className="col-10 col-md-4">
+            <Card
+              title="Free"
+              subTitle="$0"
+              className="text-center h-100 shadow-sm"
+              footer={
+                <Link to="/login">
+                  <Button
+                    label="Get Started"
+                    className="w-100 p-button-outlined p-button-success"
+                  />
+                </Link>
+              }
+            >
+              <ul className="list-unstyled small lh-lg m-0">
+                <li>1 personal dashboard</li>
+                <li>Up to 5 basic widgets</li>
+                <li>Preset templates</li>
+              </ul>
+            </Card>
+          </div>
+
+          {/* Pro Plan */}
+          <div className="col-10 col-md-4">
+            <Card
+              title={
+                <div className="d-flex justify-content-center align-items-center gap-2">
+                  Pro <Tag value="Coming Soon" severity="warning" />
+                </div>
+              }
+              subTitle={
+                <span className="display-6 fw-bold">
+                  $4.99<span className="fs-6">/mo</span>
+                </span>
+              }
+              className="text-center h-100 shadow-sm border-pistacho"
+              footer={
+                <Button
+                  label="Notify Me"
+                  className="w-100 p-button-warning"
+                  disabled
+                />
+              }
+            >
+              <ul className="list-unstyled small lh-lg m-0">
+                <li>Unlimited dashboards</li>
+                <li>All premium widgets</li>
+                <li>Custom themes & colors</li>
+                <li>Automatic backups</li>
+                <li>Priority support</li>
+              </ul>
+            </Card>
+          </div>
         </div>
       </section>
 
