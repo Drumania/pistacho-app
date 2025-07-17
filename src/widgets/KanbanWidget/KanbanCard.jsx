@@ -36,7 +36,7 @@ export default function KanbanCard({ task, onClick, onSettingsClick }) {
     >
       <strong>
         {task.importance === "high" && (
-          <i className="bi bi-exclamation-diamond pe-2 color-red"></i>
+          <span className="me-1 badge bg-danger">!</span>
         )}
         {task.title}
       </strong>

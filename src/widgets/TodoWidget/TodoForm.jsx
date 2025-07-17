@@ -14,27 +14,27 @@ import {
 } from "@/utils/userHelpers";
 
 const TAG_COLORS = [
-  { name: "Rojo", color: "#dc3545" },
-  { name: "Naranja", color: "#fd7e14" },
-  { name: "Amarillo", color: "#ffc107" },
-  { name: "Verde", color: "#198754" },
-  { name: "Azul", color: "#0d6efd" },
-  { name: "Celeste", color: "#0dcaf0" },
-  { name: "Violeta", color: "#6f42c1" },
-  { name: "Rosa", color: "#d63384" },
-  { name: "Gris", color: "#6c757d" },
-  { name: "Negro", color: "#000000" },
-  { name: "Menta", color: "#3ddc97" },
+  { name: "Red", color: "#dc3545" },
+  { name: "Orange", color: "#fd7e14" },
+  { name: "Yellow", color: "#ffc107" },
+  { name: "Green", color: "#198754" },
+  { name: "Blue", color: "#0d6efd" },
+  { name: "Light Blue", color: "#0dcaf0" },
+  { name: "Violet", color: "#6f42c1" },
+  { name: "Pink", color: "#d63384" },
+  { name: "Gray", color: "#6c757d" },
+  { name: "Black", color: "#000000" },
+  { name: "Mint", color: "#3ddc97" },
   { name: "Teal", color: "#20c997" },
-  { name: "Dorado", color: "#daa520" },
+  { name: "Golden", color: "#daa520" },
   { name: "Coral", color: "#ff7f50" },
-  { name: "Lavanda", color: "#b57edc" },
-  { name: "Marrón", color: "#795548" },
+  { name: "Lavender", color: "#b57edc" },
+  { name: "Brown", color: "#795548" },
 ];
 
 const PRIORITY_OPTIONS = [
   { label: "Normal", value: "normal" },
-  { label: "Alta prioridad", value: "high" },
+  { label: "High priority", value: "high" },
 ];
 
 export default function TodoForm({ onSubmit, editingTodo, groupId }) {
@@ -98,7 +98,7 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
           const data = userSnap.exists() ? userSnap.data() : {};
           return {
             uid,
-            name: data.name || data.displayName || "Usuario",
+            name: data.name || data.displayName || "User",
             photoURL: data.photoURL || "",
           };
         })
@@ -119,7 +119,7 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
           groupId,
         });
       } catch (err) {
-        console.error("❌ Error notificando a:", uid, err);
+        console.error("❌ Error:", uid, err);
       }
     }
   };
@@ -229,7 +229,7 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
           value={title}
           onChange={handleTitleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Tarea..."
+          placeholder="Task..."
           className={`w-100 ${showMentions ? "with-mentions" : ""}`}
         />
         {showMentions && filteredMentions.length > 0 && (
@@ -262,14 +262,14 @@ export default function TodoForm({ onSubmit, editingTodo, groupId }) {
         options={PRIORITY_OPTIONS}
         onChange={(e) => setPriority(e.value)}
         className="w-50"
-        placeholder="Prioridad"
+        placeholder="Priority"
       />
 
       <div className="d-flex gap-2">
         <InputText
           value={labelName}
           onChange={(e) => setLabelName(e.target.value)}
-          placeholder="Etiqueta (opcional)"
+          placeholder="Label (optional)"
           className="w-100"
         />
 
