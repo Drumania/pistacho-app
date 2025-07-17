@@ -1,46 +1,44 @@
-// KanbanWidget.jsx
+// ✅ KanbanWidget.jsx
 import { useState, useEffect } from "react";
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import { createPortal } from "react-dom";
+import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { KanbanColumn } from "./KanbanColumn";
+import KanbanCardPreview from "./KanbanCardPreview";
 import KanbanModal from "./KanbanModal";
 import { Button } from "primereact/button";
 import { doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import "./KanbanWidget.css";
 
-const initialTasks = {
-  todo: [],
-  inprogress: [],
-  done: [],
-};
+const initialTasks = { todo: [], inprogress: [], done: [] };
 
 export default function KanbanWidget({ groupId, widgetId }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [activeId, setActiveId] = useState(null);
+
+  const activeTask = (() => {
+    for (const col of Object.values(tasks)) {
+      const found = col.find((t) => t.id === activeId);
+      if (found) return found;
+    }
+    return null;
+  })();
+
+  const getDocRef = () =>
+    doc(db, "widget_data", "kanban", `${groupId}_${widgetId}`, "config");
 
   useEffect(() => {
     if (!groupId || !widgetId) return;
 
-    const ref = doc(
-      db,
-      "widget_data",
-      "kanban",
-      `${groupId}_${widgetId}`,
-      "config"
-    );
-
-    const unsubscribe = onSnapshot(ref, async (docSnap) => {
+    const unsubscribe = onSnapshot(getDocRef(), async (docSnap) => {
       if (!docSnap.exists()) {
-        await setDoc(ref, {
-          title: "Kanban",
-          tasks: [],
-        });
+        await setDoc(getDocRef(), { title: "Kanban", tasks: [] });
         setTasks(initialTasks);
       } else {
         const data = docSnap.data();
@@ -64,38 +62,34 @@ export default function KanbanWidget({ groupId, widgetId }) {
 
   const handleDragEnd = async (event) => {
     const { active, over } = event;
+
+    // 🛑 Si no hay destino o se soltó sobre sí mismo, cancelamos
     if (!over || active.id === over.id) return;
 
-    const fromCol = getColumnByTaskId(active.id);
-    const toCol = getColumnByTaskId(over.id);
-    if (!fromCol || !toCol) return;
+    const taskId = active.id;
+    const fromCol = getColumnByTaskId(taskId);
+    const toCol = over.id;
 
-    const draggedItem = tasks[fromCol].find((t) => t.id === active.id);
+    // 🛑 Validar si el destino es una columna real
+    const validColumns = ["todo", "inprogress", "done"];
+    if (!fromCol || !validColumns.includes(toCol)) return;
 
-    let updatedFrom = tasks[fromCol].filter((t) => t.id !== active.id);
-    let updatedTo = [...tasks[toCol]];
-    const overIndex = updatedTo.findIndex((t) => t.id === over.id);
-    updatedTo.splice(overIndex, 0, { ...draggedItem, status: toCol });
+    // 🛑 Si soltó en la misma columna, no hacemos nada
+    if (fromCol === toCol) return;
+
+    const task = tasks[fromCol].find((t) => t.id === taskId);
+    const updatedTask = { ...task, status: toCol };
 
     const updated = {
       ...tasks,
-      [fromCol]: updatedFrom,
-      [toCol]: updatedTo,
+      [fromCol]: tasks[fromCol].filter((t) => t.id !== taskId),
+      [toCol]: [...tasks[toCol], updatedTask],
     };
 
     setTasks(updated);
-
-    const allTasks = [...updated.todo, ...updated.inprogress, ...updated.done];
-
-    const ref = doc(
-      db,
-      "widget_data",
-      "kanban",
-      `${groupId}_${widgetId}`,
-      "config"
-    );
-
-    await updateDoc(ref, { tasks: allTasks });
+    await updateDoc(getDocRef(), {
+      tasks: [...updated.todo, ...updated.inprogress, ...updated.done],
+    });
   };
 
   const handleSaveTask = async (task) => {
@@ -108,18 +102,9 @@ export default function KanbanWidget({ groupId, widgetId }) {
     };
 
     setTasks(updated);
-
-    const allTasks = [...updated.todo, ...updated.inprogress, ...updated.done];
-
-    const ref = doc(
-      db,
-      "widget_data",
-      "kanban",
-      `${groupId}_${widgetId}`,
-      "config"
-    );
-
-    await updateDoc(ref, { tasks: allTasks });
+    await updateDoc(getDocRef(), {
+      tasks: [...updated.todo, ...updated.inprogress, ...updated.done],
+    });
   };
 
   return (
@@ -136,7 +121,15 @@ export default function KanbanWidget({ groupId, widgetId }) {
         />
       </div>
 
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        collisionDetection={closestCenter}
+        onDragStart={(e) => setActiveId(e.active.id)}
+        onDragEnd={(e) => {
+          handleDragEnd(e);
+          setActiveId(null);
+        }}
+        modifiers={[]}
+      >
         <div className="kanban-board">
           {["todo", "inprogress", "done"].map((colKey) => (
             <SortableContext
@@ -154,6 +147,7 @@ export default function KanbanWidget({ groupId, widgetId }) {
                 }
                 columnKey={colKey}
                 tasks={tasks[colKey]}
+                activeId={activeId}
                 onEditTask={(task) => {
                   setEditingTask(task);
                   setModalVisible(true);
@@ -162,6 +156,12 @@ export default function KanbanWidget({ groupId, widgetId }) {
             </SortableContext>
           ))}
         </div>
+        {createPortal(
+          <DragOverlay>
+            {activeTask ? <KanbanCardPreview task={activeTask} /> : null}
+          </DragOverlay>,
+          document.getElementById("drag-overlay-root")
+        )}
       </DndContext>
 
       <KanbanModal
