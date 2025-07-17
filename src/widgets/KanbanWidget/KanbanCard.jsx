@@ -28,13 +28,18 @@ export default function KanbanCard({ task, onClick, onSettingsClick }) {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`kanban-card importance-${task.importance}`}
+      className="kanban-card"
       style={style}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <strong>{task.title}</strong>
+      <strong>
+        {task.importance === "high" && (
+          <i className="bi bi-exclamation-diamond pe-2 color-red"></i>
+        )}
+        {task.title}
+      </strong>
 
       {hovered && (
         <div

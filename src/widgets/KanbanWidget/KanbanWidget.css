@@ -65,10 +65,6 @@ body,
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.importance-high {
-  border-left: 4px solid #ff5252;
-}
-
 .drag-preview {
   padding: 10px 12px;
   border-radius: 8px;
