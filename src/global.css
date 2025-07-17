@@ -1191,7 +1191,7 @@ input[type="number"] {
 }
 
 .p-inputtext {
-  background-color: var(--black-color);
+  background-color: var(--panel-inside);
   border: 0;
   padding: 10px;
 }

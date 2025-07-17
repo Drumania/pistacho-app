@@ -66,14 +66,14 @@ export default function BlockTextWidget({ groupId, widgetId }) {
   if (!user) return null;
 
   return (
-    <div className="">
+    <div className="h-100 d-flex flex-column">
       <InputTextarea
         value={draft}
         onChange={handleChange}
-        rows={6}
-        className="w-100 mb-2"
-        autoResize
+        className="flex-grow-1 mb-2 w-100"
+        autoResize={false} // lo apagamos para que no rompa el layout
         placeholder="Write something..."
+        style={{ resize: "none", height: "100%", minHeight: 0 }}
       />
       {edited && (
         <div className="text-right mb-2">
