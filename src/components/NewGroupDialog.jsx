@@ -1,7 +1,4 @@
 import { useState, useEffect } from "react";
-import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
-import { Button } from "primereact/button";
 import { useCreateGroup } from "@/hooks/useCreateGroup";
 import {
   getDocs,
@@ -10,6 +7,10 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
+import { Button } from "primereact/button";
+import { Image } from "primereact/image";
 
 const WIDGET_TYPES = [
   "BlockTextWidget",
@@ -34,6 +35,7 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
         label: doc.data().name,
         value: {
           id: doc.id,
+          image: doc.data().image ?? null,
           widgets: doc.data().widgets || [],
         },
       }));
@@ -127,14 +129,12 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
     onHide();
   };
 
-  const allTemplates = [{ label: "Empty", value: null }, ...templates];
-
   return (
     <Dialog
       visible={visible}
       onHide={resetDialog}
       header="New Group"
-      style={{ width: "70%", maxWidth: "800px" }}
+      style={{ width: "70%", maxWidth: "1000px" }}
       className="new-group-dialog"
     >
       {loading ? (
@@ -155,60 +155,77 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
               />
             </div>
 
-            <div className="col-4">
-              <div
-                className={`p-2 panel-in-panels mt-4 ${
-                  selectedTemplate === null ? "bg-pistacho" : ""
-                }`}
-                onClick={() => setSelectedTemplate(null)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="py-1 ">
-                  <span className="fs-5 ">Empty</span>
-                  <div className="d-flex flex-wrap gap-1 mt-2 cs-border-top pt-2 ">
-                    <span className="" style={{ fontSize: "0.7rem" }}>
-                      No widgets
-                    </span>
+            <div className="col-12">
+              <div className="row g-2 mb-4">
+                <div className="col-4">
+                  <div
+                    className={`p-3 panel-in-panels ${
+                      selectedTemplate === null ? "bg-pistacho" : ""
+                    }`}
+                    onClick={() => setSelectedTemplate(null)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <h5>Empty</h5>
+                    <div className="text-muted small mt-2">No widgets</div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="col-8 border-start">
               <p className="text-muted small mb-2">
                 These templates are just a starting point – you can fully
                 customize them.
               </p>
+
               <div className="row g-2">
-                {templates.map((t) => {
+                {templates.slice(0, 6).map((t, i) => {
                   const isSelected =
-                    selectedTemplate?.id && selectedTemplate?.id === t.value.id;
+                    selectedTemplate?.id &&
+                    selectedTemplate?.id === t.value?.id;
 
                   return (
-                    <div className="col-6" key={t.label}>
+                    <div className="col-4" key={i}>
                       <div
                         className={`p-3 panel-in-panels ${
                           isSelected ? "bg-pistacho" : ""
                         }`}
                         onClick={() => setSelectedTemplate(t.value)}
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "pointer", height: "300px" }}
                       >
-                        <div className="d-flex justify-content-between align-items-center">
-                          <span className="fs-5 ">{t.label}</span>
-                        </div>
+                        <h5>{t.label}</h5>
 
-                        {/* 👇 Mini preview de widgets */}
-                        {t.value?.widgets?.length > 0 && (
-                          <div className="d-flex flex-wrap gap-1 mt-2 cs-border-top pt-2 ">
-                            {t.value.widgets.map((w, i) => (
+                        {t.value?.image && (
+                          <Image
+                            src={
+                              t.value.image.startsWith("/")
+                                ? t.value.image
+                                : `/${t.value.image}`
+                            }
+                            alt="Preview"
+                            preview
+                            width="100%"
+                            className="mt-2"
+                            imageStyle={{
+                              maxHeight: "180px",
+                              objectFit: "contain",
+                            }}
+                          />
+                        )}
+
+                        {t.value?.widgets?.length > 0 ? (
+                          <div className="d-flex flex-wrap gap-1 mt-2 pt-2">
+                            {t.value.widgets.map((w, j) => (
                               <span
-                                key={i}
+                                key={j}
                                 className="badge text-bg-dark"
                                 style={{ fontSize: "0.7rem" }}
                               >
                                 {w.widgetId.replace("Widget", "")}
                               </span>
                             ))}
+                          </div>
+                        ) : (
+                          <div className="text-muted small mt-2">
+                            No widgets
                           </div>
                         )}
                       </div>

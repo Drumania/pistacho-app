@@ -84,13 +84,7 @@ export default function BookmarksWidget({ groupId, widgetId, editMode }) {
 
               {b.image && (
                 <div className="bookmark-image-box">
-                  <img
-                    src={`https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(
-                      b.url
-                    )}`}
-                    alt="favicon"
-                    className="bookmark-image"
-                  />
+                  <img src={b.image} alt="favicon" className="bookmark-image" />
                 </div>
               )}
             </div>

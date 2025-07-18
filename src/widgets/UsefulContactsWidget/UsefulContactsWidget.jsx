@@ -43,8 +43,8 @@ export default function UsefulContactsWidget({ groupId }) {
             className="d-flex align-items-center justify-content-between p-2"
           >
             <div className="d-flex flex-column align-items-start gap-0 ">
-              <div className="fw-semibold">{c.name}</div>
-              <small>{c.role}</small>
+              <strong>{c.role}</strong>
+              <small className="fst-italic">{c.name}</small>
             </div>
 
             <div className="d-flex align-items-center gap-2">{c.phone}</div>

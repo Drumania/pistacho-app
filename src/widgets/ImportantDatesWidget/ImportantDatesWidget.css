@@ -14,11 +14,6 @@
   gap: 1rem;
 }
 
-.important-date-row.expired {
-  opacity: 0.5;
-  text-decoration: line-through;
-}
-
 .date-box {
   flex-shrink: 0;
   width: 40px;

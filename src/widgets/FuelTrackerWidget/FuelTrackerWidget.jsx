@@ -55,18 +55,12 @@ export default function FuelTrackerWidget({ groupId, widgetId }) {
         scrollable
         scrollHeight="100%"
         stripedRows
-        paginator
-        rows={10}
         rowClassName={() => "fuel-table-row"}
       >
         <Column
           field="date"
           header="Date"
-          body={(row, col) => {
-            const isInitial =
-              entries.length && row.id === entries[entries.length - 1]?.id;
-            return isInitial ? "—" : format(new Date(row.date), "dd/MM/yyyy");
-          }}
+          body={(row) => format(new Date(row.date), "dd/MM/yyyy")}
         />
         <Column field="odometer" header="Odometer" />
         <Column

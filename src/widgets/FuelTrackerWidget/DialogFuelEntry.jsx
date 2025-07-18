@@ -58,9 +58,7 @@ export default function DialogFuelEntry({
 
     const ref = collection(db, ...refPath);
     await addDoc(ref, {
-      date: newEntry.liters
-        ? newEntry.date.getTime()
-        : new Date("1950-01-01").getTime(),
+      date: newEntry.date.getTime(),
       liters: newEntry.liters ?? null,
       odometer: newEntry.odometer,
     });
@@ -109,7 +107,16 @@ export default function DialogFuelEntry({
         <div className="row align-items-end g-3">
           {!entries.length ? (
             <>
-              <div className="col-6">
+              <div className="col-4">
+                <label className="form-label">Date</label>
+                <Calendar
+                  value={newEntry.date}
+                  onChange={(e) => handleChange("date", e.value)}
+                  showIcon
+                  className="w-100"
+                />
+              </div>
+              <div className="col-4">
                 <label className="form-label">Initial Kilometers</label>
                 <InputNumber
                   value={newEntry.odometer}
@@ -118,7 +125,7 @@ export default function DialogFuelEntry({
                   className="w-100"
                 />
               </div>
-              <div className="col-6 text-end">
+              <div className="col-4 text-end">
                 <Button
                   icon="pi pi-check"
                   className="btn-pistacho mt-2"

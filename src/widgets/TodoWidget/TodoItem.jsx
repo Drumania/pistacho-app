@@ -46,7 +46,7 @@ export default function TodoItem({
           )}
 
           {(priority === "high" || label) && (
-            <div className="mt-1">
+            <div>
               {priority === "high" && (
                 <span className="me-1 badge bg-danger">High priority</span>
               )}
