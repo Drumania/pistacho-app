@@ -437,7 +437,7 @@ export default function SettingsPage() {
         <hr className="my-5" />
 
         {/* Save + Delete */}
-        <div className="d-flex align-items-center gap-3">
+        <div className="d-flex justify-content-between align-items-center gap-3">
           <button
             className="btn-pistacho"
             onClick={handleSave}
@@ -445,21 +445,24 @@ export default function SettingsPage() {
           >
             {saving ? "Saving..." : "Save changes"}
           </button>
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => signOut(auth)}
-          >
-            Logout
-          </button>
 
+          <div className="d-flex gap-3">
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => signOut(auth)}
+            >
+              Logout
+            </button>
+
+            <button
+              className="btn btn-outline-danger ms-auto"
+              onClick={confirmDeleteAccount}
+            >
+              Delete account
+            </button>
+          </div>
           {showSaved && <span className="color-green fade-in">Saved...</span>}
           {error && <div className="alert alert-danger">{error}</div>}
-          <button
-            className="btn btn-outline-danger ms-auto"
-            onClick={confirmDeleteAccount}
-          >
-            Delete account
-          </button>
         </div>
 
         <ConfirmDialog />

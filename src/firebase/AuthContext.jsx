@@ -147,16 +147,38 @@ export function AuthProvider({ children }) {
     return enriched;
   };
 
+  function getFriendlyFirebaseError(code) {
+    switch (code) {
+      case "auth/user-not-found":
+        return "User not found";
+      case "auth/wrong-password":
+        return "Wrong password";
+      case "auth/invalid-email":
+        return "Invalid email";
+      case "auth/too-many-requests":
+        return "Too many requests";
+      case "auth/invalid-credential":
+        return "Invalid credential";
+      default:
+        return "Unexpected error when logging in, try again later...";
+    }
+  }
+
   const loginWithEmail = async (email, pass) => {
-    const { user: fbUser } = await signInWithEmailAndPassword(
-      auth,
-      email,
-      pass
-    );
-    const enriched = await ensureUserData(fbUser);
-    setUser(enriched);
-    setupPresence(fbUser.uid);
-    return enriched;
+    try {
+      const { user: fbUser } = await signInWithEmailAndPassword(
+        auth,
+        email,
+        pass
+      );
+      const enriched = await ensureUserData(fbUser);
+      setUser(enriched);
+      setupPresence(fbUser.uid);
+      return enriched;
+    } catch (err) {
+      console.error("Login error:", err.code); // log real
+      throw new Error(getFriendlyFirebaseError(err.code));
+    }
   };
 
   const registerWithEmail = async (email, pass, name) => {
