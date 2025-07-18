@@ -11,11 +11,17 @@ import {
   deleteDoc,
   updateDoc,
 } from "firebase/firestore";
+import { getAuth, updatePassword, deleteUser, signOut } from "firebase/auth";
+
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getAuth } from "firebase/auth";
 import { useAuth } from "@/firebase/AuthContext";
-import { Skeleton } from "primereact/skeleton";
+
+import { CSS } from "@dnd-kit/utilities";
 import app from "@/firebase/config";
+import { Skeleton } from "primereact/skeleton";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { InputText } from "primereact/inputtext";
+import { Password } from "primereact/password";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -23,12 +29,6 @@ import {
   verticalListSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { InputText } from "primereact/inputtext";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
-
-import "primereact/resources/themes/lara-dark-indigo/theme.css";
-import "primereact/resources/primereact.min.css";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -51,13 +51,12 @@ function SortableGroup({ group, onLeave }) {
       ref={setNodeRef}
       style={style}
       className="d-flex align-items-center gap-3 py-2"
-      {...attributes} // solo attributes, sin listeners
+      {...attributes}
     >
-      {/* solo acá va el drag */}
       {group.order !== 0 ? (
         <i
           className="bi bi-list text-secondary"
-          {...listeners} // <- listeners solo en el ícono
+          {...listeners}
           style={{ cursor: "grab" }}
         />
       ) : (
@@ -102,7 +101,8 @@ export default function SettingsPage() {
   useDocTitle("Settings");
   const { updateUserProfile } = useAuth();
   const user = auth.currentUser;
-  const [estimatedGroupCount, setEstimatedGroupCount] = useState(0);
+  const navigate = useNavigate();
+
   const [profile, setProfile] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
   const [error, setError] = useState("");
@@ -111,46 +111,12 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
   const [groups, setGroups] = useState([]);
-
-  const loadGroups = async () => {
-    if (!user?.uid) return;
-    setLoadingGroups(true); // ⬅️ nuevo
-
-    try {
-      const q = collectionGroup(db, "members");
-      const snap = await getDocs(q);
-
-      const userGroups = snap.docs.filter((d) => d.data().uid === user.uid);
-      setEstimatedGroupCount(userGroups.length);
-
-      const list = [];
-
-      for (const d of userGroups) {
-        const gref = d.ref.parent.parent;
-        if (!gref) continue;
-        const gsnap = await getDoc(gref);
-        if (!gsnap.exists()) continue;
-        const g = gsnap.data();
-        list.push({
-          id: gref.id,
-          slug: g.slug,
-          name: g.name,
-          photoURL: g.photoURL,
-          order: g.order ?? 999,
-        });
-      }
-
-      list.sort((a, b) => a.order - b.order);
-      setGroups(list);
-    } catch (err) {
-      console.error("Error loading groups", err);
-    } finally {
-      setLoadingGroups(false); // ⬅️ nuevo
-    }
-  };
+  const [pw, setPw] = useState({ pass: "", confirm: "" });
+  const [pwError, setPwError] = useState("");
 
   useEffect(() => {
     if (!user) return;
+
     const fetchProfile = async () => {
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
@@ -162,6 +128,39 @@ export default function SettingsPage() {
         setLoading(false);
       }
     };
+
+    const loadGroups = async () => {
+      setLoadingGroups(true);
+      try {
+        const q = collectionGroup(db, "members");
+        const snap = await getDocs(q);
+        const userGroups = snap.docs.filter((d) => d.data().uid === user.uid);
+        const list = [];
+
+        for (const d of userGroups) {
+          const gref = d.ref.parent.parent;
+          if (!gref) continue;
+          const gsnap = await getDoc(gref);
+          if (!gsnap.exists()) continue;
+          const g = gsnap.data();
+          list.push({
+            id: gref.id,
+            slug: g.slug,
+            name: g.name,
+            photoURL: g.photoURL,
+            order: g.order ?? 999,
+          });
+        }
+
+        list.sort((a, b) => a.order - b.order);
+        setGroups(list);
+      } catch (err) {
+        console.error("Error loading groups", err);
+      } finally {
+        setLoadingGroups(false);
+      }
+    };
+
     fetchProfile();
     loadGroups();
   }, [user]);
@@ -171,23 +170,29 @@ export default function SettingsPage() {
       setError("Name is required.");
       return;
     }
+
     setSaving(true);
     setError("");
+
     try {
       let photoURL = profile.photoURL || "";
+
       if (photoFile) {
         const fileRef = ref(storage, `avatars/${user.uid}`);
         await uploadBytes(fileRef, photoFile);
         photoURL = await getDownloadURL(fileRef);
       }
+
       const updatedData = {
         uid: user.uid,
         email: user.email,
         name: profile.name.trim(),
         photoURL,
       };
+
       await setDoc(doc(db, "users", user.uid), updatedData, { merge: true });
       await updateUserProfile({ displayName: updatedData.name, photoURL });
+
       setShowSaved(true);
       setTimeout(() => setShowSaved(false), 2000);
     } catch (err) {
@@ -195,6 +200,22 @@ export default function SettingsPage() {
       setError("Failed to save changes.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (pw.pass.length < 6) return setPwError("Password too short");
+    if (pw.pass !== pw.confirm) return setPwError("Passwords don't match");
+    try {
+      await updatePassword(user, pw.pass);
+      setPw({ pass: "", confirm: "" });
+      setPwError("Password updated ✔");
+    } catch (err) {
+      if (err.code === "auth/requires-recent-login") {
+        setPwError("Re-log and try again");
+      } else {
+        setPwError("Couldn't update password");
+      }
     }
   };
 
@@ -219,8 +240,35 @@ export default function SettingsPage() {
     });
   };
 
-  const handleDragEnd = async (e) => {
-    const { active, over } = e;
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteDoc(doc(db, "users", user.uid));
+      await deleteUser(user);
+      navigate("/bye");
+    } catch (err) {
+      console.error("Delete account", err);
+      confirmDialog({
+        message: "Failed to delete. Try again.",
+        header: "Error",
+        acceptLabel: "Ok",
+        acceptClassName: "btn-pistacho mt-2",
+      });
+    }
+  };
+
+  const confirmDeleteAccount = () => {
+    confirmDialog({
+      message: "This action is irreversible. Delete your account?",
+      header: "Delete account",
+      acceptLabel: "Delete",
+      rejectLabel: "Cancel",
+      acceptClassName: "btn btn-danger",
+      rejectClassName: "btn btn-dark",
+      accept: handleDeleteAccount,
+    });
+  };
+
+  const handleDragEnd = async ({ active, over }) => {
     if (!active || !over || active.id === over.id) return;
 
     const oldIndex = groups.findIndex((g) => g.id === active.id);
@@ -240,7 +288,6 @@ export default function SettingsPage() {
 
     reordered.sort((a, b) => a.order - b.order);
     setGroups(reordered);
-    // loadGroups(); // 🔁 recarga los grupos en la sidebar también si usan mismo orden
   };
 
   if (loading) return <p className="text-center mt-5">Loading...</p>;
@@ -249,8 +296,10 @@ export default function SettingsPage() {
     <div className="container py-5" style={{ maxWidth: 800 }}>
       <div className="widget-content">
         <h2 className="mb-4">Settings</h2>
-        <>
-          <div className="mb-4">
+
+        {/* Avatar */}
+        <div className="row">
+          <div className="col-3">
             <div className="position-relative d-inline-block">
               <input
                 type="file"
@@ -259,10 +308,7 @@ export default function SettingsPage() {
                 style={{ display: "none" }}
                 onChange={(e) => setPhotoFile(e.target.files[0])}
               />
-              <label
-                htmlFor="upload-avatar"
-                className="position-relative cursor-pointer"
-              >
+              <label htmlFor="upload-avatar" className="cursor-pointer">
                 <div
                   className="rounded-circle border"
                   style={{
@@ -275,7 +321,6 @@ export default function SettingsPage() {
                     })`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    cursor: "pointer",
                   }}
                 />
                 <div
@@ -293,8 +338,18 @@ export default function SettingsPage() {
               </label>
             </div>
           </div>
+          {/* Email */}
+          <div className=" col-7 mb-3">
+            <label className="form-label text-light">E-mail</label>
+            <InputText
+              className="input-field mb-3 w-100"
+              value={user.email || ""}
+              disabled
+            />
+          </div>
 
-          <div className="mb-3">
+          {/* Name */}
+          <div className="offset-3 col-7 mb-3">
             <label className="form-label text-light">Full Name</label>
             <InputText
               className="input-field mb-3 w-100"
@@ -303,49 +358,109 @@ export default function SettingsPage() {
             />
           </div>
 
-          {error && <div className="alert alert-danger">{error}</div>}
+          {/* Password */}
+          <div className="offset-3 col-7 mb-3">
+            <div className="mb-2">
+              <label className="form-label text-light">New password</label>
+              <Password
+                className="w-100"
+                inputClassName="w-100"
+                value={pw.pass}
+                onChange={(e) => setPw({ ...pw, pass: e.target.value })}
+                toggleMask
+                feedback={false}
+                placeholder="New password"
+              />
+            </div>
 
-          <h4 className="text-light mb-3">Your Groups</h4>
+            <div className="mb-3">
+              <label className="form-label text-light">Repeat password</label>
+              <Password
+                className="w-100"
+                inputClassName="w-100"
+                value={pw.confirm}
+                onChange={(e) => setPw({ ...pw, confirm: e.target.value })}
+                toggleMask
+                feedback={false}
+                placeholder="Repeat password"
+              />
+            </div>
 
-          {loadingGroups ? (
-            <ul className="cs-list-group list-unstyled">
-              <li className="pt-3 text-muted">Loading groups...</li>
-            </ul>
-          ) : (
-            <DndContext
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={groups.map((g) => g.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <ul className="cs-list-group list-unstyled">
-                  {groups.map((g) => (
-                    <SortableGroup
-                      key={g.id}
-                      group={g}
-                      onLeave={() => confirmLeaveGroup(g)}
-                    />
-                  ))}
-                </ul>
-              </SortableContext>
-            </DndContext>
-          )}
+            {pwError && (
+              <div className="alert alert-danger py-1">{pwError}</div>
+            )}
 
-          <hr className="my-5" />
-
-          <div className="d-flex align-items-center gap-3">
             <button
-              className="btn-pistacho"
-              onClick={handleSave}
-              disabled={saving}
+              className="btn btn-sm btn-outline-light"
+              onClick={handleChangePassword}
             >
-              {saving ? "Saving..." : "Save changes"}
+              Update password
             </button>
-            {showSaved && <span className="color-green fade-in">Saved...</span>}
           </div>
-        </>
+        </div>
+
+        <hr className="my-5" />
+
+        {/* Groups */}
+        <label className="form-label text-light">Your Groups</label>
+        {loadingGroups ? (
+          <ul className="cs-list-group list-unstyled">
+            {[...Array(3)].map((_, i) => (
+              <li key={i} className="d-flex align-items-center gap-3 py-2">
+                <Skeleton shape="circle" size="2rem" className="me-2" />
+                <Skeleton width="40%" height="1.2rem" />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={groups.map((g) => g.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ul className="cs-list-group list-unstyled">
+                {groups.map((g) => (
+                  <SortableGroup
+                    key={g.id}
+                    group={g}
+                    onLeave={() => confirmLeaveGroup(g)}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
+        )}
+
+        <hr className="my-5" />
+
+        {/* Save + Delete */}
+        <div className="d-flex align-items-center gap-3">
+          <button
+            className="btn-pistacho"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save changes"}
+          </button>
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => signOut(auth)}
+          >
+            Logout
+          </button>
+
+          {showSaved && <span className="color-green fade-in">Saved...</span>}
+          {error && <div className="alert alert-danger">{error}</div>}
+          <button
+            className="btn btn-outline-danger ms-auto"
+            onClick={confirmDeleteAccount}
+          >
+            Delete account
+          </button>
+        </div>
 
         <ConfirmDialog />
       </div>

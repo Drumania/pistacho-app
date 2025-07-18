@@ -9,6 +9,7 @@ import AdminToolsPage from "@/pages/AdminToolsPage";
 import { useAuth } from "@/firebase/AuthContext";
 import NotificationsPage from "./pages/NotificationsPage";
 import Resume from "./pages/Resume";
+import Bye from "./pages/Bye";
 
 function App() {
   const { user, loading } = useAuth();
@@ -23,6 +24,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="/bye" element={<Bye />} />
         </>
       ) : (
         // si hay usuario, accede al layout completo
