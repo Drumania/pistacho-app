@@ -6,10 +6,9 @@
   "scripts": {
     "dev": "vite",
     "dev_red": "npm run dev -- --host",
-    "build": "vite build",
+    "vite:build": "vite build",
     "preview": "vite preview",
     "electron": "electron main.js",
-    "vite:build": "vite build",
     "pack": "electron-builder --dir",
     "dist": "npm run vite:build && electron-builder"
   },
@@ -27,11 +26,16 @@
     ],
     "mac": {
       "icon": "public/focuspit_icon.icns",
-      "target": "dmg"
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
       "icon": "public/focuspit_icon.ico",
-      "target": "nsis"
+      "target": [
+        "nsis"
+      ]
     }
   },
   "dependencies": {
@@ -63,7 +67,7 @@
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
     "electron": "^37.2.3",
-    "electron-builder": "^24.14.1",
+    "electron-builder": "^24.11.0",
     "eslint": "^8.55.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
