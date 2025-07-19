@@ -23,9 +23,26 @@ export default function QuoteWidget({ groupId }) {
       const snap = await getDoc(docRef);
       if (snap.exists()) {
         const data = snap.data();
-        setSelectedAuthors(data.authors || []);
+        const authors = data.authors || [];
+
+        if (authors.length === 0) {
+          const defaultAuthors = [
+            "Steve Jobs",
+            "Albert Einstein",
+            "John Lennon",
+          ];
+          setSelectedAuthors(defaultAuthors);
+          await setDoc(docRef, { authors: defaultAuthors });
+        } else {
+          setSelectedAuthors(authors);
+        }
+      } else {
+        const defaultAuthors = ["Steve Jobs", "Albert Einstein", "John Lennon"];
+        setSelectedAuthors(defaultAuthors);
+        await setDoc(docRef, { authors: defaultAuthors });
       }
     };
+
     loadConfig();
   }, [groupId]);
 
