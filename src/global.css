@@ -108,7 +108,7 @@ h5 {
 }
 
 .app-wrapper {
-  width: 100vw;
+  /* width: 100vw; */
   position: relative;
 }
 

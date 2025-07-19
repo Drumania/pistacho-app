@@ -5,7 +5,6 @@ import {
   where,
   orderBy,
   onSnapshot,
-  getDocs,
   updateDoc,
   doc,
   setDoc,
@@ -22,6 +21,33 @@ export default function useNotifications() {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Notificación local (Electron o navegador)
+  const notify = (title, body) => {
+    if (window.electronAPI) {
+      window.electronAPI.sendNotification(title, body);
+    } else if ("Notification" in window) {
+      if (Notification.permission === "granted") {
+        new Notification(title, { body });
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            new Notification(title, { body });
+          }
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (window.electronAPI) {
+      // 🔴 Overlay (solo Windows)
+      window.electronAPI.updateOverlayBadge(unreadCount > 0);
+
+      // 🔢 Cambiar icono numerado (1, 2, 3, N)
+      window.electronAPI.updateAppIcon(unreadCount);
+    }
+  }, [unreadCount]);
+
   useEffect(() => {
     if (!user?.uid) return;
 
@@ -37,13 +63,28 @@ export default function useNotifications() {
         ...doc.data(),
       }));
 
+      // Detectar nuevas no leídas
+      if (!loading && notifications.length) {
+        const newUnread = items.filter(
+          (n) => !n.read && !notifications.some((prev) => prev.id === n.id)
+        );
+
+        newUnread.forEach((n) => {
+          const title =
+            n.type === "group_invite"
+              ? "Invitación a grupo"
+              : "Nueva notificación";
+          notify(title, n.data?.fromName || "Tenés una nueva notificación");
+        });
+      }
+
       setNotifications(items);
       setUnreadCount(items.filter((n) => !n.read).length);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [user?.uid]);
+  }, [user?.uid, notifications, loading]);
 
   const markAsRead = async (id) => {
     setNotifications((prev) =>
@@ -109,7 +150,7 @@ export default function useNotifications() {
     try {
       await addDoc(collection(db, "notifications"), {
         toUid,
-        type, // ej: 'group_invite', 'group_removed', etc.
+        type,
         read: false,
         createdAt: serverTimestamp(),
         status: "pending",

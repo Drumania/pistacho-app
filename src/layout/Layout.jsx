@@ -9,6 +9,7 @@ export default function Layout() {
   const [isMobile, setIsMobile] = useState(false);
   const navbarRef = useRef();
   const toastRef = useRef(null);
+  // const isElectron = navigator.userAgent.toLowerCase().includes("electron");
 
   useNotificationToasts(toastRef);
 
@@ -47,7 +48,7 @@ export default function Layout() {
   }, [mobileMenuOpen]);
 
   return (
-    <div className="app-wrapper position-relative">
+    <div className="app-wrapper position-relative ">
       <Toast ref={toastRef} position="bottom-right" />
 
       {isMobile && (
