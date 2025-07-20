@@ -41,7 +41,7 @@ function setOverlayBadge(count) {
     // En producción los resources están fuera del asar
     const isDev = !app.isPackaged;
     const badgePath = isDev
-      ? path.join(__dirname, "assets", badgeFile)
+      ? path.join(__dirname, "public", badgeFile)
       : path.join(process.resourcesPath, badgeFile);
     const overlay = nativeImage.createFromPath(badgePath);
     mainWindow.setOverlayIcon(overlay, `Has ${count} notifications`);
