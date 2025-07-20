@@ -389,8 +389,104 @@ export default function Landing() {
               </ul>
             </Card>
           </div>
+
+          {/* Pro Plan */}
+          <div className="col-10 col-md-4">
+            <Card
+              title={
+                <div className="d-flex justify-content-center align-items-center gap-2">
+                  Enterpise <Tag value="Coming Soon" severity="warning" />
+                </div>
+              }
+              subTitle={
+                <span className="display-6 fw-bold">
+                  $9.99<span className="fs-6">/mo</span>
+                </span>
+              }
+              className="text-center h-100 shadow-sm border-pistacho"
+              footer={
+                <Button
+                  label="Notify Me"
+                  className="w-100 p-button-warning"
+                  disabled
+                />
+              }
+            >
+              <ul className="list-unstyled small lh-lg m-0">
+                <li>Unlimited dashboards</li>
+                <li>All premium widgets</li>
+                <li>Custom themes & colors</li>
+                <li>Automatic backups</li>
+                <li>Priority support</li>
+              </ul>
+            </Card>
+          </div>
         </div>
       </section>
+
+      {/* <section className="container py-5 text-center" id="download">
+        <h2 className="mb-4">🎯 Download FocusPit for Windows</h2>
+        <p className="lead">
+          Get started with your personal productivity dashboard — no signup
+          needed.
+        </p>
+
+        <a
+          href="/downloads/FocusPit-Installer-1.0.0.exe"
+          className="btn btn-success btn-lg my-4 px-5 py-2 fs-5"
+        >
+          ⬇️ Download Installer (.exe)
+        </a>
+
+        <p className="mt-2 text-muted">
+          Or try the portable version:{" "}
+          <a href="/downloads/FocusPit.zip">Download .ZIP</a>
+        </p>
+
+        <div
+          className="alert alert-warning text-start mx-auto mt-5"
+          style={{ maxWidth: "600px" }}
+        >
+          <h5 className="mb-3">🛡️ Note about installation</h5>
+          <p>
+            This installer is not yet digitally signed. Windows may show a
+            warning like:
+            <strong> “Windows protected your PC”</strong>.
+          </p>
+          <p className="mb-2">
+            <strong>To continue:</strong>
+          </p>
+          <ol>
+            <li>
+              Click on <strong>“More info”</strong>
+            </li>
+            <li>
+              Then click <strong>“Run anyway”</strong>
+            </li>
+          </ol>
+          <img
+            src="https://learn.microsoft.com/en-us/windows/security/threat-protection/smartscreen/images/smartscreen_app_blocked.png"
+            alt="SmartScreen Warning"
+            className="img-fluid mt-2"
+          />
+          <p className="mt-3 small">
+            🔍 You can verify the file with{" "}
+            <a
+              href="https://www.virustotal.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              VirusTotal
+            </a>
+            .
+          </p>
+        </div>
+
+        <p className="text-muted mt-4">
+          Need help? Contact us at{" "}
+          <a href="mailto:martin@focuspit.com">info@focuspit.com</a>
+        </p>
+      </section> */}
 
       <section className="prefooter py-5 bg-dark text-white">
         <div className="container">
