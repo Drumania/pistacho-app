@@ -15,7 +15,7 @@
   "build": {
     "appId": "com.focuspit.app",
     "productName": "FocusPit",
-    "artifactName": "${productName}-v${version}-${os}.${ext}",
+    "artifactName": "FocusPit-Installer.exe",
     "directories": {
       "buildResources": "public"
     },
@@ -38,6 +38,12 @@
       ]
     }
   },
+  "extraResources": [
+    {
+      "from": "public/badge*.png",
+      "to": "."
+    }
+  ],
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",

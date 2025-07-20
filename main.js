@@ -38,11 +38,12 @@ function setOverlayBadge(count) {
   else badgeFile = null;
 
   if (badgeFile) {
-    const badgePath = path.join(__dirname, "public", badgeFile);
+    // En producción los resources están fuera del asar
+    const badgePath = path.join(process.resourcesPath, badgeFile);
     const overlay = nativeImage.createFromPath(badgePath);
-    mainWindow.setOverlayIcon(overlay, `You have ${count} notifications`);
+    mainWindow.setOverlayIcon(overlay, `Has ${count} notifications`);
   } else {
-    mainWindow.setOverlayIcon(null, "No notifications");
+    mainWindow.setOverlayIcon(null, "N notifications");
   }
 }
 
