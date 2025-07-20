@@ -39,7 +39,10 @@ function setOverlayBadge(count) {
 
   if (badgeFile) {
     // En producción los resources están fuera del asar
-    const badgePath = path.join(process.resourcesPath, badgeFile);
+    const isDev = !app.isPackaged;
+    const badgePath = isDev
+      ? path.join(__dirname, "assets", badgeFile)
+      : path.join(process.resourcesPath, badgeFile);
     const overlay = nativeImage.createFromPath(badgePath);
     mainWindow.setOverlayIcon(overlay, `Has ${count} notifications`);
   } else {
