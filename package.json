@@ -18,7 +18,6 @@
     "productName": "FocusPit",
     "artifactName": "FocusPit-Installer-${version}.exe",
     "directories": {
-      // "output": "dist/focuspit-beta",
       "output": "dist/focuspit-local",
       "buildResources": "public"
     },
