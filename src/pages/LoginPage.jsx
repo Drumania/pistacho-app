@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
@@ -10,8 +10,14 @@ import CustomCheckbox from "@/components/CustomCheckbox";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { loginWithGoogle, loginWithEmail, registerWithEmail, resetPassword } =
-    useAuth();
+  const {
+    user,
+    initializing,
+    loginWithGoogle,
+    loginWithEmail,
+    registerWithEmail,
+    resetPassword,
+  } = useAuth();
 
   const [mode, setMode] = useState("login"); // "login" | "register"
   const [form, setForm] = useState({ email: "", pass: "", name: "" });
@@ -24,14 +30,29 @@ export default function LoginPage() {
 
   const submit = async () => {
     setError("");
+
+    if (mode === "register" && !form.name.trim()) {
+      setError("Please enter your User name");
+      return;
+    }
+
+    if (!form.email.trim()) {
+      setError("Please enter your email");
+      return;
+    }
+
+    if (!form.pass || form.pass.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     setBusy(true);
     try {
-      const profile =
-        mode === "login"
-          ? await loginWithEmail(form.email, form.pass)
-          : await registerWithEmail(form.email, form.pass, form.name);
-
-      navigate(`/g/${profile.slug}`);
+      if (mode === "login") {
+        await loginWithEmail(form.email, form.pass);
+      } else {
+        await registerWithEmail(form.email, form.pass, form.name);
+      }
     } catch (e) {
       setError(e.message);
     } finally {
@@ -43,8 +64,7 @@ export default function LoginPage() {
     setBusy(true);
     setError("");
     try {
-      const profile = await loginWithGoogle();
-      navigate(`/g/${profile.slug}`);
+      await loginWithGoogle();
     } catch (e) {
       setError(e.message);
     } finally {
@@ -64,6 +84,35 @@ export default function LoginPage() {
       setError(err.message);
     }
   };
+
+  // ✅ Redirigir cuando todo esté listo
+  useEffect(() => {
+    if (!initializing && user?.slug) {
+      navigate(`/g/${user.slug}`);
+    }
+  }, [initializing, user]);
+
+  // ✅ Loading visual con pasos simulados
+  if (initializing) {
+    return (
+      <div
+        className="d-flex align-items-center justify-content-center min-vh-100"
+        style={{ background: "#25303d" }}
+      >
+        <div className="text-center text-white">
+          <ProgressSpinner style={{ width: 50, height: 50 }} />
+          <p className="mt-3">Creating your workspace…</p>
+          <p className="text-muted small mt-2">
+            Loading template...
+            <br />
+            Copying widgets...
+            <br />
+            Almost done!
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -88,7 +137,7 @@ export default function LoginPage() {
             <div className="text-center mb-4">
               <img src="icon-192_v2.png" width="100" className="mb-3 mx-auto" />
               <h4 className="fw-semibold text-white">Welcome to FocusPit</h4>
-              <p className="text-light small mb-1">
+              <p className="text-light small mb-1 fs-5">
                 {mode === "login"
                   ? "Don't have an account?"
                   : "Already have an account?"}
@@ -121,28 +170,18 @@ export default function LoginPage() {
               />
             </div>
 
-            <Divider
-              align="center"
-              className="py-3"
-              style={{
-                background: "#1c1d1e",
-                position: "relative",
-                display: "block",
-                zIndex: 1000,
-                width: "40px",
-                height: "24px",
-                textAlign: "center",
-              }}
-            >
+            <Divider align="center" className="py-3">
               <b>OR</b>
             </Divider>
 
             <div className="d-flex flex-column">
               {mode === "register" && (
                 <>
-                  <label className="form-label text-light">Full Name</label>
+                  <label className="form-label text-light">User Name</label>
                   <InputText
-                    className="input-field mb-3 w-100"
+                    className={`input-field mb-3 w-100 ${
+                      !form.name.trim() && error ? "p-invalid" : ""
+                    }`}
                     value={form.name}
                     onChange={(e) => handleChange("name", e.target.value)}
                   />
@@ -151,8 +190,9 @@ export default function LoginPage() {
 
               <label className="form-label text-light">Email</label>
               <InputText
-                autoFocus
-                className="input-field mb-3 w-100"
+                className={`input-field mb-3 w-100 ${
+                  !form.email.trim() && error ? "p-invalid" : ""
+                }`}
                 value={form.email}
                 onChange={(e) => handleChange("email", e.target.value)}
               />
@@ -164,7 +204,9 @@ export default function LoginPage() {
                 toggleMask
                 feedback={false}
                 inputClassName="p-password-input"
-                className="mb-2"
+                className={`mb-2 ${
+                  form.pass.length < 6 && error ? "p-invalid" : ""
+                }`}
               />
 
               {error && <div className="text-danger small mt-2">{error}</div>}

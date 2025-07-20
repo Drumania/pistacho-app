@@ -12,6 +12,7 @@ import {
 } from "firebase/auth";
 import {
   doc,
+  addDoc,
   getDoc,
   setDoc,
   collection,
@@ -34,6 +35,7 @@ import app from "./config";
 const AuthContext = createContext();
 const auth = getAuth(app);
 const rtdb = getDatabase(app);
+let DEFAULT_TEMPLATE_ID = "VY2jRf154aPCkbBWmBxf";
 
 // ✅ Slug único
 async function generateUniqueSlug(base) {
@@ -41,6 +43,7 @@ async function generateUniqueSlug(base) {
   let slug = baseSlug;
   let counter = 1;
   const usersRef = collection(db, "users");
+
   while (true) {
     const q = query(usersRef, where("slug", "==", slug));
     const snap = await getDocs(q);
@@ -55,17 +58,75 @@ async function createPersonalGroup(slug, user) {
   const groupRef = doc(db, "groups", slug);
   const memberRef = doc(db, "groups", slug, "members", user.uid);
 
-  if ((await getDoc(groupRef)).exists()) return;
+  const groupSnap = await getDoc(groupRef);
+  if (groupSnap.exists()) {
+    return;
+  }
+
+  // Obtener template
+  const templateSnap = await getDoc(doc(db, "templates", DEFAULT_TEMPLATE_ID));
+
+  if (!templateSnap.exists()) {
+    return;
+  }
+
+  const template = templateSnap.data();
+  const templateId = templateSnap.id;
+
+  // Crear grupo
 
   await setDoc(groupRef, {
     name: "Me",
     slug,
     status: "active",
-    photoURL: "/group_placeholder.png",
+    photoURL: user.photoURL || "/group_placeholder.png",
     order: 0,
     created_at: serverTimestamp(),
+    template_used: templateId,
   });
 
+  // Crear widgets del template
+  if (Array.isArray(template.widgets) && template.widgets.length) {
+    for (const w of template.widgets) {
+      if (!w.widgetId) {
+        continue;
+      }
+
+      const widgetData = {
+        groupId: slug,
+        key: w.widgetId,
+        layout: w.layout ?? {},
+        settings: w.settings ?? {},
+        createdAt: serverTimestamp(),
+      };
+
+      try {
+        // 1. Guardar en widget_data/{widgetId}/groups/{slug}/items
+        const widgetRef = collection(
+          db,
+          "widget_data",
+          w.widgetId,
+          "groups",
+          slug,
+          "items"
+        );
+        await addDoc(widgetRef, {
+          ...widgetData,
+          widgetId: w.widgetId,
+        });
+
+        // 2. Guardar en groups/{slug}/widgets
+        const groupWidgetRef = collection(db, "groups", slug, "widgets");
+        await addDoc(groupWidgetRef, widgetData);
+      } catch (err) {
+        console.error("❌ Error copying widget", w.widgetId, err);
+      }
+    }
+  } else {
+    console.warn("⚠️ Template has no widgets.");
+  }
+
+  // Crear miembro del grupo
   await setDoc(memberRef, {
     uid: user.uid,
     owner: true,
@@ -99,19 +160,23 @@ async function ensureUserData(fbUser, fallbackName = "") {
   const snap = await getDoc(refUser);
 
   if (!snap.exists()) {
-    const name = fallbackName || fbUser.displayName || "User";
+    const storedName = localStorage.getItem("pendingName");
+    const name = storedName || fallbackName || fbUser.displayName || "User";
+
     const slug = await generateUniqueSlug(name);
 
     await setDoc(refUser, {
       uid: fbUser.uid,
       email: fbUser.email,
-      name,
+      name, // ✅ guarda el nombre correcto en Firestore
       slug,
       photoURL: fbUser.photoURL || "",
       createdAt: serverTimestamp(),
     });
 
     await createPersonalGroup(slug, fbUser);
+
+    localStorage.removeItem("pendingName"); // 🧹 limpiar
   }
 
   const profile = (await getDoc(refUser)).data();
@@ -122,15 +187,19 @@ async function ensureUserData(fbUser, fallbackName = "") {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        setInitializing(true); // 👈 empieza el setup
         const enriched = await ensureUserData(firebaseUser);
         setUser(enriched);
         setupPresence(firebaseUser.uid);
+        setInitializing(false); // 👈 termina el setup
       } else {
         setUser(null);
+        setInitializing(false);
       }
       setLoading(false);
     });
@@ -141,10 +210,9 @@ export function AuthProvider({ children }) {
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     const { user: fbUser } = await signInWithPopup(auth, provider);
-    const enriched = await ensureUserData(fbUser);
-    setUser(enriched);
+    // 🔁 Ya no llamamos a ensureUserData, lo hace onAuthStateChanged
     setupPresence(fbUser.uid);
-    return enriched;
+    return fbUser;
   };
 
   function getFriendlyFirebaseError(code) {
@@ -171,26 +239,23 @@ export function AuthProvider({ children }) {
         email,
         pass
       );
-      const enriched = await ensureUserData(fbUser);
-      setUser(enriched);
       setupPresence(fbUser.uid);
-      return enriched;
+      return fbUser;
     } catch (err) {
-      console.error("Login error:", err.code); // log real
+      console.error("Login error:", err.code);
       throw new Error(getFriendlyFirebaseError(err.code));
     }
   };
 
   const registerWithEmail = async (email, pass, name) => {
+    localStorage.setItem("pendingName", name); // ⚠️ GUARDAR
     const { user: fbUser } = await createUserWithEmailAndPassword(
       auth,
       email,
       pass
     );
-    const enriched = await ensureUserData(fbUser, name);
-    setUser(enriched);
     setupPresence(fbUser.uid);
-    return enriched;
+    return fbUser;
   };
 
   const resetPassword = async (email) => {
@@ -221,6 +286,7 @@ export function AuthProvider({ children }) {
       value={{
         user,
         loading,
+        initializing,
         loginWithGoogle,
         loginWithEmail,
         registerWithEmail,

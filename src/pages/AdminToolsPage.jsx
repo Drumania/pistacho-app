@@ -145,7 +145,7 @@ export default function AdminTools() {
         </TabPanel> */}
 
         <TabPanel header="Users" className="m-3">
-          <DataTable value={users} paginator rows={10} className="mt-3">
+          <DataTable value={users} paginator rows={50} className="mt-3">
             <Column field="id" header="ID" />
             <Column field="displayName" header="Name" />
             <Column field="email" header="Email" />

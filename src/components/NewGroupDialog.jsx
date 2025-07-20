@@ -31,14 +31,16 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
   useEffect(() => {
     const fetchTemplates = async () => {
       const snapshot = await getDocs(collection(db, "templates"));
-      const options = snapshot.docs.map((doc) => ({
-        label: doc.data().name,
-        value: {
-          id: doc.id,
-          image: doc.data().image ?? null,
-          widgets: doc.data().widgets || [],
-        },
-      }));
+      const options = snapshot.docs
+        .filter((doc) => doc.data().ngshow === true)
+        .map((doc) => ({
+          label: doc.data().name,
+          value: {
+            id: doc.id,
+            image: doc.data().image ?? null,
+            widgets: doc.data().widgets || [],
+          },
+        }));
       setTemplates(options);
     };
 
