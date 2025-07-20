@@ -19,6 +19,9 @@
   color: var(--white-color);
 }
 
+.movie-widget-grid li img {
+  max-height: 115px;
+}
 /* modal movies */
 .dialog-scroll-container {
   height: 500px;

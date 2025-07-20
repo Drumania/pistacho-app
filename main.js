@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 const {
   app,
   BrowserWindow,
@@ -23,9 +25,10 @@ function createWindow() {
   });
 
   mainWindow.setMenuBarVisibility(false);
-  mainWindow.loadURL("http://www.focuspit.com");
+  mainWindow.loadURL("http://localhost:8080");
 }
 
+const isDev = !app.isPackaged;
 // 🔴 Overlay badge (número o punto) SOLO Windows
 function setOverlayBadge(count) {
   if (process.platform !== "win32" || !mainWindow) return;
@@ -38,9 +41,12 @@ function setOverlayBadge(count) {
   else badgeFile = null;
 
   if (badgeFile) {
-    const badgePath = path.join(__dirname, "public", badgeFile);
+    const badgePath = isDev
+      ? path.join(__dirname, "assets", badgeFile)
+      : path.join(process.resourcesPath, "assets", badgeFile);
+
     const overlay = nativeImage.createFromPath(badgePath);
-    mainWindow.setOverlayIcon(overlay, `You have ${count} notifications`);
+    mainWindow.setOverlayIcon(overlay, `Has ${count} notifications`);
   } else {
     mainWindow.setOverlayIcon(null, "No notifications");
   }
