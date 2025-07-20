@@ -23,7 +23,7 @@ function createWindow() {
   });
 
   mainWindow.setMenuBarVisibility(false);
-  mainWindow.loadURL("http://www.focuspit.com");
+  mainWindow.loadURL("http://localhost:8080");
 }
 
 const isDev = !app.isPackaged;
