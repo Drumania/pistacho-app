@@ -26,6 +26,7 @@ function createWindow() {
   mainWindow.loadURL("http://www.focuspit.com");
 }
 
+const isDev = !app.isPackaged;
 // 🔴 Overlay badge (número o punto) SOLO Windows
 function setOverlayBadge(count) {
   if (process.platform !== "win32" || !mainWindow) return;
@@ -38,15 +39,14 @@ function setOverlayBadge(count) {
   else badgeFile = null;
 
   if (badgeFile) {
-    // En producción los resources están fuera del asar
-    const isDev = !app.isPackaged;
     const badgePath = isDev
-      ? path.join(__dirname, "public", badgeFile)
-      : path.join(process.resourcesPath, badgeFile);
+      ? path.join(__dirname, "assets", badgeFile)
+      : path.join(process.resourcesPath, "assets", badgeFile);
+
     const overlay = nativeImage.createFromPath(badgePath);
     mainWindow.setOverlayIcon(overlay, `Has ${count} notifications`);
   } else {
-    mainWindow.setOverlayIcon(null, "N notifications");
+    mainWindow.setOverlayIcon(null, "No notifications");
   }
 }
 

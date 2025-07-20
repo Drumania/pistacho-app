@@ -16,8 +16,9 @@
   "build": {
     "appId": "com.focuspit.app",
     "productName": "FocusPit",
-    "artifactName": "FocusPit-Installer.exe",
+    "artifactName": "FocusPit-Installer-${version}.exe",
     "directories": {
+      "output": "dist/focuspit-beta",
       "buildResources": "public"
     },
     "files": [
@@ -41,8 +42,8 @@
   },
   "extraResources": [
     {
-      "from": "public/badge*.png",
-      "to": "."
+      "from": "assets",
+      "to": "assets"
     }
   ],
   "dependencies": {
