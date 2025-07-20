@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev_red": "npm run dev -- --host",
     "vite:build": "vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "electron": "electron main.js",
     "pack": "electron-builder --dir",
