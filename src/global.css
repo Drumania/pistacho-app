@@ -1020,7 +1020,7 @@ input[type="number"] {
   margin: var(--gap);
 }
 
-.admin-panel .p-datatable {
+/* .admin-panel .p-datatable {
   background-color: transparent;
   color: inherit;
 }
@@ -1034,6 +1034,38 @@ input[type="number"] {
 .admin-panel .p-datatable .p-datatable-tbody > tr {
   color: #f1f1f1;
   border: none;
+} */
+
+/* Aplica solo a las tablas con esta clase */
+.custom-datatable .p-datatable-tbody > tr {
+  height: 56px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Fila rayada */
+.custom-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Hover */
+.custom-datatable .p-datatable-tbody > tr:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Header con borde sutil */
+.custom-datatable .p-datatable-thead > tr > th {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Bordes redondeados para el wrapper */
+.custom-datatable .p-datatable-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Padding interno (opcional) */
+.custom-datatable .p-datatable-tbody > tr > td {
+  padding: 3px 0;
 }
 
 .admin-panel .p-button.p-button-text {

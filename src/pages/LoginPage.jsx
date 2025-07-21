@@ -161,7 +161,6 @@ export default function LoginPage() {
               <Button
                 label="Continue with Google"
                 className="btn bg-white text-dark w-100 py-3 d-flex align-items-center justify-content-center gap-2"
-                onClick={loginWithGoogleClick}
                 icon={() => (
                   <img
                     src="/imgs/google-icon.svg"
@@ -169,7 +168,11 @@ export default function LoginPage() {
                     style={{ width: 20, height: 20 }}
                   />
                 )}
+                disabled
               />
+              <div className="text-center text-muted small mt-2">
+                Google login will be enabled after public launch.
+              </div>
             </div>
 
             <Divider align="center" className="py-3">

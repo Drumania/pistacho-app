@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import "@/landing.css";
 import logo from "/icon-192_v2.png"; // cambiá por tu logo real
 import { Dialog } from "primereact/dialog";
-import { Message } from "primereact/message";
+import RequestAccessDialog from "@/components/RequestAccessDialog";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
@@ -13,6 +13,8 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 export default function Landing() {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const loginUrl = "/login";
+  const [showRequestAccess, setShowRequestAccess] = useState(false);
 
   const allWidgets = [
     {
@@ -61,11 +63,6 @@ export default function Landing() {
     },
     {
       name: "Fuel Tracker",
-      color: "#141d29",
-      img: "/widget_fuel.png",
-    },
-    {
-      name: "Fuel Tracker",
       color: "#394b5e71",
       img: "/widget_fuel.png",
     },
@@ -84,12 +81,14 @@ export default function Landing() {
   return (
     <div className="landing">
       {/* Beta Banner */}
-      <Message
-        severity="info"
-        text=" Public Beta — Try Focuspit free with basic widgets. Your feedback is welcome!"
-        className="w-100 py-2 justify-content-center rounded-0 text-center"
-        style={{ position: "sticky", top: 0, zIndex: 1070 }}
-      />
+      <div className="beta-floating-banner">
+        🚀 <strong>Public Beta</strong>
+        <br />
+        Try Focuspit free with basic widgets.
+        <br />
+        <br />
+        Your feedback is welcome!
+      </div>
       {/* NAVBAR */}
       <nav
         id="menu"
@@ -141,7 +140,7 @@ export default function Landing() {
               </li>
 
               <li className="nav-item">
-                <a className="nav-login px-3" href="/login">
+                <a className="nav-login px-3" href={loginUrl}>
                   Login / Register
                 </a>
               </li>
@@ -166,8 +165,14 @@ export default function Landing() {
               Use smart widgets to manage your day, your projects and your life.
             </h5>
             <div className="input-group mt-4">
-              <button href="/login" className="btn-pistacho fs-4 mx-auto px-5">
-                Build My Dashboards
+              {/* <a href={loginUrl} className="btn-pistacho fs-4 mx-auto px-5">
+                Build My Dashboard
+              </a> */}
+              <button
+                className="btn-pistacho fs-4 mx-auto px-5"
+                onClick={() => setShowRequestAccess(true)}
+              >
+                Request Access
               </button>
             </div>
           </div>
@@ -253,7 +258,7 @@ export default function Landing() {
 
         <div className="template-grid">
           <Link
-            to="/login"
+            to={loginUrl}
             className="template-box tall"
             style={{ backgroundColor: "#da525b" }}
           >
@@ -262,7 +267,7 @@ export default function Landing() {
           </Link>
 
           <Link
-            to="/login"
+            to={loginUrl}
             className="template-box wide"
             style={{ backgroundColor: "#7332b8" }}
           >
@@ -271,7 +276,7 @@ export default function Landing() {
           </Link>
 
           <Link
-            to="/login"
+            to={loginUrl}
             className="template-box"
             style={{ backgroundColor: "#0d7bc8" }}
           >
@@ -280,7 +285,7 @@ export default function Landing() {
           </Link>
 
           <Link
-            to="/login"
+            to={loginUrl}
             className="template-box"
             style={{ backgroundColor: "#b74c98" }}
           >
@@ -289,7 +294,7 @@ export default function Landing() {
           </Link>
 
           <Link
-            to="/login"
+            to={loginUrl}
             className="template-box wide"
             style={{ backgroundColor: "#1b8d4d" }}
           >
@@ -298,7 +303,7 @@ export default function Landing() {
           </Link>
 
           <Link
-            to="/login"
+            to={loginUrl}
             className="template-box"
             style={{ backgroundColor: "#d5a961" }}
           >
@@ -316,7 +321,7 @@ export default function Landing() {
           {allWidgets.map((w, i) => (
             <div className="col-6 col-md-4" key={i}>
               <Link
-                to="/login"
+                to={loginUrl}
                 className="category-box p-4 rounded text-white text-center fw-bold"
                 style={{ backgroundColor: w.color }}
               >
@@ -342,7 +347,7 @@ export default function Landing() {
               subTitle="$0"
               className="text-center h-100 shadow-sm"
               footer={
-                <Link to="/login">
+                <Link to={loginUrl}>
                   <Button
                     label="Get Started"
                     className="w-100 p-button-outlined p-button-success"
@@ -507,7 +512,7 @@ export default function Landing() {
                 Focuspit helps you organize your life with smart & simple
                 widgets — so you can stay focused and get things done.
               </p>
-              <button href="/login" className="btn-pistacho fs-4 px-5">
+              <button href={loginUrl} className="btn-pistacho fs-4 px-5">
                 Build My Dashboard
               </button>
             </div>
@@ -567,6 +572,7 @@ export default function Landing() {
           </div>
         </footer>
 
+        {/* Privacy Policy */}
         <Dialog
           header="Privacy Policy"
           visible={showPrivacy}
@@ -671,6 +677,7 @@ export default function Landing() {
           </div>
         </Dialog>
 
+        {/* Terms of Use */}
         <Dialog
           header="Terms of Use"
           visible={showTerms}
@@ -816,6 +823,12 @@ export default function Landing() {
             </p>
           </div>
         </Dialog>
+
+        {/* RequestAccessDialog */}
+        <RequestAccessDialog
+          visible={showRequestAccess}
+          onHide={() => setShowRequestAccess(false)}
+        />
       </>
     </div>
   );

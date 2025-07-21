@@ -15,6 +15,7 @@ import {
 import db from "@/firebase/firestore";
 import WidgetManager from "@/components/admin/WidgetManager";
 import GlobalHabitsAdmin from "@/components/admin/GlobalHabitsAdmin";
+import BetaAccessPanel from "@/components/admin/BetaAccessPanel";
 import { getAuth } from "firebase/auth";
 
 export default function AdminTools() {
@@ -129,23 +130,20 @@ export default function AdminTools() {
   );
 
   return (
-    <div className="admin-panel container-fluid">
+    <div className="admin-panel container">
       <h4 className="mb-4 ps-2 pt-3">Admin Panel</h4>
       <TabView>
-        {/* <TabPanel header="Groups" className="m-3">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h6 className="m-0">Migrar List</h6>
-            <Button
-              label="Migrar Members"
-              icon="pi pi-refresh"
-              className="btn-pistacho"
-              onClick={handleMigrateMembers}
-            />
-          </div>
-        </TabPanel> */}
+        <TabPanel header="Beta Access" className="m-3">
+          <BetaAccessPanel />
+        </TabPanel>
 
         <TabPanel header="Users" className="m-3">
-          <DataTable value={users} paginator rows={50} className="mt-3">
+          <DataTable
+            value={users}
+            paginator
+            rows={50}
+            className="mt-3 custom-datatable"
+          >
             <Column field="id" header="ID" />
             <Column field="displayName" header="Name" />
             <Column field="email" header="Email" />
@@ -163,7 +161,12 @@ export default function AdminTools() {
         </TabPanel>
 
         <TabPanel header="Groups" className="m-3">
-          <DataTable value={groups} paginator rows={30} className="mt-3">
+          <DataTable
+            value={groups}
+            paginator
+            rows={30}
+            className="mt-3 custom-datatable"
+          >
             <Column field="id" header="ID" />
             <Column field="name" header="Group Name" />
             <Column field="slug" header="Slug" />
