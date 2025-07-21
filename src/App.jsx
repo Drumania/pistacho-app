@@ -18,8 +18,6 @@ function App() {
     return (
       <div className="d-flex vh-100 flex-column justify-content-center align-items-center">
         <img src="/icon-192_v2.png" />
-        <br />
-        <div className="spinner-border text-light" role="status" />
       </div>
     );
   }
