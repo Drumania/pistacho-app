@@ -6,7 +6,6 @@ import { Divider } from "primereact/divider";
 import { Button } from "primereact/button";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { useAuth } from "@/firebase/AuthContext";
-import CustomCheckbox from "@/components/CustomCheckbox";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -19,11 +18,10 @@ export default function LoginPage() {
     resetPassword,
   } = useAuth();
 
-  const [mode, setMode] = useState("login"); // "login" | "register"
+  const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ email: "", pass: "", name: "" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [showReset, setShowReset] = useState(false);
 
   const handleChange = (k, v) => setForm({ ...form, [k]: v });
@@ -35,12 +33,10 @@ export default function LoginPage() {
       setError("Please enter your User name");
       return;
     }
-
     if (!form.email.trim()) {
       setError("Please enter your email");
       return;
     }
-
     if (!form.pass || form.pass.length < 6) {
       setError("Password must be at least 6 characters");
       return;
@@ -85,14 +81,12 @@ export default function LoginPage() {
     }
   };
 
-  // ✅ Redirigir cuando todo esté listo
   useEffect(() => {
     if (!initializing && user?.slug) {
       navigate(`/g/${user.slug}`);
     }
   }, [initializing, user]);
 
-  // ✅ Loading visual con pasos simulados
   if (initializing) {
     return (
       <div
@@ -120,7 +114,7 @@ export default function LoginPage() {
       style={{ background: "#25303d" }}
     >
       <div
-        className="p-4 p-md-5 rounded-4 shadow w-100 login-card"
+        className="p-4 p-md-5 rounded-4 shadow w-100 login-card fade-in"
         style={{
           maxWidth: 460,
           backgroundColor: "#1c1d1e",
@@ -135,7 +129,14 @@ export default function LoginPage() {
         ) : (
           <>
             <div className="text-center mb-4">
-              <img src="icon-192_v2.png" width="100" className="mb-3 mx-auto" />
+              <a href="/">
+                <img
+                  src="icon-192_v2.png"
+                  width="100"
+                  className="mb-3 mx-auto"
+                  alt="FocusPit logo"
+                />
+              </a>
               <h4 className="fw-semibold text-white">Welcome to FocusPit</h4>
               <p className="text-light small mb-1 fs-5">
                 {mode === "login"
@@ -145,7 +146,8 @@ export default function LoginPage() {
                   className="color-pistacho fw-medium ms-1"
                   role="button"
                   onClick={() => {
-                    setMode(mode === "login" ? "register" : "login");
+                    const newMode = mode === "login" ? "register" : "login";
+                    setMode(newMode);
                     setError("");
                     setShowReset(false);
                   }}
@@ -162,7 +164,7 @@ export default function LoginPage() {
                 onClick={loginWithGoogleClick}
                 icon={() => (
                   <img
-                    src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s48"
+                    src="/imgs/google-icon.svg"
                     alt="Google"
                     style={{ width: 20, height: 20 }}
                   />
@@ -174,7 +176,7 @@ export default function LoginPage() {
               <b>OR</b>
             </Divider>
 
-            <div className="d-flex flex-column">
+            <div key={mode} className="d-flex flex-column fade-form">
               {mode === "register" && (
                 <>
                   <label className="form-label text-light">User Name</label>
@@ -182,6 +184,7 @@ export default function LoginPage() {
                     className={`input-field mb-3 w-100 ${
                       !form.name.trim() && error ? "p-invalid" : ""
                     }`}
+                    autoFocus={mode === "register"}
                     value={form.name}
                     onChange={(e) => handleChange("name", e.target.value)}
                   />
@@ -190,6 +193,7 @@ export default function LoginPage() {
 
               <label className="form-label text-light">Email</label>
               <InputText
+                autoFocus={mode === "login"}
                 className={`input-field mb-3 w-100 ${
                   !form.email.trim() && error ? "p-invalid" : ""
                 }`}
@@ -211,21 +215,7 @@ export default function LoginPage() {
 
               {error && <div className="text-danger small mt-2">{error}</div>}
 
-              <div className="d-flex justify-content-between align-items-center mt-3 mb-4">
-                <div className="d-flex align-items-center">
-                  <CustomCheckbox
-                    customId="remember"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.checked)}
-                    style={{ paddingLeft: 0 }}
-                  />
-                  <label
-                    htmlFor="remember"
-                    className="text-light small ps-2 mb-0"
-                  >
-                    Remember me
-                  </label>
-                </div>
+              <div className="d-flex justify-content-end align-items-center mt-3 mb-4">
                 {mode === "login" && (
                   <span
                     className="color-pistacho small"
