@@ -5,6 +5,7 @@ import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { confirmDialog } from "primereact/confirmdialog";
+import { useGroups } from "@/context/GroupsProvider";
 
 import {
   doc,
@@ -28,13 +29,20 @@ import db from "@/firebase/firestore";
 import app from "@/firebase/config";
 import { useAuth } from "@/firebase/AuthContext";
 
-export default function EditGroupDialog({ groupId, visible, onHide }) {
+export default function EditGroupDialog({
+  groupId,
+  visible,
+  onHide,
+  onGroupUpdated,
+}) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const storage = getStorage(app);
+  const { refreshGroups } = useGroups();
 
   const [name, setName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
+  const [imageError, setImageError] = useState("");
   const [prevImagePath, setPrevImagePath] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
@@ -67,6 +75,20 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
     const file = e.target.files?.[0];
     if (!file || !groupId) return;
 
+    // ❌ Bloquear GIFs
+    if (file.type === "image/gif") {
+      setImageError("GIFs are not allowed. Please upload a JPG or PNG.");
+      return;
+    }
+
+    // ✅ Solo tipos válidos
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setImageError("Only JPG, PNG or WEBP images are allowed.");
+      return;
+    }
+
+    setImageError(""); // limpiar error
     setLoading(true);
     try {
       if (prevImagePath) {
@@ -82,13 +104,14 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
       setPrevImagePath(path);
     } catch (err) {
       console.error("Error al subir imagen:", err);
+      setImageError("Error uploading image. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSave = async () => {
-    if (!name || !groupId) return;
+    if (!name.trim() || !groupId) return;
 
     setLoading(true);
     try {
@@ -98,6 +121,8 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
         photoURL,
         photoPath: prevImagePath,
       });
+      onGroupUpdated?.({ name, photoURL });
+      refreshGroups();
       onHide();
     } catch (err) {
       console.error("Error updating group:", err);
@@ -198,11 +223,17 @@ export default function EditGroupDialog({ groupId, visible, onHide }) {
           </div>
         </div>
 
+        {imageError && (
+          <div className="alert alert-danger py-2 px-3 mt-3 small">
+            {imageError}
+          </div>
+        )}
+
         <Button
           label="Save Changes"
           onClick={handleSave}
           className="mt-3 btn-pistacho"
-          disabled={!name}
+          disabled={!name.trim() || loading || !!imageError}
           loading={loading}
         />
 

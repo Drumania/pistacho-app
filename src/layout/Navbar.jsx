@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import {
@@ -12,21 +12,29 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
+import { useGroups } from "@/context/GroupsProvider";
 import NewGroupDialog from "@/components/NewGroupDialog";
 import { useAuth } from "@/firebase/AuthContext";
 import { Skeleton } from "primereact/skeleton";
+
+import { getUserAvatar } from "@/utils/getUserAvatar";
+import useNotifications from "@/hooks/useNotifications";
 
 const db = getFirestore();
 
 export default function Groups({ onGroupClick }) {
   const { user } = useAuth();
   const { groupId } = useParams();
+  const { groups, loading, refreshGroups } = useGroups();
   const navigate = useNavigate();
   const [showDialog, setShowDialog] = useState(false);
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState({});
   const [isMobile, setIsMobile] = useState(false);
+
+  const wrapperRef = useRef(null);
+  const timerRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { unreadCount } = useNotifications();
 
   useEffect(() => {
     const handleResize = () => {
@@ -37,68 +45,45 @@ export default function Groups({ onGroupClick }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const loadGroups = async () => {
-    setLoading(true);
-    if (!user?.uid) return setGroups([]);
-
-    try {
-      const q = query(
-        collectionGroup(db, "members"),
-        where("uid", "==", user.uid)
-      );
-      const snapshot = await getDocs(q);
-
-      const groupRefs = snapshot.docs
-        .map((docSnap) => docSnap.ref.parent.parent)
-        .filter(Boolean);
-
-      const groupSnaps = await Promise.all(groupRefs.map((ref) => getDoc(ref)));
-
-      const myGroups = [];
-
-      for (let i = 0; i < groupSnaps.length; i++) {
-        const snap = groupSnaps[i];
-        if (!snap.exists()) continue;
-
-        const group = snap.data();
-        if (group.status !== "active") continue;
-
-        myGroups.push({
-          id: snap.id,
-          slug: group.slug,
-          name: group.name,
-          photoURL: group.photoURL || "/group_placeholder.png",
-          order: group.order ?? 9999,
-        });
-      }
-
-      myGroups.sort((a, b) => a.order - b.order);
-      setGroups(myGroups);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error al cargar grupos:", err);
-      setGroups([]);
-    }
+  const handleMouseEnter = () => {
+    setMenuOpen(true);
+    clearTimeout(timerRef.current);
   };
+
+  const handleMouseLeave = () => {
+    timerRef.current = setTimeout(() => {
+      setMenuOpen(false);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const loadNotifications = async () => {
     if (!user?.uid) return;
 
     try {
-      const q = collection(db, "notifications");
-      const snapshot = await getDocs(q);
+      const q = query(
+        collection(db, "notifications"),
+        where("toUid", "==", user.uid),
+        where("status", "==", "pending"),
+        where("read", "==", false)
+      );
 
+      const snapshot = await getDocs(q);
       const pending = {};
 
-      snapshot.docs.forEach((doc) => {
+      snapshot.forEach((doc) => {
         const notif = doc.data();
-        if (
-          notif.toUid === user.uid &&
-          notif.status === "pending" &&
-          notif.read === false &&
-          notif.data?.groupId
-        ) {
-          const groupId = notif.data.groupId;
+        const groupId = notif.data?.groupId;
+        if (groupId) {
           pending[groupId] = (pending[groupId] || 0) + 1;
         }
       });
@@ -111,7 +96,6 @@ export default function Groups({ onGroupClick }) {
   };
 
   useEffect(() => {
-    loadGroups();
     loadNotifications();
   }, [user]);
 
@@ -215,12 +199,118 @@ export default function Groups({ onGroupClick }) {
         <div className="tooltip">New Group</div>
       </div>
 
+      {user && (
+        <div className="wrap-user" ref={wrapperRef}>
+          <div
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave} // nuevo
+            className={`header-user`}
+          >
+            {/*  */}
+            <div className="avatar-wrapper position-relative">
+              <div
+                className="rounded-circle border"
+                style={{
+                  width: 48,
+                  height: 48,
+                  backgroundImage: `url(${getUserAvatar(user)})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              />
+              {!menuOpen && unreadCount > 0 && (
+                <span
+                  className="badge bg-danger position-absolute translate-middle p-1 small rounded-circle d-flex align-items-center justify-content-center"
+                  style={{ width: 18, height: 18 }}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+          </div>
+          {menuOpen && (
+            <div
+              className="custom-menu"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <ul className="user-panel mb-0">
+                <li>
+                  <span className="d-none d-lg-block fw-bold p-3 d-flex align-items-center gap-2">
+                    {user.name}
+                  </span>
+                </li>
+                {user.admin && (
+                  <li>
+                    <Link
+                      to="/admintools"
+                      className="dropdown-item d-flex align-items-center gap-2"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <i className="bi bi-shield-lock" /> Admin Tools
+                    </Link>
+                  </li>
+                )}
+
+                <li>
+                  <Link
+                    to="/resume"
+                    className="dropdown-item d-flex align-items-center gap-2"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <i className="bi bi-list-task" /> Resume
+                  </Link>
+                </li>
+
+                <li className="position-relative">
+                  <Link
+                    to="/notifications"
+                    className="dropdown-item d-flex align-items-center gap-2"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <i className="bi bi-bell" /> Notifications
+                    {unreadCount > 0 && (
+                      <span
+                        className="badge bg-danger ms-auto"
+                        style={{ fontSize: 12, padding: "0.3em 0.5em" }}
+                      >
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/settings"
+                    className="dropdown-item d-flex align-items-center gap-2"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <i className="bi bi-gear" /> Settings
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item color-red d-flex align-items-center gap-2"
+                    onClick={() => {
+                      logout();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    <i className="bi bi-box-arrow-right" /> Logout
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
       <NewGroupDialog
         visible={showDialog}
         user={user}
         onHide={() => setShowDialog(false)}
         onCreate={(group, widgets) => {
-          loadGroups();
+          refreshGroups();
           navigate(`/g/${group.slug}`);
         }}
       />

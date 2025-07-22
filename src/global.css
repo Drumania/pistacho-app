@@ -248,6 +248,11 @@ h5 {
   }
 }
 
+.notifications-dropdown {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
 .drag-handle {
   margin-right: 4px;
   cursor: grab;
@@ -262,20 +267,16 @@ h5 {
 }
 
 .header-user {
-  padding-top: var(--gap);
-  margin-top: auto;
-  padding: 5px;
+  border-top: 1px solid var(--line-color);
+  padding-top: ;
+  margin-top: var(--gap);
+  padding: var(--gap) 5px;
   position: relative;
-  width: 200px;
+  width: 60px;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-}
-
-.header-user-open {
-  border-radius: 10px 10px 0 0;
-  background-color: var(--panel-hover);
 }
 
 .avatar-wrapper .rounded-circle {
@@ -287,11 +288,11 @@ h5 {
 
 .custom-menu {
   position: absolute;
-  right: 27px;
-  top: 68px;
+  left: 70px;
+  bottom: 10px;
   background-color: var(--panel-hover);
   border: 1px solid var(--line-color);
-  border-radius: 0 0 10px 10px;
+  border-radius: 10px;
   padding: 8px 0;
   width: 200px;
   box-shadow: 0px 20px 40px 1px rgba(0, 0, 0, 0.21);
@@ -854,10 +855,15 @@ h5 {
   align-items: flex-start;
 }
 
-.cs-list-notifications li.not-unread {
+.not-unread {
   background-color: var(--panel-hover);
   border-radius: 8px;
   border-bottom: 1px solid transparent;
+}
+
+.notification-dropdown {
+  font-size: 1rem;
+  background-color: var(--panel);
 }
 
 .custom-input {

@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/firebase/AuthContext";
 import useNotifications from "@/hooks/useNotifications";
 import { Link } from "react-router-dom";
-import { getUserAvatar } from "@/utils/getUserAvatar";
+import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
+
+import {
+  getNotificationIcon,
+  renderNotificationMessage,
+} from "@/utils/notificationUtils";
 
 export default function HeaderDashboard({
   groupName,
@@ -16,38 +22,29 @@ export default function HeaderDashboard({
   setEditMode,
   setShowAddWidgetDialog,
 }) {
-  const { user, logout } = useAuth();
-  const { unreadCount } = useNotifications();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const wrapperRef = useRef(null);
-  const timerRef = useRef(null);
-  const [fadeOut, setFadeOut] = useState(false);
+  const { notifications, unreadCount, markAsRead } = useNotifications();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notifDropdownRef = useRef(null);
 
-  // Abre con hover
-  const handleMouseEnter = () => {
-    setMenuOpen(true);
-    clearTimeout(timerRef.current);
-  };
-
-  const handleMouseLeave = () => {
-    timerRef.current = setTimeout(() => {
-      setMenuOpen(false);
-    }, 3000);
-  };
-  // Cierra con click afuera
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
-        setMenuOpen(false);
+      if (
+        notifDropdownRef.current &&
+        !notifDropdownRef.current.contains(e.target)
+      ) {
+        setShowNotifications(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   return (
     <div className="header-dashboard">
-      <div className="d-flex ps-3">
+      <div className="d-flex w-100 ps-3">
         <h3 className="name-group" title={groupName}>
           {groupName}
         </h3>
@@ -123,108 +120,93 @@ export default function HeaderDashboard({
             )}
           </div>
         )}
-      </div>
 
-      {user && (
-        <div className="wrap-user" ref={wrapperRef}>
-          <div
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave} // nuevo
-            className={`header-user ${menuOpen ? "header-user-open" : ""}`}
+        {/* 🔔 Notificaciones */}
+        <div
+          ref={notifDropdownRef}
+          className="ms-auto mt-3 fs-5 position-relative"
+        >
+          <button
+            className="position-relative"
+            onClick={() => setShowNotifications((prev) => !prev)}
           >
-            <span className="d-none d-lg-block pe-3">{user.name}</span>
-            <div className="avatar-wrapper position-relative">
-              <div
-                className="rounded-circle border"
-                style={{
-                  width: 48,
-                  height: 48,
-                  backgroundImage: `url(${getUserAvatar(user)})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
-              {!menuOpen && unreadCount > 0 && (
-                <span
-                  className="badge bg-danger position-absolute translate-middle p-1 small rounded-circle d-flex align-items-center justify-content-center"
-                  style={{ width: 18, height: 18 }}
-                >
-                  {unreadCount}
-                </span>
-              )}
-            </div>
-          </div>
-          {menuOpen && (
+            <i className="bi bi-bell-fill" />
+            {unreadCount > 0 && (
+              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {showNotifications && (
             <div
-              className="custom-menu"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
+              className="notification-dropdown shadow rounded bg-dark p-3 position-absolute end-0 mt-2"
+              style={{
+                width: "350px",
+                maxHeight: "420px",
+                zIndex: 999,
+              }}
             >
-              <ul className="user-panel mb-0">
-                {user.admin && (
-                  <li>
-                    <Link
-                      to="/admintools"
-                      className="dropdown-item d-flex align-items-center gap-2"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <i className="bi bi-shield-lock" /> Admin Tools
-                    </Link>
-                  </li>
-                )}
-
-                <li>
-                  <Link
-                    to="/resume"
-                    className="dropdown-item d-flex align-items-center gap-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <i className="bi bi-list-task" /> Resume
-                  </Link>
-                </li>
-
-                <li className="position-relative">
-                  <Link
-                    to="/notifications"
-                    className="dropdown-item d-flex align-items-center gap-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <i className="bi bi-bell" /> Notifications
-                    {unreadCount > 0 && (
-                      <span
-                        className="badge bg-danger ms-auto"
-                        style={{ fontSize: 12, padding: "0.3em 0.5em" }}
-                      >
-                        {unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/settings"
-                    className="dropdown-item d-flex align-items-center gap-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <i className="bi bi-gear" /> Settings
-                  </Link>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item color-red d-flex align-items-center gap-2"
-                    onClick={() => {
-                      logout();
-                      setMenuOpen(false);
-                    }}
-                  >
-                    <i className="bi bi-box-arrow-right" /> Logout
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <strong>Notifications</strong>
+                <Link to="/notifications">
+                  <button className="btn btn-sm btn-outline-light">
+                    View all
                   </button>
-                </li>
-              </ul>
+                </Link>
+              </div>
+
+              {notifications.length === 0 ? (
+                <div className="text-muted small">No tenés notificaciones</div>
+              ) : (
+                <ul
+                  className="list-unstyled m-0"
+                  style={{
+                    maxHeight: "360px",
+                    overflowY: "auto",
+                  }}
+                >
+                  {notifications.slice(0, 5).map((notif) => (
+                    <li
+                      key={notif.id}
+                      className={`p-2 mb-2 rounded ${
+                        notif.read ? "" : "not-unread"
+                      }`}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => markAsRead(notif.id)}
+                    >
+                      <div className="small opacity-50">
+                        {formatDistanceToNow(
+                          new Date(
+                            notif.createdAt?.toDate?.() || notif.createdAt
+                          ),
+                          {
+                            addSuffix: true,
+                            locale: es,
+                          }
+                        )}
+                      </div>
+                      <div className="d-flex gap-2 align-items-start">
+                        <i
+                          className={`${getNotificationIcon(notif.type)} mt-1 ${
+                            notif.read ? "text-secondary" : "text-warning"
+                          }`}
+                        />
+                        <div className="flex-grow-1 small">
+                          {renderNotificationMessage(notif)}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                  <li>
+                    <Link to="/notifications">View all</Link>
+                  </li>
+                </ul>
+              )}
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
