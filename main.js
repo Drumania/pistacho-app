@@ -15,18 +15,35 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 800,
-    frame: true,
+    frame: false, // ⛔ ocultamos la barra nativa
     icon: path.join(__dirname, "public", "focuspit_icon.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
     },
+    titleBarStyle: "hiddenInset", // ✅ para que se vea bien en macOS
   });
 
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL("http://www.focuspit.com");
 }
+
+ipcMain.on("window:minimize", () => {
+  mainWindow.minimize();
+});
+
+ipcMain.on("window:maximize", () => {
+  if (mainWindow.isMaximized()) {
+    mainWindow.unmaximize();
+  } else {
+    mainWindow.maximize();
+  }
+});
+
+ipcMain.on("window:close", () => {
+  mainWindow.close();
+});
 
 const isDev = !app.isPackaged;
 // 🔴 Overlay badge (número o punto) SOLO Windows

@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {
+  // ya existentes
   sendNotification: (title, body) => {
     ipcRenderer.send("notify", { title, body });
   },
@@ -10,4 +11,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   updateAppIcon: (count) => {
     ipcRenderer.send("update-app-icon", count);
   },
+
+  // 🔽 nuevos para controlar la ventana
+  minimize: () => ipcRenderer.send("window:minimize"),
+  maximize: () => ipcRenderer.send("window:maximize"),
+  close: () => ipcRenderer.send("window:close"),
 });
