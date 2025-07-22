@@ -189,122 +189,115 @@ export default function Groups({ onGroupClick }) {
         </div>
       </div>
 
-      <div className="tooltip-wrapper mb-3 d-flex justify-content-center">
-        <div
-          className="group-btn group-btn-new"
-          onClick={() => setShowDialog(true)}
-        >
-          <i className="bi bi-plus-lg"></i>
-        </div>
-        <div className="tooltip">New Group</div>
-      </div>
-
-      {user && (
-        <div className="wrap-user" ref={wrapperRef}>
+      <div>
+        <div className="tooltip-wrapper mb-3 d-flex justify-content-center">
           <div
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave} // nuevo
-            className={`header-user`}
+            className="group-btn group-btn-new"
+            onClick={() => setShowDialog(true)}
           >
-            {/*  */}
-            <div className="avatar-wrapper position-relative">
-              <div
-                className="rounded-circle border"
-                style={{
-                  width: 48,
-                  height: 48,
-                  backgroundImage: `url(${getUserAvatar(user)})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
-              {!menuOpen && unreadCount > 0 && (
-                <span
-                  className="badge bg-danger position-absolute translate-middle p-1 small rounded-circle d-flex align-items-center justify-content-center"
-                  style={{ width: 18, height: 18 }}
-                >
-                  {unreadCount}
-                </span>
-              )}
-            </div>
+            <i className="bi bi-plus-lg"></i>
           </div>
-          {menuOpen && (
+          <div className="tooltip">New Group</div>
+        </div>
+
+        {user && (
+          <div className="wrap-user" ref={wrapperRef}>
             <div
-              className="custom-menu"
               onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
+              onMouseLeave={handleMouseLeave} // nuevo
+              className={`header-user`}
             >
-              <ul className="user-panel mb-0">
-                <li>
-                  <span className="d-none d-lg-block fw-bold p-3 d-flex align-items-center gap-2">
-                    {user.name}
-                  </span>
-                </li>
-                {user.admin && (
+              {/*  */}
+              <div className="avatar-wrapper position-relative">
+                <div
+                  className="rounded-circle border"
+                  style={{
+                    width: 48,
+                    height: 48,
+                    backgroundImage: `url(${getUserAvatar(user)})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                />
+              </div>
+            </div>
+            {menuOpen && (
+              <div
+                className="custom-menu"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <ul className="user-panel mb-0">
+                  <li>
+                    <span className="d-none d-lg-block fw-bold p-3 d-flex align-items-center gap-2">
+                      {user.name}
+                    </span>
+                  </li>
+                  {user.admin && (
+                    <li>
+                      <Link
+                        to="/admintools"
+                        className="dropdown-item d-flex align-items-center gap-2"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <i className="bi bi-shield-lock" /> Admin Tools
+                      </Link>
+                    </li>
+                  )}
+
                   <li>
                     <Link
-                      to="/admintools"
+                      to="/resume"
                       className="dropdown-item d-flex align-items-center gap-2"
                       onClick={() => setMenuOpen(false)}
                     >
-                      <i className="bi bi-shield-lock" /> Admin Tools
+                      <i className="bi bi-list-task" /> Resume
                     </Link>
                   </li>
-                )}
 
-                <li>
-                  <Link
-                    to="/resume"
-                    className="dropdown-item d-flex align-items-center gap-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <i className="bi bi-list-task" /> Resume
-                  </Link>
-                </li>
-
-                <li className="position-relative">
-                  <Link
-                    to="/notifications"
-                    className="dropdown-item d-flex align-items-center gap-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <i className="bi bi-bell" /> Notifications
-                    {unreadCount > 0 && (
-                      <span
-                        className="badge bg-danger ms-auto"
-                        style={{ fontSize: 12, padding: "0.3em 0.5em" }}
-                      >
-                        {unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/settings"
-                    className="dropdown-item d-flex align-items-center gap-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <i className="bi bi-gear" /> Settings
-                  </Link>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item color-red d-flex align-items-center gap-2"
-                    onClick={() => {
-                      logout();
-                      setMenuOpen(false);
-                    }}
-                  >
-                    <i className="bi bi-box-arrow-right" /> Logout
-                  </button>
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-
+                  <li className="position-relative">
+                    <Link
+                      to="/notifications"
+                      className="dropdown-item d-flex align-items-center gap-2"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <i className="bi bi-bell" /> Notifications
+                      {unreadCount > 0 && (
+                        <span
+                          className="badge bg-danger ms-auto"
+                          style={{ fontSize: 12, padding: "0.3em 0.5em" }}
+                        >
+                          {unreadCount}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/settings"
+                      className="dropdown-item d-flex align-items-center gap-2"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <i className="bi bi-gear" /> Settings
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item color-red d-flex align-items-center gap-2"
+                      onClick={() => {
+                        logout();
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <i className="bi bi-box-arrow-right" /> Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <NewGroupDialog
         visible={showDialog}
         user={user}

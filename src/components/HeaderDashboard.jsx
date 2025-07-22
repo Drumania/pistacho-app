@@ -4,6 +4,8 @@ import useNotifications from "@/hooks/useNotifications";
 import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { Dialog } from "primereact/dialog";
+import NewsDialog from "@/components/NewsDialog";
 
 import {
   getNotificationIcon,
@@ -25,6 +27,7 @@ export default function HeaderDashboard({
   const { notifications, unreadCount, markAsRead } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifDropdownRef = useRef(null);
+  const [showNews, setShowNews] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -122,17 +125,26 @@ export default function HeaderDashboard({
         )}
 
         {/* 🔔 Notificaciones */}
-        <div
-          ref={notifDropdownRef}
-          className="ms-auto mt-3 fs-5 position-relative"
-        >
+        <div ref={notifDropdownRef} className="ms-auto mt-2  position-relative">
           <button
             className="position-relative"
             onClick={() => setShowNotifications((prev) => !prev)}
           >
-            <i className="bi bi-bell-fill" />
+            <i
+              className="bi bi-bell-fill"
+              style={{
+                fontSize: "19px",
+                borderRight: "1px solid var(--line-color)",
+                paddingRight: "10px",
+                position: "relative", // si estás usando `top`
+              }}
+            />
+
             {unreadCount > 0 && (
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              <span
+                className="position-absolute badge rounded-pill bg-danger"
+                style={{ right: "-2px", top: "-5px" }}
+              >
                 {unreadCount}
               </span>
             )}
@@ -206,6 +218,12 @@ export default function HeaderDashboard({
             </div>
           )}
         </div>
+
+        <button className="ms-3 text-muted" onClick={() => setShowNews(true)}>
+          <i className="bi bi-newspaper"></i> News
+        </button>
+
+        <NewsDialog visible={showNews} onHide={() => setShowNews(false)} />
       </div>
     </div>
   );

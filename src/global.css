@@ -214,6 +214,7 @@ h5 {
 
 .group-btn-new {
   background: #3b3c3b;
+  color: var(--pistacho-color);
   border: none;
   padding: 0;
   cursor: pointer;
@@ -1279,7 +1280,7 @@ input[type="number"] {
     left: -120px;
     top: 0;
     height: 100dvh;
-    z-index: 5000;
+    z-index: 500;
     transition: all 0.2s ease;
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
     background-color: var(--panel, #1c1d1e);
