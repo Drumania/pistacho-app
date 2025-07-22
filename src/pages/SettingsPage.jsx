@@ -11,7 +11,7 @@ import {
   deleteDoc,
   updateDoc,
 } from "firebase/firestore";
-import { getAuth, updatePassword, deleteUser, signOut } from "firebase/auth";
+import { getAuth, updatePassword, deleteUser } from "firebase/auth";
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useAuth } from "@/firebase/AuthContext";
@@ -99,7 +99,7 @@ function SortableGroup({ group, onLeave }) {
 
 export default function SettingsPage() {
   useDocTitle("Settings");
-  const { updateUserProfile } = useAuth();
+  const { updateUserProfile, logout } = useAuth();
   const user = auth.currentUser;
   const navigate = useNavigate();
 
@@ -449,7 +449,7 @@ export default function SettingsPage() {
           <div className="d-flex gap-3">
             <button
               className="btn btn-outline-secondary"
-              onClick={() => signOut(auth)}
+              onClick={() => logout()}
             >
               Logout
             </button>

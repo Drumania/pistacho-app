@@ -11,7 +11,6 @@ import {
   where,
   updateDoc,
 } from "firebase/firestore";
-
 import { useGroups } from "@/context/GroupsProvider";
 import NewGroupDialog from "@/components/NewGroupDialog";
 import { useAuth } from "@/firebase/AuthContext";
@@ -23,7 +22,7 @@ import useNotifications from "@/hooks/useNotifications";
 const db = getFirestore();
 
 export default function Groups({ onGroupClick }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { groupId } = useParams();
   const { groups, loading, refreshGroups } = useGroups();
   const navigate = useNavigate();
@@ -285,8 +284,8 @@ export default function Groups({ onGroupClick }) {
                     <button
                       className="dropdown-item color-red d-flex align-items-center gap-2"
                       onClick={() => {
-                        logout();
                         setMenuOpen(false);
+                        logout();
                       }}
                     >
                       <i className="bi bi-box-arrow-right" /> Logout

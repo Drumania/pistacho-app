@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc, getDocs } from "firebase/firestore";
 import db from "@/firebase/firestore";
-import { Button } from "primereact/button";
 import { useAuth } from "@/firebase/AuthContext";
+import { Accordion, AccordionTab } from "primereact/accordion";
+import { Button } from "primereact/button";
 import GroupExpensesModal from "./GroupExpensesModal";
+import GroupExpensesAccordionTab from "./GroupExpensesAccordionTab";
 import "./GroupExpensesWidget.css";
 
 export default function GroupExpensesWidget({ groupId, widgetId }) {
   const { user } = useAuth();
+
   const [expenses, setExpenses] = useState([]);
-  const [showDialog, setShowDialog] = useState(false);
   const [members, setMembers] = useState([]);
+  const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
     if (groupId && widgetId) {
@@ -29,22 +32,37 @@ export default function GroupExpensesWidget({ groupId, widgetId }) {
       "expenses"
     );
     const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const data = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
     setExpenses(data);
   };
 
   const loadMembers = async () => {
     const q = collection(db, "groups", groupId, "members");
     const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((doc) => ({
-      uid: doc.id, // importante
-      ...doc.data(), // debe incluir name
-    }));
+
+    const data = await Promise.all(
+      snapshot.docs.map(async (docSnap) => {
+        const uid = docSnap.id;
+        try {
+          const userSnap = await getDoc(doc(db, "users", uid));
+          const name = userSnap.exists() ? userSnap.data().name : "Unnamed";
+          return { uid, name };
+        } catch (err) {
+          console.warn("Error fetching user:", uid, err);
+          return { uid, name: "Unnamed" };
+        }
+      })
+    );
+
     setMembers(data);
   };
 
   const handleAddExpense = async (newExpense) => {
-    const { description, amount, paid_by, shared_with } = newExpense;
+    const { description, amount, paid_by, shared_with, event, date } =
+      newExpense;
     if (!description || !amount || shared_with.length === 0) return;
 
     await addDoc(
@@ -61,6 +79,8 @@ export default function GroupExpensesWidget({ groupId, widgetId }) {
         amount: parseFloat(amount),
         paid_by,
         shared_with,
+        event: event || "Sin evento",
+        date: date || new Date(),
         created_at: new Date(),
       }
     );
@@ -68,31 +88,15 @@ export default function GroupExpensesWidget({ groupId, widgetId }) {
     loadExpenses();
   };
 
-  const calculateBalance = () => {
-    const balances = {};
-    expenses.forEach((exp) => {
-      const share = exp.amount / exp.shared_with.length;
-      exp.shared_with.forEach((uid) => {
-        if (uid !== exp.paid_by) {
-          balances[uid] = (balances[uid] || 0) - share;
-          balances[exp.paid_by] = (balances[exp.paid_by] || 0) + share;
-        }
-      });
-    });
-    return balances;
-  };
-
   const getNameByUid = (uid) => {
-    const m = members.find((m) => m.uid === uid);
-    return m?.name || uid;
+    const found = members.find((m) => m.uid === uid || m.tempId === uid);
+    return found?.name || "Unnamed";
   };
-
-  const balance = calculateBalance();
 
   return (
     <div className="group-expenses-widget">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="mb-0">Group Expenses</h5>
+        <h5 className="mb-0">Split Expenses</h5>
         <Button
           label="+ Expense"
           className="btn-transp-small"
@@ -100,29 +104,27 @@ export default function GroupExpensesWidget({ groupId, widgetId }) {
         />
       </div>
 
-      <ul className="list-group mb-3">
-        {expenses.map((e) => (
-          <li
-            key={e.id}
-            className="list-group-item d-flex justify-content-between"
-          >
-            <span>{e.description}</span>
-            <span>${e.amount}</span>
-          </li>
-        ))}
-      </ul>
+      {expenses.length === 0 ? (
+        <p className="text-muted">No expenses added yet.</p>
+      ) : (
+        <Accordion activeIndex={0}>
+          {expenses.map((e) => {
+            const formattedDate = e.date
+              ? new Date(e.date.seconds * 1000).toLocaleDateString("es-AR")
+              : null;
 
-      <h6>Balance</h6>
-      <ul className="list-group">
-        {Object.entries(balance).map(([uid, val]) => (
-          <li key={uid} className="list-group-item">
-            <strong>{getNameByUid(uid)}</strong>:{" "}
-            {val > 0
-              ? `debe recibir $${val.toFixed(2)}`
-              : `debe pagar $${Math.abs(val).toFixed(2)}`}
-          </li>
-        ))}
-      </ul>
+            return (
+              <AccordionTab header="Pádel 20/07">
+                <GroupExpensesAccordionTab
+                  participants={members}
+                  total={46000}
+                  onConfirm={(data) => console.log("Gasto confirmado", data)}
+                />
+              </AccordionTab>
+            );
+          })}
+        </Accordion>
+      )}
 
       <GroupExpensesModal
         visible={showDialog}

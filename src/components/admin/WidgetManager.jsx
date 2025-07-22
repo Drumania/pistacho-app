@@ -200,6 +200,28 @@ export default function WidgetManager() {
         stripedRows
         className="mt-3 custom-datatable"
       >
+        <Column
+          header="Preview"
+          body={(row) =>
+            row.image ? (
+              <img
+                src={row.image}
+                alt="preview"
+                className="text-center"
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  objectFit: "contain",
+                }}
+              />
+            ) : row.icon ? (
+              <i className={`${row.icon} fs-5`} />
+            ) : (
+              "-"
+            )
+          }
+          style={{ width: "80px" }}
+        />
         <Column field="label" header="Label" sortable className="fw-bold" />
         <Column field="id" header="Key" sortable className="fw-light" />
         <Column field="defaultLayout.w" header="W" sortable />

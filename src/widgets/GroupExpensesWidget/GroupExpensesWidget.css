@@ -1,20 +1,9 @@
 .group-expenses-widget {
-  background-color: var(--panel-inside);
-  padding: 1rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
   color: var(--text-color);
   min-height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-
-.group-expenses-widget h5 {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: var(--white-color);
-  margin-bottom: 0;
 }
 
 .group-expenses-widget h6 {
@@ -44,4 +33,15 @@
 .group-expenses-widget .form-check-input:checked {
   background-color: var(--pistacho-color);
   border-color: var(--pistacho-color);
+}
+
+.p-accordion .p-accordion-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--line-color);
+  color: var(--white-color);
+}
+
+.p-accordion .p-accordion-content {
+  background-color: transparent;
+  color: var(--text-color);
 }
