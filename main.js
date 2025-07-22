@@ -15,7 +15,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 800,
-    frame: false, // ⛔ ocultamos la barra nativa
+    frame: true, // mostramos la barra nativa
     icon: path.join(__dirname, "public", "focuspit_icon.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -29,21 +29,21 @@ function createWindow() {
   mainWindow.loadURL("http://www.focuspit.com");
 }
 
-ipcMain.on("window:minimize", () => {
-  mainWindow.minimize();
-});
+// ipcMain.on("window:minimize", () => {
+//   mainWindow.minimize();
+// });
 
-ipcMain.on("window:maximize", () => {
-  if (mainWindow.isMaximized()) {
-    mainWindow.unmaximize();
-  } else {
-    mainWindow.maximize();
-  }
-});
+// ipcMain.on("window:maximize", () => {
+//   if (mainWindow.isMaximized()) {
+//     mainWindow.unmaximize();
+//   } else {
+//     mainWindow.maximize();
+//   }
+// });
 
-ipcMain.on("window:close", () => {
-  mainWindow.close();
-});
+// ipcMain.on("window:close", () => {
+//   mainWindow.close();
+// });
 
 const isDev = !app.isPackaged;
 // 🔴 Overlay badge (número o punto) SOLO Windows

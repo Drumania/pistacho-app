@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import useNotificationToasts from "@/hooks/useNotificationToasts"; // tu hook
 import Navbar from "./Navbar";
-import CustomTitleBar from "@/components/CustomTitleBar";
+// import CustomTitleBar from "@/components/CustomTitleBar";
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -50,7 +50,7 @@ export default function Layout() {
 
   return (
     <div className="app-wrapper position-relative ">
-      {window?.electronAPI && <CustomTitleBar />}
+      {/* {window?.electronAPI && <CustomTitleBar />} */}
       <Toast ref={toastRef} position="bottom-right" />
 
       {isMobile && (
