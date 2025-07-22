@@ -230,6 +230,7 @@ export default function HeaderDashboard({
             height: "28px",
             lineHeight: "22px",
             marginTop: "9px",
+            cursor: "pointer",
           }}
           onClick={() => setShowFeedback(true)}
         >
