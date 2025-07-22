@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import db from "@/firebase/firestore";
+import { Button } from "primereact/button";
 import CountdownWidgetModal from "./CountdownWidgetModal";
 import "./CountdownWidget.css";
 
@@ -33,8 +34,8 @@ export default function CountdownWidget({ widgetId, editMode, groupId }) {
     const widgetDataRef = doc(
       db,
       "widget_data",
-      "countdown",
       groupId,
+      "countdown",
       widgetId
     );
 
@@ -79,45 +80,36 @@ export default function CountdownWidget({ widgetId, editMode, groupId }) {
 
   return (
     <div className="countdown-widget widget-container">
-      <div className="widget-header">
-        <h5 className="widget-title">{config.title}</h5>
-        <button
-          className="btn btn-sm btn-outline-secondary"
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <h5 className="m-0">{config.title}</h5>
+        <Button
+          label="+ Countdown"
+          className="btn-transp-small"
           onClick={() => setModalVisible(true)}
-        >
-          <i className="bi bi-gear"></i>
-        </button>
+        />
       </div>
+
       <div className="countdown-display">
         {timeLeft ? (
           isFinished ? (
             <div className="countdown-finished">¡Time's up!</div>
           ) : (
-            <div className="d-flex justify-content-around text-center">
-              <div>
-                <span className="time-value">
+            <div className="countdown-digital">
+              {timeLeft.days > 0 && (
+                <>
                   {String(timeLeft.days).padStart(2, "0")}
-                </span>
-                <span className="time-label">Days</span>
-              </div>
-              <div>
-                <span className="time-value">
-                  {String(timeLeft.hours).padStart(2, "0")}
-                </span>
-                <span className="time-label">Hours</span>
-              </div>
-              <div>
-                <span className="time-value">
-                  {String(timeLeft.minutes).padStart(2, "0")}
-                </span>
-                <span className="time-label">Mins</span>
-              </div>
-              <div>
-                <span className="time-value">
+                  <span className="colon">:</span>
+                </>
+              )}
+              {String(timeLeft.hours).padStart(2, "0")}
+              <span className="colon">:</span>
+              {String(timeLeft.minutes).padStart(2, "0")}
+              {config.showSeconds && (
+                <>
+                  <span className="colon">:</span>
                   {String(timeLeft.seconds).padStart(2, "0")}
-                </span>
-                <span className="time-label">Secs</span>
-              </div>
+                </>
+              )}
             </div>
           )
         ) : (

@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&display=swap");
+
 .countdown-widget {
   display: flex;
   flex-direction: column;
@@ -5,29 +7,27 @@
 }
 
 .countdown-display {
-  flex-grow: 1;
+  height: 100%;
   display: flex;
+}
+
+.countdown-digital {
+  font-family: "Bitcount Prop Single", system-ui;
+  color: var(--green-color);
+  font-size: 2.8rem;
+  /* text-align: center; */
+  letter-spacing: 0.1rem;
+  background-color: var(--black-color);
+  padding: var(--gap) 0;
+  border-radius: var(--border-radius);
+  display: flex;
+  width: 100%;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  font-family: "Courier New", Courier, monospace;
+  height: 100%;
 }
 
-.countdown-display .time-value {
-  font-size: 2.5rem;
-  font-weight: bold;
-  line-height: 1;
-  color: var(--pistacho-green);
-}
-
-.countdown-display .time-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  display: block;
-  color: var(--bs-secondary-color);
-}
-
-.countdown-finished {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--pistacho-green);
+.countdown-digital .colon {
+  padding: 0 5px;
 }
