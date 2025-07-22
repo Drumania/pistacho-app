@@ -1109,6 +1109,20 @@ input[type="number"] {
   cursor: pointer;
 }
 
+.transition-opacity {
+  transition: opacity 0.5s ease-in-out;
+}
+
+.opacity-0 {
+  opacity: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.opacity-100 {
+  opacity: 1;
+}
+
 /* .editable-text {
   cursor: pointer;
   border: 0;

@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "@/firebase/AuthContext";
 import useNotifications from "@/hooks/useNotifications";
 import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { Dialog } from "primereact/dialog";
 import NewsDialog from "@/components/NewsDialog";
+import FeedbackDialog from "@/components/FeedbackDialog";
 
 import {
   getNotificationIcon,
@@ -28,6 +27,7 @@ export default function HeaderDashboard({
   const [showNotifications, setShowNotifications] = useState(false);
   const notifDropdownRef = useRef(null);
   const [showNews, setShowNews] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -222,8 +222,23 @@ export default function HeaderDashboard({
         <button className="ms-3 text-muted" onClick={() => setShowNews(true)}>
           <i className="bi bi-newspaper"></i> News
         </button>
-
         <NewsDialog visible={showNews} onHide={() => setShowNews(false)} />
+
+        <span
+          className="badge text-bg-info ms-3"
+          style={{
+            height: "28px",
+            lineHeight: "22px",
+            marginTop: "9px",
+          }}
+          onClick={() => setShowFeedback(true)}
+        >
+          Send our Feedback
+        </span>
+        <FeedbackDialog
+          visible={showFeedback}
+          onHide={() => setShowFeedback(false)}
+        />
       </div>
     </div>
   );
