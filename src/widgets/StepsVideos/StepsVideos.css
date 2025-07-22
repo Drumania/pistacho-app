@@ -1,0 +1,11 @@
+.video-wrapper {
+  background: #1c1d1e;
+  padding: 12px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.video-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
