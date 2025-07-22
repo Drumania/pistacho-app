@@ -206,7 +206,7 @@ export default function Dashboards() {
             className="layout"
             layouts={layouts}
             breakpoints={{ xl: 1600, lg: 1200, md: 996, sm: 768, xs: 480 }}
-            cols={{ xl: 5, lg: 4, md: 3, sm: 2, xs: 1 }}
+            cols={{ xl: 4, lg: 4, md: 3, sm: 2, xs: 1 }}
             rowHeight={250}
             width={containerWidth}
             onLayoutChange={handleLayoutChange}
