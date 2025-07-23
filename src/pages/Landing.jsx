@@ -3,9 +3,6 @@ import "@/landing.css";
 import logo from "/icon-192_v2.png"; // cambiá por tu logo real
 import { Dialog } from "primereact/dialog";
 import RequestAccessDialog from "@/components/RequestAccessDialog";
-import { Card } from "primereact/card";
-import { Button } from "primereact/button";
-import { Tag } from "primereact/tag";
 
 import { useState } from "react";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -15,66 +12,117 @@ export default function Landing() {
   const [showTerms, setShowTerms] = useState(false);
   const loginUrl = "/login";
   const [showRequestAccess, setShowRequestAccess] = useState(false);
+  const [isYearly, setIsYearly] = useState(false);
+
+  const plans = [
+    {
+      name: "Free",
+      legend: "Personal use",
+      monthly: "0.00",
+      yearly: "0.00",
+      badge: null,
+      features: ["Create up to 5 groups", "Basic widgets", "Community support"],
+    },
+    {
+      name: "Premium",
+      legend: "Advance User",
+      monthly: "4.99",
+      yearly: "3.99",
+      badge: "Save 20%",
+      features: [
+        "Create unlimited groups",
+        "Basic widgets",
+        "Advanced widgets",
+        "Storage widgets",
+        "Priority support",
+        "Badge username",
+      ],
+    },
+    {
+      name: "Enterprise",
+      legend: "Massive Groups",
+      monthly: "19.99",
+      yearly: "6.99",
+      badge: "Save 30%",
+      features: [
+        "Create unlimited groups",
+        "Public massive groups",
+        "Assign member roles",
+        "Basic widgets",
+        "Advance widgets",
+        "Storage widgets",
+        "Widget usage limits removed",
+        "First support",
+        "Advanced permission controls",
+        "Team analytics & usage stats",
+      ],
+    },
+  ];
 
   const allWidgets = [
     {
       name: "To-do list",
 
       color: "#1a232f",
-      img: "/widget_todos.png",
+      img: "/imgs/widget_todos.png",
     },
     {
       name: "Calendar",
 
       color: "#141d29",
-      img: "/widget_calendar.png",
+      img: "/imgs/widget_calendar.png",
     },
     {
       name: "Notes",
 
       color: "#394b5e",
-      img: "/widget_notas.png",
+      img: "/imgs/widget_notas.png",
     },
     {
       name: "Weather",
 
       color: "#394b5e71",
-      img: "/widget_weather.png",
+      img: "/imgs/widget_weather.png",
     },
     {
       name: "Pomodoro",
       color: "#141d29",
-      img: "/widget_pomodoro.png",
+      img: "/imgs/widget_pomodoro.png",
     },
     {
       name: "Weight Tracker",
       color: "#1a232f",
-      img: "/widget_weight.png",
+      img: "/imgs/widget_weight.png",
     },
     {
       name: "Chat",
       color: "#394b5e",
-      img: "/widget_chat.png",
+      img: "/imgs/widget_chat.png",
     },
     {
       name: "Shared Rent",
       color: "#1a232f",
-      img: "/widget_split.png",
+      img: "/imgs/widget_split.png",
     },
     {
       name: "Fuel Tracker",
       color: "#394b5e71",
-      img: "/widget_fuel.png",
+      img: "/imgs/widget_fuel.png",
     },
     {
       name: "World Clocks",
       color: "#394b5e",
-      img: "/widget_watches.png",
+      img: "/imgs/widget_watches.png",
     },
     {
       name: "Image",
       color: "#1a232f",
-      img: "/widget_imagen.png",
+      img: "/imgs/widget_imagen.png",
+    },
+    {
+      name: "Countdowns",
+      color: "#1a232f",
+      img: "/imgs/widget_countdowns.png",
     },
   ];
 
@@ -190,7 +238,7 @@ export default function Landing() {
       </section>
 
       {/* WHAT FOR */}
-      <div className="mt-5 py-5" style={{ backgroundColor: "#141d29" }}>
+      <div className="mt-5 py-5">
         <section className="container py-5" id="what-for">
           <h2 className="text-center mb-4">What is it for?</h2>
           <p className="text-center text-muted lead mb-5">
@@ -250,65 +298,104 @@ export default function Landing() {
         </section>
       </div>
 
-      <section className="container py-5" id="templates">
-        <h2 className="text-center mb-4">Templates</h2>
+      <section className="container py-5" id="why">
+        <h2 className="text-center mb-4">Why Focuspit?</h2>
         <p className="text-center text-muted mb-5">
-          Start with a pre-built setup and customize it your way.
+          Other tools are too complex, or too rigid. Focuspit is built for
+          simplicity and flexibility.
         </p>
 
-        <div className="template-grid">
-          <Link
-            to={loginUrl}
-            className="template-box tall"
-            style={{ backgroundColor: "#da525b" }}
-          >
-            <span>Daily Panel</span>
-            <img className="img-daily" src="/tempalte_daily.png" />
+        <div className="row g-4">
+          <div className="col-12 col-md-4 text-center">
+            <img src="/imgs/lightwi.png" width={"250px"} className="mx-auto" />
+            <h5 className="fw-bold">Fast and lightweight</h5>
+            <p className="text-muted">
+              Built to work instantly. No loading screens, no clutter.
+            </p>
+          </div>
+          <div className="col-12 col-md-4 text-center">
+            <img
+              src="/imgs/customdash.png"
+              width={"250px"}
+              className="mx-auto"
+            />
+            <h5 className="fw-bold">Custom layouts</h5>
+            <p className="text-muted">
+              Rearrange your dashboard like you want — not how the app tells you
+              to.
+            </p>
+          </div>
+          <div className="col-12 col-md-4 text-center">
+            <img
+              src="/imgs/widget_members.png"
+              width={"250px"}
+              className="mx-auto"
+            />
+            <h5 className="fw-bold">Shared groups</h5>
+            <p className="text-muted">
+              Create dashboards with your team, family or friends. Everyone
+              stays in sync.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="container-fluid py-5"
+        id="templates"
+        style={{ backgroundColor: "#141d29" }}
+      >
+        <div className="row g-1 py-5">
+          <div className="col-12 col-lg-6 text-center">
+            <h2>Templates</h2>
+            <p className="text-muted mb-5">
+              Start with a <strong>pre-built</strong> configuration and{" "}
+              <strong>customize</strong> it your way.
+              <br />
+              Today here <strong>more than 25 widget</strong>, and they are
+              updated weekly!
+            </p>
+          </div>
+          <Link to={loginUrl} className=" col-12 col-lg-3">
+            <div className="template-box">
+              <span>Daily Panel</span>
+              <img src="/m_t_produc_starter.png" />
+            </div>
           </Link>
 
-          <Link
-            to={loginUrl}
-            className="template-box wide"
-            style={{ backgroundColor: "#7332b8" }}
-          >
-            <span>Family</span>
-            <img className="img-family" src="/tempalte_family.png" />
+          <Link to={loginUrl} className="col-12 col-lg-3">
+            <div className="template-box">
+              <span>Projects</span>
+              <img src="/m_t_smallpro.png" />
+            </div>
           </Link>
 
-          <Link
-            to={loginUrl}
-            className="template-box"
-            style={{ backgroundColor: "#0d7bc8" }}
-          >
-            <span>Car Care</span>
-            <img className="img-car" src="/tempalte_car.png" />
+          <Link to={loginUrl} className="col-12 col-lg-3">
+            <div className="template-box">
+              <span>Car Care</span>
+              <img src="/m_t_mycar.png" />
+            </div>
           </Link>
 
-          <Link
-            to={loginUrl}
-            className="template-box"
-            style={{ backgroundColor: "#b74c98" }}
-          >
-            <span>Group of friends</span>
-            <img className="img-friends" src="/tempalte_group.png" />
+          <Link to={loginUrl} className="col-12 col-lg-3">
+            <div className="template-box">
+              <span>Group of friends</span>
+              <img src="/m_t_friends.png" />
+            </div>
           </Link>
 
-          <Link
-            to={loginUrl}
-            className="template-box wide"
-            style={{ backgroundColor: "#1b8d4d" }}
-          >
-            <span>Work Project</span>
-            <img className="img-work" src="/tempalte_project.png" />
+          <Link to={loginUrl} className="col-12 col-lg-3">
+            <div className="template-box">
+              <span>Rental</span>
+              <img src="/m_t_rental.png" />
+            </div>
           </Link>
 
-          <Link
-            to={loginUrl}
-            className="template-box"
-            style={{ backgroundColor: "#d5a961" }}
-          >
-            <span>Home</span>
-            <img className="img-home" src="/tempalte_home.png" />
+          <Link to={loginUrl} className="col-12 col-lg-3">
+            <div className="template-box">
+              <span>Home</span>
+              <img src="/m_t_house.png" />
+            </div>
           </Link>
         </div>
       </section>
@@ -339,93 +426,59 @@ export default function Landing() {
           Start for free and upgrade anytime.
         </p>
 
-        <div className="row justify-content-center g-4">
-          {/* Free Plan */}
-          <div className="col-10 col-md-4">
-            <Card
-              title="Free"
-              subTitle="$0"
-              className="text-center h-100 shadow-sm"
-              footer={
-                <Link to={loginUrl}>
-                  <Button
-                    label="Get Started"
-                    className="w-100 p-button-outlined p-button-success"
-                  />
-                </Link>
-              }
+        {/* TOGGLE MONTHLY / YEARLY */}
+        <div className="text-center mb-5">
+          <div
+            className="d-inline-flex align-items-center bg-panel rounded-pill p-1"
+            style={{ border: "1px solid var(--line-color)" }}
+          >
+            <button
+              className={`btn btn-sm rounded-pill ${
+                !isYearly ? "btn-pistacho" : "btn-dark text-white"
+              }`}
+              onClick={() => setIsYearly(false)}
             >
-              <ul className="list-unstyled small lh-lg m-0">
-                <li>1 personal dashboard</li>
-                <li>Up to 5 basic widgets</li>
-                <li>Preset templates</li>
-              </ul>
-            </Card>
+              Monthly
+            </button>
+            <button
+              className={`btn btn-sm rounded-pill  ${
+                isYearly ? "btn-pistacho" : "btn-dark text-white"
+              }`}
+              onClick={() => setIsYearly(true)}
+            >
+              Yearly
+            </button>
           </div>
+        </div>
 
-          {/* Pro Plan */}
-          <div className="col-10 col-md-4">
-            <Card
-              title={
-                <div className="d-flex justify-content-center align-items-center gap-2">
-                  Pro <Tag value="Coming Soon" severity="warning" />
+        {/* PLANES */}
+        <div className="row g-4 pb-5 justify-content-center plans">
+          {plans.map((plan, index) => (
+            <div className="col-12 col-lg-4" key={index}>
+              <div className="p-4 rounded bg-panel text-white h-100 text-center shadow-sm position-relative">
+                {isYearly && plan.badge && (
+                  <span className="badge bg-success position-absolute top-0 end-0 m-2">
+                    {plan.badge}
+                  </span>
+                )}
+                <h4 className="text-pistacho">{plan.name}</h4>
+                <label className="text-muted mb-4">{plan.legend}</label>
+                <div className="display-5 fw-bold">
+                  ${isYearly ? plan.yearly : plan.monthly}
+                  <span className="fs-6">/mo</span>
                 </div>
-              }
-              subTitle={
-                <span className="display-6 fw-bold">
-                  $4.99<span className="fs-6">/mo</span>
-                </span>
-              }
-              className="text-center h-100 shadow-sm border-pistacho"
-              footer={
-                <Button
-                  label="Notify Me"
-                  className="w-100 p-button-warning"
-                  disabled
-                />
-              }
-            >
-              <ul className="list-unstyled small lh-lg m-0">
-                <li>Unlimited dashboards</li>
-                <li>All premium widgets</li>
-                <li>Custom themes & colors</li>
-                <li>Automatic backups</li>
-                <li>Priority support</li>
-              </ul>
-            </Card>
-          </div>
-
-          {/* Pro Plan */}
-          <div className="col-10 col-md-4">
-            <Card
-              title={
-                <div className="d-flex justify-content-center align-items-center gap-2">
-                  Enterpise <Tag value="Coming Soon" severity="warning" />
-                </div>
-              }
-              subTitle={
-                <span className="display-6 fw-bold">
-                  $9.99<span className="fs-6">/mo</span>
-                </span>
-              }
-              className="text-center h-100 shadow-sm border-pistacho"
-              footer={
-                <Button
-                  label="Notify Me"
-                  className="w-100 p-button-warning"
-                  disabled
-                />
-              }
-            >
-              <ul className="list-unstyled small lh-lg m-0">
-                <li>Unlimited dashboards</li>
-                <li>All premium widgets</li>
-                <li>Custom themes & colors</li>
-                <li>Automatic backups</li>
-                <li>Priority support</li>
-              </ul>
-            </Card>
-          </div>
+                <hr className="my-3 border-light" />
+                <ul className="list-unstyled lh-lg small">
+                  {plan.features.map((feature, i) => (
+                    <li key={i}>{feature}</li>
+                  ))}
+                </ul>
+                <button className="btn btn-pistacho-outline border-white mt-3 ">
+                  Notify Me
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -498,7 +551,7 @@ export default function Landing() {
           <div className="row align-items-center">
             <div className="col-md-6 mb-4 mb-md-0 text-center">
               <img
-                src="/imgprev.png"
+                src="/imgs/imgprev.png"
                 alt="Focuspit widgets preview"
                 className="img-fluid"
                 style={{ maxHeight: "500px" }}
@@ -512,8 +565,14 @@ export default function Landing() {
                 Focuspit helps you organize your life with smart & simple
                 widgets — so you can stay focused and get things done.
               </p>
-              <button href={loginUrl} className="btn-pistacho fs-4 px-5">
+              {/* <button href={loginUrl} className="btn-pistacho fs-4 px-5">
                 Build My Dashboard
+              </button> */}
+              <button
+                className="btn-pistacho fs-4 mx-auto px-5"
+                onClick={() => setShowRequestAccess(true)}
+              >
+                Request Access
               </button>
             </div>
           </div>
