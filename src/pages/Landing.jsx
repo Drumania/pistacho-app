@@ -222,15 +222,19 @@ export default function Landing() {
         <div className="align-items-center position-relative">
           <div className="legend">
             <h1>
-              The <strong>Custom Dashboard</strong> That Organizes Your Life
-            </h1>
-            <h5 className="mt-3">
-              Plan your day, take care of your car or your house, manage a
-              project... <br />
-              Share dashboards, and manage anything — together or solo.
+              <i>"One App to Rule Them All..."</i>
               <br />
-              Smart widgets. Clean design. Built for clarity.
+              Dashboards for <strong>Everything You Do</strong>
+            </h1>
+            <h5 className="mt-3 legend">
+              Create dashboards for your tasks, your car, your home — even your
+              relationship.
+              <br />
+              Solo or shared: with friends, family, or your rock band.
+              <br />
+              Smart widgets. Shared focus. Less mess.
             </h5>
+
             <div className="input-group my-5">
               {/* <a href={loginUrl} className="btn-pistacho fs-4 mx-auto px-5">
                 Build My Dashboard

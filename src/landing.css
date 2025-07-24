@@ -14,7 +14,7 @@
 /* HTML: <div class="rounded-edge"></div> */
 .rounded-edge {
   width: 100vw;
-  height: 600px;
+  height: 800px;
   aspect-ratio: 3/2;
   position: absolute;
   top: 0;
@@ -59,11 +59,24 @@
 }
 
 #hero {
-  padding-top: 160px;
+  padding-top: 70px;
+}
+
+#hero h1 {
+  font-size: 4rem;
+  font-weight: bold;
+  padding: 3rem 10px 0;
+  color: var(--white-color);
+}
+
+#hero h1 i {
+  color: var(--pistacho-color);
+  font-size: 2rem;
 }
 
 #hero .legend {
   display: flex;
+  font-size: 1.2rem;
   flex-direction: column;
   padding-top: 0px;
   align-items: center;
