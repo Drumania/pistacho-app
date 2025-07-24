@@ -138,6 +138,7 @@ export default function Landing() {
         Your feedback is welcome!
       </div>
       {/* NAVBAR */}
+      <div className="rounded-edge">&nbsp;</div>
       <nav
         id="menu"
         className="navbar navbar-expand-md px-lg-1 px-lg-4 py-1 py-lg-3  "
@@ -202,8 +203,8 @@ export default function Landing() {
         id="hero"
         className="container pb-5 my-5 text-center text-md-start"
       >
-        <div className="row widget-content align-items-center position-relative">
-          <div className="col-12 col-md-6 legend">
+        <div className="align-items-center position-relative">
+          <div className="legend">
             <h1 className="display-6">
               Your <strong>Custom dashboards</strong> personal and shared
             </h1>

@@ -11,13 +11,24 @@
   overflow-x: hidden;
 }
 
+/* HTML: <div class="rounded-edge"></div> */
+.rounded-edge {
+  width: 100vw;
+  height: 600px;
+  aspect-ratio: 3/2;
+  position: absolute;
+  top: 0;
+  clip-path: ellipse(85% 100% at 50% 0);
+  background: var(--panel-inside);
+}
+
 #menu {
   position: fixed;
   top: 0;
   width: 100%;
   z-index: 1000;
   backdrop-filter: blur(10px);
-  background-color: rgb(37 48 61 / 68%);
+  background-color: rgb(20 29 41 / 0%);
 }
 
 #menu .navbar-brand {
@@ -48,21 +59,22 @@
 }
 
 #hero {
-  padding-top: 180px;
+  padding-top: 160px;
 }
 
 #hero .legend {
-  min-height: 400px;
   display: flex;
   flex-direction: column;
-  padding-top: 80px;
+  padding-top: 0px;
+  align-items: center;
 }
 
 #hero .img-prod {
-  position: absolute;
-  top: 110px;
+  top: -20px;
   width: 890px;
-  right: 40px;
+  margin: 0 auto;
+  z-index: 100;
+  position: relative;
 }
 
 #what-for h2,
