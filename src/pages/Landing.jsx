@@ -3,6 +3,10 @@ import "@/landing.css";
 import logo from "/icon-192_v2.png"; // cambiá por tu logo real
 import { Dialog } from "primereact/dialog";
 import RequestAccessDialog from "@/components/RequestAccessDialog";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, EffectFade } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-fade";
 
 import { useState } from "react";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -213,7 +217,7 @@ export default function Landing() {
               <br />
               Use smart widgets to manage your day, your projects and your life.
             </h5>
-            <div className="input-group mt-4">
+            <div className="input-group my-5">
               {/* <a href={loginUrl} className="btn-pistacho fs-4 mx-auto px-5">
                 Build My Dashboard
               </a> */}
@@ -226,16 +230,32 @@ export default function Landing() {
             </div>
           </div>
         </div>
-        <img
-          className="d-none d-lg-block img-prod"
-          src="/screen_desktop.png"
-          title="desktop"
-        />
-        <img
-          className="d-block d-lg-none img-prod"
-          src="/screen_mobile.png"
-          title="desktop"
-        />
+        <div className="wrap-slider">
+          <Swiper
+            modules={[Autoplay, EffectFade]}
+            effect="fade"
+            loop={true}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            className="hero-swiper"
+          >
+            {[
+              "/imgs/slider/img1.png",
+              "/imgs/slider/img2.png",
+              "/imgs/slider/img3.png",
+              "/imgs/slider/img4.png",
+              "/imgs/slider/img5.png",
+              "/imgs/slider/img6.png",
+            ].map((img, index) => (
+              <SwiperSlide key={index}>
+                <img
+                  src={img}
+                  className="img-fluid img-prod"
+                  alt={`slide ${index + 1}`}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       </section>
 
       {/* WHAT FOR */}
@@ -420,6 +440,17 @@ export default function Landing() {
           ))}
         </div>
       </section>
+
+      <img
+        className="d-none d-lg-block img-prod"
+        src="/screen_desktop.png"
+        title="desktop"
+      />
+      <img
+        className="d-block d-lg-none img-prod"
+        src="/screen_mobile.png"
+        title="desktop"
+      />
 
       <section className="container py-5" id="pricing">
         <h2 className="text-center mb-4">Plans & Pricing</h2>

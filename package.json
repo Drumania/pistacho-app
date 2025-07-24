@@ -68,6 +68,7 @@
     "react-router-dom": "^7.6.2",
     "react-world-flags": "^1.6.0",
     "slugify": "^1.6.6",
+    "swiper": "^11.2.10",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
