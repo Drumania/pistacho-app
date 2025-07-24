@@ -234,7 +234,7 @@ export default function HeaderDashboard({
           }}
           onClick={() => setShowFeedback(true)}
         >
-          Send our Feedback
+          Send our <strong>Beta</strong>Feedback
         </span>
         <FeedbackDialog
           visible={showFeedback}

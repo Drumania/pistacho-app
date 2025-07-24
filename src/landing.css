@@ -67,6 +67,23 @@
   flex-direction: column;
   padding-top: 0px;
   align-items: center;
+  text-align: center;
+}
+
+.btn-beta {
+  background: #6ae1c6;
+  padding: 20px 40px;
+  border-radius: 40px;
+  height: 80px;
+  display: flex;
+  margin: 0 auto;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #111;
+  font-weight: 400;
+  letter-spacing: 1px;
 }
 
 .wrap-slider {
@@ -211,11 +228,12 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: #0dcaf0;
+  background: #6ae1c6;
   color: #1b2531;
   padding: 12px 20px;
   border-radius: 12px;
   font-weight: 500;
+  text-align: right;
   font-size: 0.95rem;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   z-index: 9999;

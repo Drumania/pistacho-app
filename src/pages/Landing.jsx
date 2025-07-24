@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "@/landing.css";
 import logo from "/icon-192_v2.png"; // cambiá por tu logo real
@@ -8,7 +9,6 @@ import { Autoplay, EffectFade } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-fade";
 
-import { useState } from "react";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 export default function Landing() {
@@ -17,6 +17,16 @@ export default function Landing() {
   const loginUrl = "/login";
   const [showRequestAccess, setShowRequestAccess] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
+  const [showBetaBanner, setShowBetaBanner] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBetaBanner(window.scrollY > 150);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const plans = [
     {
@@ -133,14 +143,16 @@ export default function Landing() {
   return (
     <div className="landing">
       {/* Beta Banner */}
-      <div className="beta-floating-banner">
-        🚀 <strong>Public Beta</strong>
-        <br />
-        Try Focuspit free with basic widgets.
-        <br />
-        <br />
-        Your feedback is welcome!
-      </div>
+      {showBetaBanner && (
+        <div
+          className="beta-floating-banner cursor-pointer"
+          onClick={() => setShowRequestAccess(true)}
+        >
+          <strong>Now in Public Beta!</strong>
+          <br />
+          Use it, break it, tell us everything.❤️
+        </div>
+      )}
       {/* NAVBAR */}
       <div className="rounded-edge">&nbsp;</div>
       <nav
@@ -209,23 +221,25 @@ export default function Landing() {
       >
         <div className="align-items-center position-relative">
           <div className="legend">
-            <h1 className="display-6">
-              Your <strong>Custom dashboards</strong> personal and shared
+            <h1>
+              The <strong>Custom Dashboard</strong> That Organizes Your Life
             </h1>
             <h5 className="mt-3">
-              Organize your tasks, events, notes and more — all in one place.{" "}
+              Plan your day, take care of your car or your house, manage a
+              project... <br />
+              Share dashboards, and manage anything — together or solo.
               <br />
-              Use smart widgets to manage your day, your projects and your life.
+              Smart widgets. Clean design. Built for clarity.
             </h5>
             <div className="input-group my-5">
               {/* <a href={loginUrl} className="btn-pistacho fs-4 mx-auto px-5">
                 Build My Dashboard
               </a> */}
               <button
-                className="btn-pistacho fs-4 mx-auto px-5"
+                className="btn-beta"
                 onClick={() => setShowRequestAccess(true)}
               >
-                Request Access
+                Try the Beta Now
               </button>
             </div>
           </div>
@@ -589,7 +603,7 @@ export default function Landing() {
                 style={{ maxHeight: "500px" }}
               />
             </div>
-            <div className="col-md-6 text-center text-md-start">
+            <div className="col-md-6 text-center">
               <h2 className="fw-bold mb-3">
                 Start today and take control of your day.
               </h2>
@@ -601,10 +615,10 @@ export default function Landing() {
                 Build My Dashboard
               </button> */}
               <button
-                className="btn-pistacho fs-4 mx-auto px-5"
+                className="btn-beta"
                 onClick={() => setShowRequestAccess(true)}
               >
-                Request Access
+                Try the Beta Now
               </button>
             </div>
           </div>
