@@ -172,7 +172,7 @@ export default function Landing() {
           </button>
 
           <div className="collapse navbar-collapse" id="mainMenu">
-            <ul className="navbar-nav ms-auto gap-3">
+            <ul className="navbar-nav mx-auto gap-3">
               <li className="nav-item">
                 <a className="nav-link " href="#">
                   Home
