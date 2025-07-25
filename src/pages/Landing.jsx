@@ -35,40 +35,35 @@ export default function Landing() {
       monthly: "0.00",
       yearly: "0.00",
       badge: null,
-      features: ["Create up to 5 groups", "Basic widgets", "Community support"],
+      features: ["Basic widgets", "Community support"],
     },
     {
       name: "Premium",
-      legend: "Advance User",
+      legend: "Power users",
       monthly: "4.99",
       yearly: "3.99",
       badge: "Save 20%",
       features: [
-        "Create unlimited groups",
-        "Basic widgets",
-        "Advanced widgets",
-        "Storage widgets",
+        "All basic widgets + advanced widgets ",
+        "Widgets with storage",
         "Priority support",
-        "Badge username",
+        "Custom username badge",
       ],
     },
     {
       name: "Enterprise",
-      legend: "Massive Groups",
+      legend: "For teams & organizations",
       monthly: "19.99",
-      yearly: "6.99",
-      badge: "Save 30%",
+      yearly: "14.99",
+      badge: "Save 35%",
       features: [
-        "Create unlimited groups",
-        "Public massive groups",
-        "Assign member roles",
-        "Basic widgets",
-        "Advance widgets",
-        "Storage widgets",
-        "Widget usage limits removed",
-        "First support",
-        "Advanced permission controls",
-        "Team analytics & usage stats",
+        "Unlimited groups members",
+        "Public dashboards for open communities",
+        "Role-based access (admins, editors, viewers)",
+        "All widgets: basic, advanced, storage — no limits",
+        "Priority support (1st in queue)",
+        "Advanced permissions & approval flows",
+        "Team usage stats & analytics",
       ],
     },
   ];
@@ -276,7 +271,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* WHAT FOR */}
+      {/* WHAT FOR
       <div className="mt-5 py-5">
         <section className="container py-5" id="what-for">
           <h2 className="text-center mb-4">What is it for?</h2>
@@ -286,7 +281,6 @@ export default function Landing() {
           </p>
 
           <div className="row g-4">
-            {/* Personal use */}
             <div className="col-12 col-md-6">
               <div className="rounded p-4 widget-content position-relative">
                 <h3 className="fw-bold mb-3">Personal use</h3>
@@ -298,7 +292,6 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Shared life */}
             <div className="col-12 col-md-6">
               <div className="rounded p-4 widget-content position-relative">
                 <h3 className="fw-bold mb-3">Shared life</h3>
@@ -310,7 +303,6 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Projects & teams */}
             <div className="col-12 col-md-6">
               <div className="rounded p-4 widget-content position-relative">
                 <h3 className="fw-bold mb-3">Projects & teams</h3>
@@ -322,7 +314,6 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Creative freedom */}
             <div className="col-12 col-md-6">
               <div className="rounded p-4 widget-content position-relative">
                 <h3 className="fw-bold mb-3">Creative freedom</h3>
@@ -335,54 +326,132 @@ export default function Landing() {
             </div>
           </div>
         </section>
+      </div> */}
+
+      <div className="container py-5">
+        <h2 className="text-center display-5 fw-bold text-pistacho mb-3">
+          What is it for?
+        </h2>
+        <p className="text-center text-muted lead mb-5">
+          Focuspit helps you bring order to your life, projects and routines —
+          in a clear, visual and flexible way.
+        </p>
+
+        <div className="row g-4">
+          <div className="col-md-6">
+            <div className="bg-panel rounded p-4 h-100 shadow-sm hover-up">
+              <div className="d-flex align-items-center gap-3 mb-3">
+                <i className="bi bi-person-circle fs-3 text-pistacho"></i>
+                <h4 className="m-0 fw-bold">Personal use</h4>
+              </div>
+              <ul className="small lh-lg ps-5 m-0">
+                <li>&#8729; Plan your day with a custom dashboard</li>
+                <li>&#8729; Track tasks, events, shopping and reminders</li>
+                <li>&#8729; Build routines like "drink water"</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <div className="bg-panel rounded p-4 h-100 shadow-sm hover-up">
+              <div className="d-flex align-items-center gap-3 mb-3">
+                <i className="bi bi-people fs-3 text-pistacho"></i>
+                <h4 className="m-0 fw-bold">Shared life</h4>
+              </div>
+              <ul className="small lh-lg ps-5 m-0">
+                <li>&#8729; Organize housework with your partner or family</li>
+                <li>&#8729; Coordinate who does what and when</li>
+                <li>
+                  &#8729; Use shared widgets like to-do lists and calendars
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <div className="bg-panel rounded p-4 h-100 shadow-sm hover-up">
+              <div className="d-flex align-items-center gap-3 mb-3">
+                <i className="bi bi-kanban fs-3 text-pistacho"></i>
+                <h4 className="m-0 fw-bold">Projects & teams</h4>
+              </div>
+              <ul className="small lh-lg ps-5">
+                <li>&#8729; Manage simple projects without complex tools</li>
+                <li>&#8729; Share dashboards with collaborators or clients</li>
+                <li>&#8729; Use templates to get started fast</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <div className="bg-panel rounded p-4 h-100 shadow-sm hover-up">
+              <div className="d-flex align-items-center gap-3 mb-3">
+                <i className="bi bi-sliders fs-3 text-pistacho"></i>
+                <h4 className="m-0 fw-bold">Creative Layouts</h4>
+              </div>
+              <ul className="small lh-lg ps-5">
+                <li>&#8729; Add and remove widgets like Lego pieces</li>
+                <li>&#8729; Rearrange your layout to match how you think</li>
+                <li>&#8729; Create templates for any kind of workflow</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* <!-- Repetí para "Projects & teams" y "Creative freedom" --> */}
+        </div>
       </div>
 
       <section className="container py-5" id="why">
         <h2 className="text-center mb-4">Why Focuspit?</h2>
         <p className="text-center text-muted mb-5">
-          Other tools are too complex, or too rigid. Focuspit is built for
-          simplicity and flexibility.
+          Tired of juggling 5 different apps to stay organized?
+          <br />
+          Focuspit brings it all together — your life, your people, your way.
         </p>
 
-        <div className="row g-4">
-          <div className="col-12 col-md-4 text-center">
-            <img src="/imgs/lightwi.png" width={"250px"} className="mx-auto" />
-            <h5 className="fw-bold">Fast and lightweight</h5>
-            <p className="text-muted">
-              Built to work instantly. No loading screens, no clutter.
-            </p>
-          </div>
-          <div className="col-12 col-md-4 text-center">
-            <img
-              src="/imgs/customdash.png"
-              width={"250px"}
-              className="mx-auto"
-            />
-            <h5 className="fw-bold">Custom layouts</h5>
-            <p className="text-muted">
-              Rearrange your dashboard like you want — not how the app tells you
-              to.
-            </p>
-          </div>
-          <div className="col-12 col-md-4 text-center">
-            <img
-              src="/imgs/widget_members.png"
-              width={"250px"}
-              className="mx-auto"
-            />
-            <h5 className="fw-bold">Shared groups</h5>
-            <p className="text-muted">
-              Create dashboards with your team, family or friends. Everyone
-              stays in sync.
-            </p>
+        <div className="container my-5">
+          <div className="row g-3">
+            {/* COLUMNA DERECHA */}
+            <div className="col-12 col-md-6">
+              <div className="p-4 pe-5 bg-panel rounded why-1">
+                <h3 className="fw-bold mb-2">Fresh Start, Every Day</h3>
+                <p className="small mb-0">
+                  Wake up, open Focuspit, and know exactly what matters today.
+                  <br />
+                  No tabs, no chaos — just clarity.
+                </p>
+              </div>
+            </div>
+
+            {/* COLUMNA IZQUIERDA */}
+            <div className="col-12 col-md-6">
+              <div className="d-flex flex-column h-100 gap-3">
+                {/* Bloque 1 */}
+                <div className="p-4 bg-panel text-white rounded h-100">
+                  <h3 className="fw-bold mb-2">Personal & Shared Dashboards</h3>
+                  <p className="small mb-0 pe-5">
+                    Create one for your life, routines, or goals — or share with
+                    your team, partner or family. Everyone stays in sync.
+                  </p>
+                </div>
+
+                {/* Bloque 2 */}
+                <div className="p-4 rounded h-100 why-3">
+                  <h3 className="fw-bold mb-2">Custom Layouts</h3>
+                  <p className="small mb-0 pe-5">
+                    Build dashboards that match how you think — drag, drop, and
+                    rearrange freely.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <section
-        className="container-fluid py-5"
+        className="container-fluid"
         id="templates"
-        style={{ backgroundColor: "#141d29" }}
+        style={{ backgroundColor: "#0b0c0e", padding: "100px" }}
       >
         <div className="row g-1 py-5">
           <div className="col-12 col-lg-6 text-center">
@@ -397,43 +466,43 @@ export default function Landing() {
           </div>
           <Link to={loginUrl} className=" col-12 col-lg-3">
             <div className="template-box">
-              <span>Daily Panel</span>
-              <img src="/m_t_produc_starter.png" />
+              <span className="text-muted">Daily Panel</span>
+              <img className="rounded-3" src="/m_t_produc_starter.png" />
             </div>
           </Link>
 
           <Link to={loginUrl} className="col-12 col-lg-3">
             <div className="template-box">
-              <span>Projects</span>
-              <img src="/m_t_smallpro.png" />
+              <span className="text-muted">Projects</span>
+              <img className="rounded-3" src="/m_t_smallpro.png" />
             </div>
           </Link>
 
           <Link to={loginUrl} className="col-12 col-lg-3">
             <div className="template-box">
-              <span>Car Care</span>
-              <img src="/m_t_mycar.png" />
+              <span className="text-muted">Car Care</span>
+              <img className="rounded-3" src="/m_t_mycar.png" />
             </div>
           </Link>
 
           <Link to={loginUrl} className="col-12 col-lg-3">
             <div className="template-box">
-              <span>Group of friends</span>
-              <img src="/m_t_friends.png" />
+              <span className="text-muted">Group of friends</span>
+              <img className="rounded-3" src="/m_t_friends.png" />
             </div>
           </Link>
 
           <Link to={loginUrl} className="col-12 col-lg-3">
             <div className="template-box">
-              <span>Rental</span>
-              <img src="/m_t_rental.png" />
+              <span className="text-muted">Rental</span>
+              <img className="rounded-3" src="/m_t_rental.png" />
             </div>
           </Link>
 
           <Link to={loginUrl} className="col-12 col-lg-3">
             <div className="template-box">
-              <span>Home</span>
-              <img src="/m_t_house.png" />
+              <span className="text-muted">Home</span>
+              <img className="rounded-3" src="/m_t_house.png" />
             </div>
           </Link>
         </div>
@@ -523,9 +592,23 @@ export default function Landing() {
                     <li key={i}>{feature}</li>
                   ))}
                 </ul>
-                <button className="btn btn-pistacho-outline border-white mt-3 ">
-                  Notify Me
-                </button>
+
+                {index === 0 ? (
+                  <button
+                    className="btn btn-pistacho-outline border-white mt-3 "
+                    onClick={() => setShowRequestAccess(true)}
+                  >
+                    Try the Beta Now
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-pistacho-outline border-white mt-3 "
+                    // onClick={() => setShowRequestAccess(true)}
+                    disabled
+                  >
+                    not yet...
+                  </button>
+                )}
               </div>
             </div>
           ))}

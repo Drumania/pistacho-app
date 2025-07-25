@@ -140,6 +140,25 @@
   margin-bottom: 0;
 }
 
+.why-1 {
+  display: flex;
+  min-height: 300px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0))
+      center center,
+    url(/imgs/freshstart.png) center center / cover no-repeat;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 1.5rem;
+  border-radius: 16px;
+  color: white;
+}
+
+.why-3 {
+  background-color: var(--dark-pistacho-color);
+  color: #25303d;
+}
+
 #templates h2 {
   font-size: 6rem;
   font-weight: bold;
@@ -158,15 +177,26 @@
   font-size: 1.5rem;
   padding: var(--gap);
   margin-bottom: 0.5px;
-  background-color: var(--black-color);
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s;
+}
+
+.template-box:hover {
+  transform: scale(1.2);
+  transition: all 0.2s;
+}
+
+.template-box:hover span {
+  color: var(--white-color) !important;
+  transition: all 0.2s;
 }
 
 .template-box span {
-  font-size: 1.4rem;
-  text-align: center;
+  font-size: 1.2rem;
+  text-align: start;
   padding-bottom: 10px;
   display: block;
+  font-style: italic;
+  text-indent: 20px;
 }
 
 .landing-footer {
@@ -220,6 +250,10 @@
 
 .plans > div ul {
   padding-bottom: 50px;
+}
+
+.plans .col-lg-4:nth-child(2) .bg-panel {
+  box-shadow: 0 0 24px rgba(144, 176, 131, 0.3);
 }
 
 .plans div:nth-child(2) div {
