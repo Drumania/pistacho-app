@@ -106,6 +106,13 @@
   transition: all 0.2s;
 }
 
+.btn-beta-small {
+  padding: 10px;
+  border-radius: 20px;
+  height: 40px;
+  font-size: 1.4rem;
+}
+
 .wrap-slider {
   background: transparent url(./imgs/slider/mac.png) no-repeat center top / 100%;
   width: 1014px;

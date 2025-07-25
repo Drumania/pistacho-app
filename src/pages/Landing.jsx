@@ -593,7 +593,7 @@ export default function Landing() {
 
                 {index === 0 ? (
                   <button
-                    className="btn btn-pistacho-outline border-white mt-3 "
+                    className="btn-beta btn-beta-small mb-3 "
                     onClick={() => setShowRequestAccess(true)}
                   >
                     Try the Beta Now
