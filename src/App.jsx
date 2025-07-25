@@ -1,13 +1,15 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Layout from "@/layout/Layout";
-import Landing from "@/pages/Landing";
-import LoginPage from "@/pages/LoginPage";
-import GroupDashboard from "@/pages/Dashboards";
-import SettingsPage from "@/pages/SettingsPage";
-import AdminToolsPage from "@/pages/AdminToolsPage";
-import NotificationsPage from "./pages/NotificationsPage";
-import Resume from "./pages/Resume";
-import Bye from "./pages/Bye";
+
+const Layout = lazy(() => import("@/layout/Layout"));
+const Landing = lazy(() => import("@/pages/Landing"));
+const LoginPage = lazy(() => import("@/pages/LoginPage"));
+const GroupDashboard = lazy(() => import("@/pages/Dashboards"));
+const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
+const AdminToolsPage = lazy(() => import("@/pages/AdminToolsPage"));
+const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
+const Resume = lazy(() => import("@/pages/Resume"));
+const Bye = lazy(() => import("@/pages/Bye"));
 
 import { useAuth } from "@/firebase/AuthContext";
 
@@ -23,7 +25,7 @@ function App() {
   }
 
   return (
-    <>
+    <Suspense fallback={<div className="text-center mt-5">Loading...</div>}>
       <Routes>
         {!user ? (
           <>
@@ -56,7 +58,7 @@ function App() {
           </Route>
         )}
       </Routes>
-    </>
+    </Suspense>
   );
 }
 
