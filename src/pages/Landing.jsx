@@ -198,13 +198,11 @@ export default function Landing() {
                   Plans & Pricing
                 </a>
               </li>
-
-              <li className="nav-item">
-                <a className="nav-login px-3" href={loginUrl}>
-                  Login / Register
-                </a>
-              </li>
             </ul>
+
+            <a className="nav-login px-3" href={loginUrl}>
+              Login / Register
+            </a>
           </div>
         </div>
       </nav>
