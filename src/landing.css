@@ -49,6 +49,12 @@
   padding: 0 1rem;
 }
 
+.nav-link.active {
+  color: var(--pistacho-color);
+  font-weight: 600;
+  border-bottom: 2px solid var(--pistacho-color);
+}
+
 #menu .nav-login {
   background-color: var(--pistacho-color);
   color: var(--black-color);
@@ -143,9 +149,10 @@
   position: relative;
 }
 
-#what-for h2,
+#whatFor h2,
 #why h2,
 #widgets h2,
+#faqs h2,
 #pricing h2 {
   font-size: 6rem;
   font-weight: bold;
@@ -309,6 +316,26 @@
   color: var(--pistacho-color);
 }
 
+/* faqs */
+.faq-accordion .p-accordion-header-link {
+  background-color: var(--panel);
+  color: var(--text-color);
+  border: none;
+  line-height: 60px;
+  font-size: 1.5rem;
+  height: 60px;
+  font-weight: bold;
+  text-indent: 20px;
+  border-top: 1px solid var(--line-color);
+}
+
+.faq-accordion .p-accordion-content {
+  color: var(--text-color);
+  background-color: var(--panel);
+  font-size: 1.2rem;
+  padding: 0 20px 40px;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -342,9 +369,10 @@
     right: 90px;
   }
 
-  #what-for h2,
+  #whatFor h2,
   #templates h2,
   #widgets h2,
+  #faqs h2,
   #pricing h2 {
     font-size: 4rem;
     padding: 1rem 10px;

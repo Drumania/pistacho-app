@@ -8,13 +8,14 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-fade";
-
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { Accordion, AccordionTab } from "primereact/accordion";
 
 export default function Landing() {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const loginUrl = "/login";
+  const [activeSection, setActiveSection] = useState("");
   const [showRequestAccess, setShowRequestAccess] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
   const [showBetaBanner, setShowBetaBanner] = useState(false);
@@ -26,6 +27,27 @@ export default function Landing() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const sections = document.querySelectorAll("section[id]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            console.log(entry.target.id);
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        rootMargin: "-50% 0px -49% 0px", // para activar en centro de pantalla
+        threshold: 0,
+      }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
   }, []);
 
   const plans = [
@@ -174,27 +196,63 @@ export default function Landing() {
           <div className="collapse navbar-collapse" id="mainMenu">
             <ul className="navbar-nav mx-auto gap-3">
               <li className="nav-item">
-                <a className="nav-link " href="#">
+                <a
+                  className={`nav-link ${
+                    activeSection === "hero" ? "active" : ""
+                  }`}
+                  href="#"
+                >
                   Home
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link " href="#what-for">
+                <a
+                  className={`nav-link ${
+                    activeSection === "whatFor" ? "active" : ""
+                  }`}
+                  href="#whatFor"
+                >
                   What is it for?
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link " href="#templates">
+                <a
+                  className={`nav-link ${
+                    activeSection === "templates" ? "active" : ""
+                  }`}
+                  href="#templates"
+                >
                   Templates
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link " href="#widgets">
+                <a
+                  className={`nav-link ${
+                    activeSection === "widgets" ? "active" : ""
+                  }`}
+                  href="#widgets"
+                >
                   Widgets
                 </a>
               </li>
+
               <li className="nav-item">
-                <a className="nav-link " href="#pricing">
+                <a
+                  className={`nav-link ${
+                    activeSection === "faqs" ? "active" : ""
+                  }`}
+                  href="#faqs"
+                >
+                  Faqs
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  className={`nav-link ${
+                    activeSection === "pricing" ? "active" : ""
+                  }`}
+                  href="#pricing"
+                >
                   Plans & Pricing
                 </a>
               </li>
@@ -206,7 +264,6 @@ export default function Landing() {
           </div>
         </div>
       </nav>
-
       {/* HERO */}
       <section
         id="hero"
@@ -268,65 +325,7 @@ export default function Landing() {
           </Swiper>
         </div>
       </section>
-
-      {/* WHAT FOR
-      <div className="mt-5 py-5">
-        <section className="container py-5" id="what-for">
-          <h2 className="text-center mb-4">What is it for?</h2>
-          <p className="text-center text-muted lead mb-5">
-            Focuspit helps you bring order to your life, projects and routines —
-            in a clear, visual and flexible way.
-          </p>
-
-          <div className="row g-4">
-            <div className="col-12 col-md-6">
-              <div className="rounded p-4 widget-content position-relative">
-                <h3 className="fw-bold mb-3">Personal use</h3>
-                <ul className="small lh-lg ps-3">
-                  <li>Plan your day with a custom dashboard</li>
-                  <li>Track tasks, events, shopping and reminders</li>
-                  <li>Build routines like "drink water"</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="col-12 col-md-6">
-              <div className="rounded p-4 widget-content position-relative">
-                <h3 className="fw-bold mb-3">Shared life</h3>
-                <ul className="small lh-lg ps-3">
-                  <li>Organize housework with your partner or family</li>
-                  <li>Coordinate who does what and when</li>
-                  <li>Use shared widgets like to-do lists and calendars</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="col-12 col-md-6">
-              <div className="rounded p-4 widget-content position-relative">
-                <h3 className="fw-bold mb-3">Projects & teams</h3>
-                <ul className="small lh-lg ps-3">
-                  <li>Manage simple projects without complex tools</li>
-                  <li>Share dashboards with collaborators or clients</li>
-                  <li>Use templates to get started fast</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="col-12 col-md-6">
-              <div className="rounded p-4 widget-content position-relative">
-                <h3 className="fw-bold mb-3">Creative freedom</h3>
-                <ul className="small lh-lg ps-3">
-                  <li>Add and remove widgets like Lego pieces</li>
-                  <li>Rearrange your layout to match how you think</li>
-                  <li>Create templates for any kind of workflow</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div> */}
-
-      <div className="container py-5" id="what-for">
+      <section className="container py-5" id="whatFor">
         <h2 className="text-center display-5 fw-bold text-pistacho mb-3">
           What is it for?
         </h2>
@@ -393,12 +392,9 @@ export default function Landing() {
               </ul>
             </div>
           </div>
-
-          {/* <!-- Repetí para "Projects & teams" y "Creative freedom" --> */}
         </div>
-      </div>
-
-      <section className="container py-5" id="why">
+      </section>
+      <section className="container py-5">
         <h2 className="text-center mb-4">Why Focuspit?</h2>
         <p className="text-center text-muted mb-5">
           Tired of juggling 5 different apps to stay organized?
@@ -445,7 +441,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       <section
         className="container-fluid"
         id="templates"
@@ -458,7 +453,7 @@ export default function Landing() {
               Start with a <strong>pre-built</strong> configuration and{" "}
               <strong>customize</strong> it your way.
               <br />
-              Today here <strong>more than 25 widget</strong>, and they are
+              Today here <strong>more than 25 widgets</strong>, and they are
               updated weekly!
             </p>
           </div>
@@ -505,10 +500,9 @@ export default function Landing() {
           </Link>
         </div>
       </section>
-
       {/* WIDGET GRID */}
       <section className="container py-5" id="widgets">
-        <h2 className="text-center mb-4">Widget</h2>
+        <h2 className="text-center mb-4">Widgets</h2>
         <p className="text-center text-muted mb-5">New widgets every week</p>
         <div className="row g-4">
           {allWidgets.map((w, i) => (
@@ -526,16 +520,125 @@ export default function Landing() {
         </div>
       </section>
 
-      <img
-        className="d-none d-lg-block img-prod"
-        src="/screen_desktop.png"
-        title="desktop"
-      />
-      <img
-        className="d-block d-lg-none img-prod"
-        src="/screen_mobile.png"
-        title="desktop"
-      />
+      {/* FAQS */}
+      <section className="container py-5" id="faqs">
+        <h2 className="text-center mb-4">FAQs</h2>
+        <p className="text-center text-muted mb-5">
+          Here are some common questions about Focuspit.
+          <br />
+          If you have more, feel free to contact us by email.
+        </p>
+
+        <Accordion multiple className="faq-accordion">
+          <AccordionTab header="What is Focuspit?">
+            Focuspit is a customizable productivity dashboard where you organize
+            different parts of your life using smart widgets. Create dashboards
+            for personal use, work, relationships, or hobbies.
+          </AccordionTab>
+
+          <AccordionTab header="Is it free to use?">
+            Yes! You can start with the free plan which includes core widgets.
+            We also offer premium features and team-based plans if you need
+            more.
+          </AccordionTab>
+
+          <AccordionTab header="Can I share a dashboard with others?">
+            Absolutely. You can invite friends, family or teammates to
+            collaborate in the same group and share widgets in real time.
+          </AccordionTab>
+
+          <AccordionTab header="What kind of widgets are available?">
+            From to-do lists and calendars to chat, weather, routines, shared
+            rent, countdowns and more. We’re adding new widgets every week.
+          </AccordionTab>
+
+          <AccordionTab header="Do I need to install anything?">
+            Focuspit runs entirely in your browser. It also works as a
+            Progressive Web App (PWA), so you can install it on desktop or
+            mobile if you prefer.
+          </AccordionTab>
+
+          <AccordionTab header="Is there a desktop version of Focuspit?">
+            Yes! In addition to the web app and PWA, you can download Focuspit
+            as a native desktop app for Windows & Mac.
+            <br />
+            It works offline and updates automatically. Great for full-screen or{" "}
+            <strong>second screen</strong> productivity!
+            <p className="small mt-2">
+              👉 Download for Windows{" "}
+              <a href="/downloads/FocusPit-Installer-1.0.0.exe">here</a>.
+            </p>
+            <p className="small mt-2">
+              👉 Download for Mac{" "}
+              <a href="/downloads/FocusPit-Installer-1.0.0.exe">here</a>.
+            </p>
+          </AccordionTab>
+
+          <AccordionTab header="How is my data stored and secured?">
+            All your data is securely stored in Google Firebase with real-time
+            updates. We don’t sell your data or show ads.
+          </AccordionTab>
+
+          <AccordionTab header="Can I create multiple dashboards?">
+            Yes! You can create as many groups/dashboards as you need — for
+            personal goals, projects, habits, family, etc.
+          </AccordionTab>
+        </Accordion>
+      </section>
+
+      <section className="container py-5" id="desktop-app">
+        <div className="row align-items-center">
+          {/* TEXTO + BOTONES */}
+          <div className="col-md-6 text-white">
+            <h2 className="fw-bold mb-3">We also have a desktop app!</h2>
+            <p className="text-muted mb-4">
+              Use Focuspit as a native app on Windows or macOS — no browser
+              needed. It runs offline and launches faster than ever.
+            </p>
+
+            <div className="d-flex flex-wrap gap-3 mb-3">
+              <a
+                href="/downloads/FocusPit-Installer-1.0.0.exe"
+                className="btn btn-dark d-flex align-items-center gap-2"
+              >
+                {/* <i className="bi bi-windows"></i> Download for Windows */}
+                <img src="/imgs/dwn-for-windows.png" />
+              </a>
+              <a
+                href="/downloads/FocusPit.dmg"
+                className="btn btn-dark d-flex align-items-center gap-2"
+              >
+                {/* <i className="bi bi-apple"></i> Download for macOS */}
+                <img src="/imgs/dwn-for-mac.png" />
+              </a>
+            </div>
+
+            <div
+              className="alert alert-warning small mt-3"
+              style={{ maxWidth: "500px" }}
+            >
+              <strong>Note:</strong> Focuspit is not yet verified by Microsoft
+              or Apple, so your system might show a warning during installation.
+              You can safely bypass it by choosing "Run anyway" or "Open
+              anyway".
+            </div>
+          </div>
+
+          {/* IMÁGENES */}
+          <div className="col-md-6 text-center">
+            <img
+              className="d-none d-lg-block img-prod"
+              src="/screen_desktop.png"
+              title="desktop"
+            />
+            <img
+              className="d-block d-lg-none img-prod"
+              src="/screen_mobile.png"
+              title="mobile"
+            />
+          </div>
+        </div>
+      </section>
 
       <section className="container py-5" id="pricing">
         <h2 className="text-center mb-4">Plans & Pricing</h2>
@@ -709,7 +812,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* FOOTER */}
       <>
         <footer className="py-4 text-center text-muted">

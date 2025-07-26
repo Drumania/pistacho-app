@@ -169,7 +169,7 @@ export default function LoginPage() {
                   />
                 )}
                 // onClick={() => loginWithGoogleClick()}
-                // disabled
+                disabled
               />
               <div className="text-center text-muted small mt-2">
                 Google login will be enabled after public launch.
