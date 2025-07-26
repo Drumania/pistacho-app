@@ -326,7 +326,7 @@ export default function Landing() {
         </section>
       </div> */}
 
-      <div className="container py-5">
+      <div className="container py-5" id="what-for">
         <h2 className="text-center display-5 fw-bold text-pistacho mb-3">
           What is it for?
         </h2>
