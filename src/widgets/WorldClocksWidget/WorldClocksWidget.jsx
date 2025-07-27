@@ -85,26 +85,28 @@ export default function WorldClocksWidget({ groupId }) {
           onClick={() => setShowDialog(true)}
         />
       </div>
-
-      {clocks.map((c) => (
-        <div
-          key={c.code}
-          className="d-flex align-items-center justify-content-between mb-2 panel-in-panels"
-        >
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={`https://flagcdn.com/w40/${c.code}.png`}
-              alt={c.label}
-              width={28}
-              height={20}
-              style={{ borderRadius: "3px", objectFit: "cover" }}
-            />
-            <span className="font-medium">{c.label}</span>
-          </div>
-          <span className="text-xl font-bold">{times[c.code] || "--:--"}</span>
-        </div>
-      ))}
-
+      <ul className="cs-list-group">
+        {clocks.map((c) => (
+          <li
+            key={c.code}
+            className="d-flex align-items-center justify-content-between p-2"
+          >
+            <div className="d-flex align-items-center gap-2">
+              <img
+                src={`https://flagcdn.com/w40/${c.code}.png`}
+                alt={c.label}
+                width={28}
+                height={20}
+                style={{ borderRadius: "3px", objectFit: "cover" }}
+              />
+              <span className="font-medium">{c.label}</span>
+            </div>
+            <span className="text-xl font-bold">
+              {times[c.code] || "--:--"}
+            </span>
+          </li>
+        ))}
+      </ul>
       <ClockSettingsDialog
         visible={showDialog}
         onHide={() => setShowDialog(false)}

@@ -131,7 +131,7 @@ export default function TodoWidget({ groupId }) {
         />
       </div>
 
-      <ul className="list-unstyled small mt-2">
+      <ul className="cs-list-group small mt-2">
         {loading ? (
           <>
             <li className="mb-2">
