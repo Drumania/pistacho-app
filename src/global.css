@@ -604,6 +604,11 @@ h5 {
   align-items: flex-start;
 }
 
+.widget-content:has(.image-widget-background),
+.widget-content:has(.quote-widget-container) {
+  padding: 0;
+}
+
 .widget-content:has(.widget-content-atention) {
   background-color: #2f1a1a;
 }
