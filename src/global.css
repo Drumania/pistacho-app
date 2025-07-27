@@ -604,6 +604,22 @@ h5 {
   align-items: flex-start;
 }
 
+.widget-content:has(.widget-content-atention) {
+  background-color: #2f1a1a;
+}
+.widget-content:has(.widget-content-focus) {
+  background-color: #1a2f1b;
+}
+
+.showReminder {
+  font-size: 0.8rem;
+  position: absolute;
+  bottom: 4px;
+  right: 10px;
+  opacity: 0.4;
+  color: #ffabab;
+}
+
 .wc-edit {
   outline: 1px dashed var(--pistacho-color);
   outline-offset: -1px; /* Ajustá según tu padding */

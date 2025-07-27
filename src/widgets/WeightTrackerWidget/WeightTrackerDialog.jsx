@@ -50,6 +50,12 @@ export default function WeightTrackerDialog({
     return () => unsub();
   }, [user, groupId, widgetId, visible]);
 
+  useEffect(() => {
+    if (visible && !selectedId) {
+      setDate(new Date()); // setea fecha de hoy por default
+    }
+  }, [visible, selectedId]);
+
   const handleSave = async () => {
     if (!user || !date || !weight) return;
     setLoading(true);

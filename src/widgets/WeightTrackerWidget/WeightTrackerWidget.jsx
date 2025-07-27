@@ -19,6 +19,7 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
   const { user } = useAuth();
   const [weights, setWeights] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [showReminder, setShowReminder] = useState(false);
 
   useEffect(() => {
     if (!user || !groupId || !widgetId) return;
@@ -32,6 +33,14 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
     const unsub = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((doc) => doc.data());
       setWeights(data);
+
+      const latest = data[data.length - 1];
+      if (latest?.date) {
+        const lastDate = latest.date.toDate?.() || new Date(latest.date); // soporte para Timestamp o string
+        const now = new Date();
+        const diffDays = (now - lastDate) / (1000 * 60 * 60 * 24);
+        setShowReminder(diffDays > 3);
+      }
     });
 
     return () => unsub();
@@ -75,7 +84,11 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
   };
 
   return (
-    <div>
+    <div
+      className={
+        showReminder ? "widget-content-atention" : "widget-content-focus"
+      }
+    >
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Weight Tracker</h5>
         <Button
@@ -84,6 +97,11 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
           onClick={() => setShowDialog(true)}
         />
       </div>
+      {showReminder && (
+        <small className="showReminder">
+          You haven't updated your weight in many days.
+        </small>
+      )}
 
       <Chart type="line" data={chartData} options={chartOptions} />
 
