@@ -1,7 +1,15 @@
+import { useRef, useEffect } from "react";
 import { Dialog } from "primereact/dialog";
 
 export default function NewsDialog({ visible, onHide, news }) {
   const latest = news?.[0];
+  const cachedImage = useRef(null);
+
+  useEffect(() => {
+    if (latest?.image && !cachedImage.current) {
+      cachedImage.current = latest.image;
+    }
+  }, [latest]);
 
   return (
     <Dialog
@@ -15,10 +23,14 @@ export default function NewsDialog({ visible, onHide, news }) {
       <div className="p-2" style={{ maxHeight: "60vh", overflowY: "auto" }}>
         {latest ? (
           <>
-            {latest.image && (
-              <img src={latest.image} alt="news" className="img-news mb-3" />
+            {cachedImage.current && (
+              <img
+                src={cachedImage.current}
+                alt="news"
+                className="img-news mb-3"
+                loading="lazy"
+              />
             )}
-
             <div className="text-muted small mb-3">
               {latest.created_at?.toDate?.().toLocaleDateString()}
             </div>

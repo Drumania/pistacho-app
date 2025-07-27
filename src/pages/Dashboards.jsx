@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { useDocTitle } from "@/hooks/useDocTitle";
+import { useGroupAccessGuard } from "@/hooks/useGroupAccessGuard";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
 import HeaderDashboard from "@/components/HeaderDashboard";
-
 import InviteMemberDialog from "@/components/InviteMemberDialog";
 import EditGroupDialog from "@/components/EditGroupDialog";
 import AddWidgetDialog from "@/components/AddWidgetDialog";
@@ -15,11 +15,10 @@ import db from "@/firebase/firestore";
 import {
   collection,
   getDocs,
-  getDoc,
+  doc,
   updateDoc,
   deleteDoc,
   addDoc,
-  doc,
   serverTimestamp,
 } from "firebase/firestore";
 import { useAuth } from "@/firebase/AuthContext";
@@ -29,6 +28,12 @@ const widgetModules = import.meta.glob("@/widgets/*/*.jsx", { eager: true });
 
 export default function Dashboards() {
   const { groupId } = useParams();
+  const {
+    loading: groupLoading,
+    hasAccess,
+    groupData,
+  } = useGroupAccessGuard(groupId);
+
   const { user, showToast } = useAuth();
   const [, setDocumentTitle] = useDocTitle("Dashboard");
 
@@ -47,10 +52,11 @@ export default function Dashboards() {
 
   const isAdmin = user?.admin;
 
-  const [groupData, setGroupData] = useState({
-    name: "",
-    photoURL: "",
-  });
+  useEffect(() => {
+    if (groupData?.name) {
+      setDocumentTitle(groupData.name);
+    }
+  }, [groupData?.name]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -64,28 +70,10 @@ export default function Dashboards() {
   }, []);
 
   useEffect(() => {
-    const loadGroupData = async () => {
-      const ref = doc(db, "groups", groupId);
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        const data = snap.data();
-        setGroupData({
-          name: data.name || "",
-          photoURL: data.photoURL || "",
-        });
-        setDocumentTitle(data.name || "Dashboard");
-      }
-    };
-    if (groupId) loadGroupData();
-  }, [groupId]);
-
-  useEffect(() => {
     const checkGroupAdmin = async () => {
       if (!groupId || !user?.uid) return;
-
       const memberRef = doc(db, "groups", groupId, "members", user.uid);
-      const memberSnap = await getDoc(memberRef);
-
+      const memberSnap = await getDocs(memberRef);
       if (memberSnap.exists()) {
         const memberData = memberSnap.data();
         setIsGroupAdmin(memberData.admin === true);
@@ -93,7 +81,6 @@ export default function Dashboards() {
         setIsGroupAdmin(false);
       }
     };
-
     checkGroupAdmin();
   }, [groupId, user?.uid]);
 
@@ -134,9 +121,7 @@ export default function Dashboards() {
 
   const handleLayoutChange = async (currentLayout, allLayouts) => {
     setLayouts(allLayouts);
-
     if (!editMode) return;
-
     for (const w of currentLayout) {
       await updateDoc(doc(db, `groups/${groupId}/widgets/${w.i}`), {
         layout: { x: w.x, y: w.y, w: w.w, h: w.h },
@@ -146,36 +131,50 @@ export default function Dashboards() {
 
   const handleSaveTemplate = async () => {
     if (!user || !groupId || !widgetInstances.length) return;
-
     const templateName = prompt("Enter a name for this template:");
     if (!templateName) return;
-
     try {
       const widgetsData = widgetInstances
-        .filter((w) => w?.key) // validamos que tenga key
+        .filter((w) => w?.key)
         .map((w) => ({
-          widgetId: w.key, // usamos key como ID del widget
+          widgetId: w.key,
           settings: w.settings ?? {},
           layout: w.layout ?? {},
         }));
-
       if (!widgetsData.length) {
         alert("❌ No widgets found to save. Please check your configuration.");
         return;
       }
-
       await addDoc(collection(db, "templates"), {
         name: templateName,
         createdBy: user.uid,
         createdAt: serverTimestamp(),
         widgets: widgetsData,
       });
-
       console.log("✅ Template saved!");
     } catch (err) {
       console.error("❌ Error saving template:", err);
     }
   };
+
+  if (groupLoading) {
+    return (
+      <div className="text-center my-5">
+        <div className="spinner-border text-light" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <div className="text-center my-5">
+        <h3>🚫 You don't have access to this group.</h3>
+        <p>Please check the URL or contact the group admin.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container-fluid" ref={containerRef}>
@@ -219,14 +218,12 @@ export default function Dashboards() {
             {layouts.lg.map((l) => {
               const widget = widgetInstances.find((w) => w.id === l.i);
               const WidgetComponent = components[widget?.id];
-
               const handleDelete = async () => {
                 await deleteDoc(
                   doc(db, `groups/${groupId}/widgets/${widget.id}`)
                 );
                 fetchWidgets();
               };
-
               return (
                 <div key={l.i}>
                   <div
@@ -239,7 +236,6 @@ export default function Dashboards() {
                         <div className="widget-handle">
                           <i className="bi bi-grip-vertical"></i>
                         </div>
-
                         <div
                           className="widget-delete"
                           onClick={handleDelete}
@@ -285,9 +281,9 @@ export default function Dashboards() {
         groupId={groupId}
         visible={showEditDialog}
         onHide={() => setShowEditDialog(false)}
-        onGroupUpdated={(updated) =>
-          setGroupData((prev) => ({ ...prev, ...updated }))
-        }
+        onGroupUpdated={(updated) => {
+          console.log("group updated", updated);
+        }}
       />
 
       <AddWidgetDialog
