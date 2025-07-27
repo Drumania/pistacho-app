@@ -143,7 +143,7 @@
 
 .img-prod {
   top: -20px;
-  width: 890px;
+  width: 90%;
   margin: 0 auto;
   z-index: 100;
   position: relative;
@@ -362,11 +362,33 @@
     padding: 0.5rem 0;
   }
 
-  #hero .img-prod {
-    position: absolute;
-    top: 60px;
-    width: 170px;
-    right: 90px;
+  #hero {
+    padding-top: 10px;
+  }
+
+  #hero h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    padding: 2rem 10px 0;
+    color: var(--white-color);
+  }
+
+  #hero h1 i {
+    color: var(--pistacho-color);
+    font-size: 1.3rem;
+  }
+
+  #hero .legend {
+    display: flex;
+    font-size: 1rem;
+    flex-direction: column;
+    padding: 0px 10px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .wrap-slider {
+    transform: scale(0.5);
   }
 
   #whatFor h2,

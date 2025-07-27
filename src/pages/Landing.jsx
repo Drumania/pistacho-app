@@ -298,7 +298,7 @@ export default function Landing() {
             </div>
           </div>
         </div>
-        <div className="wrap-slider">
+        <div className="d-none d-lg-block wrap-slider">
           <Swiper
             modules={[Autoplay, EffectFade]}
             effect="fade"
@@ -324,6 +324,12 @@ export default function Landing() {
             ))}
           </Swiper>
         </div>
+
+        <img
+          className="d-block d-lg-none img-prod"
+          src="/screen_mobile.png"
+          title="mobile"
+        />
       </section>
       <section className="container py-5" id="whatFor">
         <h2 className="text-center display-5 fw-bold text-pistacho mb-3">
@@ -586,56 +592,50 @@ export default function Landing() {
         </Accordion>
       </section>
 
-      <section className="container py-5" id="desktop-app">
-        <div className="row align-items-center">
-          {/* TEXTO + BOTONES */}
-          <div className="col-md-6 text-white">
-            <h2 className="fw-bold mb-3">We also have a desktop app!</h2>
-            <p className="text-muted mb-4">
-              Use Focuspit as a native app on Windows or macOS — no browser
-              needed. It runs offline and launches faster than ever.
-            </p>
+      <section
+        className="container-fluid py-5 bg-dark d-none d-lg-block"
+        id="desktop-app"
+      >
+        <div className="container py-5 ">
+          <div className="row align-items-center">
+            {/* TEXTO + BOTONES */}
+            <div className="col-md-6 text-white">
+              <h2 className="fw-bold mb-3">We also have a desktop app!</h2>
+              <p className="text-muted mb-4">
+                Use Focuspit as a native app on Windows or macOS — no browser
+                needed. It runs offline and launches faster than ever.
+              </p>
 
-            <div className="d-flex flex-wrap gap-3 mb-3">
-              <a
-                href="/downloads/FocusPit-Installer-1.0.0.exe"
-                className="btn btn-dark d-flex align-items-center gap-2"
+              <div className="d-flex flex-wrap gap-3 mb-3">
+                <a href="/downloads/FocusPit-Installer-1.0.0.exe">
+                  <img src="/imgs/dwn-for-windows.png" />
+                </a>
+                <a href="/downloads/FocusPit.dmg">
+                  <img src="/imgs/dwn-for-mac.png" />
+                </a>
+              </div>
+
+              <div
+                className="alert alert-info small mt-5"
+                style={{ maxWidth: "500px" }}
               >
-                {/* <i className="bi bi-windows"></i> Download for Windows */}
-                <img src="/imgs/dwn-for-windows.png" />
-              </a>
-              <a
-                href="/downloads/FocusPit.dmg"
-                className="btn btn-dark d-flex align-items-center gap-2"
-              >
-                {/* <i className="bi bi-apple"></i> Download for macOS */}
-                <img src="/imgs/dwn-for-mac.png" />
-              </a>
+                <strong>Note:</strong> Focuspit is not yet verified by Microsoft
+                or Apple, so your system might show a warning during
+                installation.
+                <br />
+                You can safely bypass it by choosing "Run anyway" or "Open
+                anyway".
+              </div>
             </div>
 
-            <div
-              className="alert alert-warning small mt-3"
-              style={{ maxWidth: "500px" }}
-            >
-              <strong>Note:</strong> Focuspit is not yet verified by Microsoft
-              or Apple, so your system might show a warning during installation.
-              You can safely bypass it by choosing "Run anyway" or "Open
-              anyway".
+            {/* IMÁGENES */}
+            <div className="col-md-6 text-center">
+              <img
+                className="img-prod"
+                src="/screen_desktop.png"
+                title="desktop"
+              />
             </div>
-          </div>
-
-          {/* IMÁGENES */}
-          <div className="col-md-6 text-center">
-            <img
-              className="d-none d-lg-block img-prod"
-              src="/screen_desktop.png"
-              title="desktop"
-            />
-            <img
-              className="d-block d-lg-none img-prod"
-              src="/screen_mobile.png"
-              title="mobile"
-            />
           </div>
         </div>
       </section>
@@ -653,7 +653,7 @@ export default function Landing() {
             style={{ border: "1px solid var(--line-color)" }}
           >
             <button
-              className={`btn btn-sm rounded-pill ${
+              className={`rounded-pill px-3 ${
                 !isYearly ? "btn-pistacho" : "btn-dark text-white"
               }`}
               onClick={() => setIsYearly(false)}
@@ -661,7 +661,7 @@ export default function Landing() {
               Monthly
             </button>
             <button
-              className={`btn btn-sm rounded-pill  ${
+              className={`rounded-pill px-3  ${
                 isYearly ? "btn-pistacho" : "btn-dark text-white"
               }`}
               onClick={() => setIsYearly(true)}
