@@ -9,6 +9,7 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const AdminToolsPage = lazy(() => import("@/pages/AdminToolsPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const Resume = lazy(() => import("@/pages/Resume"));
+const NewsPage = lazy(() => import("@/pages/AllNewsPage"));
 const Bye = lazy(() => import("@/pages/Bye"));
 
 import { useAuth } from "@/firebase/AuthContext";
@@ -45,6 +46,7 @@ function App() {
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/admintools" element={<AdminToolsPage />} />
+            <Route path="/news" element={<NewsPage />} />
             <Route
               path="*"
               element={

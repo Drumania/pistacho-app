@@ -16,6 +16,7 @@ import db from "@/firebase/firestore";
 import WidgetManager from "@/components/admin/WidgetManager";
 import GlobalHabitsAdmin from "@/components/admin/GlobalHabitsAdmin";
 import BetaAccessPanel from "@/components/admin/BetaAccessPanel";
+import NewsAdminPanel from "@/components/admin/NewsAdminPanel";
 import { getAuth } from "firebase/auth";
 
 export default function AdminTools() {
@@ -135,6 +136,10 @@ export default function AdminTools() {
       <TabView>
         <TabPanel header="Beta Access" className="m-3">
           <BetaAccessPanel />
+        </TabPanel>
+
+        <TabPanel header="News" className="m-3">
+          <NewsAdminPanel />
         </TabPanel>
 
         <TabPanel header="Users" className="m-3">

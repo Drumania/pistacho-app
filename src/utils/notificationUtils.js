@@ -5,21 +5,23 @@ export function renderNotificationMessage(notif) {
 
   switch (type) {
     case "group_invite":
-      return `${data.fromName} te invitó al grupo ${data.groupName}`;
+      return `${data.fromName} invited you to the group ${data.groupName}`;
+    case "news":
+      return `Focuspit News: ${data.title}`;
     case "admin_granted":
-      return `${data.fromName} te asignó como admin en el grupo ${data.groupName}`;
+      return `${data.fromName} made you an admin in the group ${data.groupName}`;
     case "admin_revoked":
-      return `${data.fromName} te quitó los permisos de admin en el grupo ${data.groupName}`;
+      return `${data.fromName} removed your admin privileges in the group ${data.groupName}`;
     case "group_removed":
-      return `${data.fromName} te removió del grupo ${data.groupName}`;
+      return `${data.fromName} removed you from the group ${data.groupName}`;
     case "comment":
-      return `${data.fromName} comentó en ${data.groupName}: "${data.comment}"`;
+      return `${data.fromName} commented in ${data.groupName}: "${data.comment}"`;
     case "reminder":
-      return `Recordatorio: ${data.title} en ${data.groupName}`;
+      return `Reminder: ${data.title} in ${data.groupName}`;
     case "todo_mention":
-      return `${data.from} te mencionó en una tarea: "${data.todoTitle}"`;
+      return `${data.from} mentioned you in a task: "${data.todoTitle}"`;
     default:
-      return `Notificación nueva`;
+      return `New notification`;
   }
 }
 
@@ -27,6 +29,8 @@ export function getNotificationIcon(type) {
   switch (type) {
     case "group_invite":
       return "pi pi-users";
+    case "news":
+      return "pi pi-file";
     case "comment":
       return "pi pi-comment";
     case "reminder":

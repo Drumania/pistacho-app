@@ -620,6 +620,20 @@ h5 {
   color: #ffabab;
 }
 
+/* dialog news */
+.img-news {
+  width: 100%;
+  max-height: 200px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background-color: var(--panel-inside); /* fondo negro */
+  border-radius: 8px;
+  display: block;
+}
+.news-content p {
+  margin: 0;
+}
+
 .wc-edit {
   outline: 1px dashed var(--pistacho-color);
   outline-offset: -1px; /* Ajustá según tu padding */

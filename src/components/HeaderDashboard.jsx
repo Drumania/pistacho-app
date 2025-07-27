@@ -3,6 +3,7 @@ import useNotifications from "@/hooks/useNotifications";
 import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import useNews from "@/hooks/useNews";
 import NewsDialog from "@/components/NewsDialog";
 import FeedbackDialog from "@/components/FeedbackDialog";
 
@@ -26,6 +27,7 @@ export default function HeaderDashboard({
   const { notifications, unreadCount, markAsRead } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifDropdownRef = useRef(null);
+  const { news } = useNews();
   const [showNews, setShowNews] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
@@ -185,7 +187,12 @@ export default function HeaderDashboard({
                         notif.read ? "" : "not-unread"
                       }`}
                       style={{ cursor: "pointer" }}
-                      onClick={() => markAsRead(notif.id)}
+                      onClick={() => {
+                        if (notif.type === "news") {
+                          setShowNews(true);
+                        }
+                        markAsRead(notif.id);
+                      }}
                     >
                       <div className="small opacity-50">
                         {formatDistanceToNow(
@@ -222,7 +229,11 @@ export default function HeaderDashboard({
         <button className="ms-3 text-muted" onClick={() => setShowNews(true)}>
           <i className="bi bi-newspaper"></i> News
         </button>
-        <NewsDialog visible={showNews} onHide={() => setShowNews(false)} />
+        <NewsDialog
+          visible={showNews}
+          onHide={() => setShowNews(false)}
+          news={news}
+        />
 
         <span
           className="badge text-bg-info ms-3"
@@ -234,7 +245,7 @@ export default function HeaderDashboard({
           }}
           onClick={() => setShowFeedback(true)}
         >
-          Send our <strong>Beta</strong>Feedback
+          Send our <strong>Beta</strong> Feedback
         </span>
         <FeedbackDialog
           visible={showFeedback}
