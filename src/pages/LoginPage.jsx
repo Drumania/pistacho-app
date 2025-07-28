@@ -168,12 +168,12 @@ export default function LoginPage() {
                     style={{ width: 20, height: 20 }}
                   />
                 )}
-                // onClick={() => loginWithGoogleClick()}
-                disabled
+                onClick={() => loginWithGoogleClick()}
+                // disabled
               />
-              <div className="text-center text-muted small mt-2">
+              {/* <div className="text-center text-muted small mt-2">
                 Google login will be enabled after public launch.
-              </div>
+              </div> */}
             </div>
 
             <Divider align="center" className="py-3">
