@@ -298,7 +298,13 @@ export default function Landing() {
             </div>
           </div>
         </div>
-        <div className="d-none d-lg-block wrap-slider">
+        <div
+          className="d-none d-lg-block wrap-slider"
+          style={{
+            background:
+              "transparent url('/imgs/slider/mac_v2.png') no-repeat center top / cover",
+          }}
+        >
           <Swiper
             modules={[Autoplay, EffectFade]}
             effect="fade"

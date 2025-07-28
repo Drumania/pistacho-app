@@ -120,7 +120,6 @@
 }
 
 .wrap-slider {
-  background: transparent url(./mac_v2.png) no-repeat center top / 100%;
   width: 1014px;
   z-index: 100;
   position: relative;
