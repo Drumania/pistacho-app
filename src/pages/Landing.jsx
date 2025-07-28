@@ -613,10 +613,10 @@ export default function Landing() {
               </p>
 
               <div className="d-flex flex-wrap gap-3 mb-3">
-                <a href="https://drive.google.com/file/d/12vaxRCo7w08ZLHLUcO-nR03lkQU08aWM/view?usp=drive_link">
+                <a href="https://drive.google.com/file/d/12vaxRCo7w08ZLHLUcO-nR03lkQU08aWM/view?usp=sharing">
                   <img src="/imgs/dwn-for-windows.png" />
                 </a>
-                <a href="https://drive.google.com/file/d/1T953JLnlmUmg5zscjPduwjnYxYK1L9Qj/view?usp=drive_link">
+                <a href="https://drive.google.com/file/d/1T953JLnlmUmg5zscjPduwjnYxYK1L9Qj/view?usp=sharing">
                   <img src="/imgs/dwn-for-mac.png" />
                 </a>
               </div>
