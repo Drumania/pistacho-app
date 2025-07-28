@@ -14,6 +14,7 @@ import AddWidgetDialog from "@/components/AddWidgetDialog";
 import db from "@/firebase/firestore";
 import {
   collection,
+  getDoc,
   getDocs,
   doc,
   updateDoc,
@@ -73,7 +74,8 @@ export default function Dashboards() {
     const checkGroupAdmin = async () => {
       if (!groupId || !user?.uid) return;
       const memberRef = doc(db, "groups", groupId, "members", user.uid);
-      const memberSnap = await getDocs(memberRef);
+      const memberSnap = await getDoc(memberRef); // ← FIXED acá
+
       if (memberSnap.exists()) {
         const memberData = memberSnap.data();
         setIsGroupAdmin(memberData.admin === true);
