@@ -613,10 +613,10 @@ export default function Landing() {
               </p>
 
               <div className="d-flex flex-wrap gap-3 mb-3">
-                <a href="/downloads/FocusPit-Installer-1.0.0.exe">
+                <a href="https://drive.google.com/file/d/12vaxRCo7w08ZLHLUcO-nR03lkQU08aWM/view?usp=drive_link">
                   <img src="/imgs/dwn-for-windows.png" />
                 </a>
-                <a href="/downloads/FocusPit.dmg">
+                <a href="https://drive.google.com/file/d/1T953JLnlmUmg5zscjPduwjnYxYK1L9Qj/view?usp=drive_link">
                   <img src="/imgs/dwn-for-mac.png" />
                 </a>
               </div>
@@ -631,6 +631,9 @@ export default function Landing() {
                 <br />
                 You can safely bypass it by choosing "Run anyway" or "Open
                 anyway".
+                <br />
+                We are currently optimizing the desktop apps for better
+                performance and experience.
               </div>
             </div>
 
