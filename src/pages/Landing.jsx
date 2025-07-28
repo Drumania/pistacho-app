@@ -286,15 +286,15 @@ export default function Landing() {
             </h5>
 
             <div className="input-group my-5">
-              {/* <a href={loginUrl} className="btn-pistacho fs-4 mx-auto px-5">
-                Build My Dashboard
-              </a> */}
-              <button
+              <a href={loginUrl} className="btn-beta fs-4 mx-auto px-5">
+                Try focuspit now!
+              </a>
+              {/* <button
                 className="btn-beta"
                 onClick={() => setShowRequestAccess(true)}
               >
                 Try the Beta Now
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -712,12 +712,9 @@ export default function Landing() {
                 </ul>
 
                 {index === 0 ? (
-                  <button
-                    className="btn-beta btn-beta-small mb-3 "
-                    onClick={() => setShowRequestAccess(true)}
-                  >
-                    Try the Beta Now
-                  </button>
+                  <a href={loginUrl} className="btn-beta fs-4 mx-auto px-3">
+                    Try focuspit now!
+                  </a>
                 ) : (
                   <button
                     className="btn btn-pistacho-outline border-white mt-3 "
@@ -819,12 +816,12 @@ export default function Landing() {
               {/* <button href={loginUrl} className="btn-pistacho fs-4 px-5">
                 Build My Dashboard
               </button> */}
-              <button
+              {/* <button
                 className="btn-beta"
                 onClick={() => setShowRequestAccess(true)}
               >
                 Try the Beta Now
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
