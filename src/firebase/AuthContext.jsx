@@ -214,19 +214,19 @@ export function AuthProvider({ children }) {
       provider
     );
 
-    const isNewUser = _tokenResponse?.isNewUser;
+    // const isNewUser = _tokenResponse?.isNewUser;
 
-    if (isNewUser) {
-      // 🔐 Verificamos si está aprobado
-      const betaRef = doc(db, "beta_requests", fbUser.email);
-      const betaSnap = await getDoc(betaRef);
+    // if (isNewUser) {
+    //   // 🔐 Verificamos si está aprobado
+    //   const betaRef = doc(db, "beta_requests", fbUser.email);
+    //   const betaSnap = await getDoc(betaRef);
 
-      if (!betaSnap.exists() || betaSnap.data().approved !== true) {
-        // Eliminamos el usuario recién creado de Firebase Auth
-        await fbUser.delete();
-        throw new Error("You are not approved for the beta yet.");
-      }
-    }
+    //   if (!betaSnap.exists() || betaSnap.data().approved !== true) {
+    //     // Eliminamos el usuario recién creado de Firebase Auth
+    //     await fbUser.delete();
+    //     throw new Error("You are not approved for the beta yet.");
+    //   }
+    // }
 
     setupPresence(fbUser.uid);
     return fbUser;
@@ -265,15 +265,15 @@ export function AuthProvider({ children }) {
   };
 
   const registerWithEmail = async (email, pass, name) => {
-    // 🔓 Para beta pública, simplemente comentá esta sección
-    // 🔐 Verificamos si el email fue aprobado
-    const betaRef = doc(db, "beta_requests", email);
-    const betaSnap = await getDoc(betaRef);
+    // // 🔓 Para beta pública, simplemente comentá esta sección
+    // // 🔐 Verificamos si el email fue aprobado
+    // const betaRef = doc(db, "beta_requests", email);
+    // const betaSnap = await getDoc(betaRef);
 
-    if (!betaSnap.exists() || betaSnap.data().approved !== true) {
-      throw new Error("You are not approved for the beta yet.");
-    }
-    // -----------
+    // if (!betaSnap.exists() || betaSnap.data().approved !== true) {
+    //   throw new Error("You are not approved for the beta yet.");
+    // }
+    // // -----------
 
     // ⚠️ Guardar nombre para usar luego en ensureUserData
     localStorage.setItem("pendingName", name);
