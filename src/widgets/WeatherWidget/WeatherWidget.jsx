@@ -15,12 +15,12 @@ export default function WeatherWidget() {
       const { latitude, longitude } = pos.coords;
       try {
         const res1 = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}&lang=es`
+          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}&lang=en`
         );
         const data1 = await res1.json();
 
         const res2 = await fetch(
-          `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}&lang=es`
+          `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}&lang=en`
         );
         const data2 = await res2.json();
 
@@ -38,7 +38,7 @@ export default function WeatherWidget() {
     });
   }, []);
 
-  if (loading) return <div className="weather-widget">Cargando clima...</div>;
+  if (loading) return <div className="weather-widget">Loading weather...</div>;
   if (error) return <div className="weather-widget">{error}</div>;
 
   return (
@@ -59,7 +59,7 @@ export default function WeatherWidget() {
         {forecast.map((day) => (
           <div key={day.dt} className="day">
             <div>
-              {new Date(day.dt_txt).toLocaleDateString("es-AR", {
+              {new Date(day.dt_txt).toLocaleDateString("en-US", {
                 weekday: "short",
               })}
             </div>

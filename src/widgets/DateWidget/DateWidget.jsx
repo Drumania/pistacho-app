@@ -1,4 +1,3 @@
-// src/widgets/DateWidget/DateWidget.jsx
 import { useEffect, useState } from "react";
 import "./DateWidget.css";
 
@@ -10,20 +9,18 @@ export default function DateWidget() {
     return () => clearInterval(interval);
   }, []);
 
-  const daysShort = ["L", "M", "M", "J", "V", "S", "D"];
-  const dayOfWeek = now.getDay(); // 0 = domingo
-
-  // ajustamos para que semana arranque en lunes
-  const adjustedDay = (dayOfWeek + 6) % 7;
+  const daysShort = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]; // Mon to Sun (semana empieza lunes)
+  const dayOfWeek = now.getDay();
+  const adjustedDay = (dayOfWeek + 6) % 7; // para empezar lunes
 
   const day = now.getDate();
-  const month = now.toLocaleString("es-AR", { month: "long" });
+  const month = now.toLocaleString("en-US", { month: "long" });
   const year = now.getFullYear();
-  const fullDate = `${now.toLocaleString("es-AR", {
+  const fullDate = `${now.toLocaleString("en-US", {
     weekday: "long",
-  })} ${day} de ${month} de ${year}`;
+  })}, ${month} ${day}, ${year}`;
 
-  const hour = now.toLocaleTimeString([], {
+  const hour = now.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
   });
