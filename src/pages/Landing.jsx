@@ -18,16 +18,6 @@ export default function Landing() {
   const [activeSection, setActiveSection] = useState("");
   const [showRequestAccess, setShowRequestAccess] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
-  const [showBetaBanner, setShowBetaBanner] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowBetaBanner(window.scrollY > 150);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     const sections = document.querySelectorAll("section[id]");
@@ -159,17 +149,6 @@ export default function Landing() {
 
   return (
     <div className="landing">
-      {/* Beta Banner */}
-      {showBetaBanner && (
-        <div
-          className="beta-floating-banner cursor-pointer"
-          onClick={() => setShowRequestAccess(true)}
-        >
-          <strong>Now in Public Beta!</strong>
-          <br />
-          Use it, break it, tell us everything.❤️
-        </div>
-      )}
       {/* NAVBAR */}
       <div className="rounded-edge">&nbsp;</div>
       <nav
@@ -287,7 +266,7 @@ export default function Landing() {
 
             <div className="input-group my-5">
               <a href={loginUrl} className="btn-beta fs-4 mx-auto px-5">
-                Try focuspit now!
+                Try Focuspit Beta now!
               </a>
               {/* <button
                 className="btn-beta"
@@ -712,8 +691,8 @@ export default function Landing() {
                 </ul>
 
                 {index === 0 ? (
-                  <a href={loginUrl} className="btn-beta fs-4 mx-auto px-3">
-                    Try focuspit now!
+                  <a href={loginUrl} className="btn-pistacho mx-auto p-2 px-5">
+                    Try Focuspit Beta now!
                   </a>
                 ) : (
                   <button
