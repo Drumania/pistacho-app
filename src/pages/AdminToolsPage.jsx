@@ -30,8 +30,15 @@ export default function AdminTools() {
   }, []);
 
   const fetchUsers = async () => {
-    const snapshot = await getDocs(collection(db, "users"));
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const snap = await getDocs(collection(db, "users"));
+    const data = snap.docs.map((doc) => {
+      const d = doc.data();
+      return {
+        id: doc.id,
+        ...d,
+        createdAtMillis: d.createdAt?.toMillis?.() || 0, // 👈 sortable
+      };
+    });
     setUsers(data);
   };
 
@@ -68,6 +75,7 @@ export default function AdminTools() {
       if (createdByUser) {
         created_by_name =
           createdByUser.name ||
+          createdByUser.createdAt ||
           createdByUser.displayName ||
           createdByUser.email ||
           "-";
@@ -151,6 +159,22 @@ export default function AdminTools() {
           >
             <Column field="id" header="ID" />
             <Column field="displayName" header="Name" />
+            <Column
+              field="createdAtMillis"
+              header="Registered"
+              sortable
+              body={(row) =>
+                row.createdAt?.toDate
+                  ? row.createdAt.toDate().toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "-"
+              }
+            />
             <Column field="email" header="Email" />
             <Column
               field="admin"

@@ -37,6 +37,9 @@ export function useGroupAccessGuard(groupId) {
 
         if (memberSnap.exists()) {
           setHasAccess(true);
+        } else if (user?.admin) {
+          // 👈 excepción para admin global
+          setHasAccess(true);
         } else {
           navigate("/");
         }
