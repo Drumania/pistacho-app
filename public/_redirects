@@ -1,0 +1,20 @@
+# ----------------------------
+# 🔁 Focuspit – OG redirect
+# Redirige a og.html si es un bot de Facebook o Twitter
+# ----------------------------
+
+# Facebook scraper
+/user-agent: facebookexternalhit
+/ /og.html 200
+
+# Twitter scraper
+/user-agent: Twitterbot
+/ /og.html 200
+
+# LinkedIn (opcional)
+/user-agent: LinkedInBot
+/ /og.html 200
+
+# ----------------------------
+# ✅ Catch-all (tu app de React)
+/*    /index.html   200
