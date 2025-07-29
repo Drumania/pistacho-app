@@ -625,6 +625,9 @@ h5 {
   color: #ffabab;
 }
 
+.widget-full-height {
+  height: calc(100% - 40px);
+}
 /* dialog news */
 .img-news {
   width: 100%;
