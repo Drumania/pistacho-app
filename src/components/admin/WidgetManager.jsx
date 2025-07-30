@@ -142,7 +142,7 @@ export default function WidgetManager() {
     setError("");
     const { key, label, icon, w, h, status, isEdit } = formData;
 
-    if (!key || !label || !icon) {
+    if (!key || !label) {
       setError("All fields are required.");
       return;
     }
@@ -191,6 +191,11 @@ export default function WidgetManager() {
             setError("");
           }}
         />
+      </div>
+
+      <div className="alert alert-info fs-5">
+        Total Widgets: <strong>{widgets.length}</strong> — Enabled:{" "}
+        <strong>{widgets.filter((w) => w.enabled !== false).length}</strong>
       </div>
 
       <DataTable
@@ -308,7 +313,7 @@ export default function WidgetManager() {
               className="form-control"
             />
             <small className="text-info d-block mt-1">
-              150 x 150 px. PNG or JPG recommended.
+              200 x 200 px. PNG or JPG recommended.
             </small>
             {formData.image && (
               <div className="mt-2">

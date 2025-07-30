@@ -15,7 +15,6 @@ import {
 import db from "@/firebase/firestore";
 import WidgetManager from "@/components/admin/WidgetManager";
 import GlobalHabitsAdmin from "@/components/admin/GlobalHabitsAdmin";
-import BetaAccessPanel from "@/components/admin/BetaAccessPanel";
 import NewsAdminPanel from "@/components/admin/NewsAdminPanel";
 import { getAuth } from "firebase/auth";
 
@@ -36,7 +35,7 @@ export default function AdminTools() {
       return {
         id: doc.id,
         ...d,
-        createdAtMillis: d.createdAt?.toMillis?.() || 0, // 👈 sortable
+        createdAtMillis: d.createdAt?.toMillis?.() || 0,
       };
     });
     setUsers(data);
@@ -44,14 +43,12 @@ export default function AdminTools() {
 
   const fetchMemberCounts = async (groupsList) => {
     const counts = {};
-
     for (const group of groupsList) {
       const membersSnap = await getDocs(
         collection(db, "groups", group.id, "members")
       );
       counts[group.id] = membersSnap.size;
     }
-
     setMemberCounts(counts);
   };
 
@@ -59,18 +56,14 @@ export default function AdminTools() {
     const groupsSnap = await getDocs(collection(db, "groups"));
     const usersSnap = await getDocs(collection(db, "users"));
 
-    // Crear un mapa rápido de usuarios por ID
     const usersMap = {};
     usersSnap.forEach((doc) => {
-      usersMap[doc.id] = doc.data(); // { name, email, etc. }
+      usersMap[doc.id] = doc.data();
     });
 
-    // Armar la lista de grupos con nombre del creador
     const data = groupsSnap.docs.map((doc) => {
       const group = doc.data();
-
       const createdByUser = usersMap[group.created_by];
-
       let created_by_name = "-";
       if (createdByUser) {
         created_by_name =
@@ -80,7 +73,6 @@ export default function AdminTools() {
           createdByUser.email ||
           "-";
       }
-
       return {
         id: doc.id,
         ...group,
@@ -142,15 +134,14 @@ export default function AdminTools() {
     <div className="admin-panel container">
       <h4 className="mb-4 ps-2 pt-3">Admin Panel</h4>
       <TabView>
-        <TabPanel header="Beta Access" className="m-3">
-          <BetaAccessPanel />
-        </TabPanel>
-
         <TabPanel header="News" className="m-3">
           <NewsAdminPanel />
         </TabPanel>
 
         <TabPanel header="Users" className="m-3">
+          <div className="alert alert-primary fs-5">
+            Total Users: <strong>{users.length}</strong>
+          </div>
           <DataTable
             value={users}
             paginator
@@ -190,6 +181,9 @@ export default function AdminTools() {
         </TabPanel>
 
         <TabPanel header="Groups" className="m-3">
+          <div className="alert alert-warning fs-5">
+            Total Groups: <strong>{groups.length}</strong>
+          </div>
           <DataTable
             value={groups}
             paginator
