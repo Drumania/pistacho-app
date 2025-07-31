@@ -733,6 +733,7 @@ h5 {
   cursor: pointer;
   position: relative;
   padding-bottom: var(--gap);
+  transition: all 0.2s;
 }
 
 /* Imagen o placeholder, comparten espacio reservado */
@@ -745,6 +746,7 @@ h5 {
   align-items: center;
   justify-content: center; /* fondo gris oscuro para que no parpadee */
   object-fit: cover;
+  transition: all 0.2s;
 }
 
 .widget-card small {
@@ -771,11 +773,18 @@ h5 {
 }
 
 .widget-card:hover {
+  transition: all 0.2s;
   background-color: #090e12;
 }
 
 .widget-card:hover strong {
+  transition: all 0.2s;
   color: var(--pistacho-color);
+}
+
+.widget-card:hover .widget-img {
+  transform: scale(1.3);
+  transition: all 0.2s;
 }
 
 .widget-card:hover .simil-btn {
