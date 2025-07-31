@@ -727,24 +727,60 @@ h5 {
   border-radius: var(--border-radius);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   height: 180px;
-  width: 100%;
-  padding: var(--gap);
+  cursor: pointer;
+  position: relative;
+  padding-bottom: var(--gap);
+}
 
-  & img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: 8px;
-    display: block; /* evita espacios fantasmas debajo */
-  }
+/* Imagen o placeholder, comparten espacio reservado */
+.widget-card .widget-img {
+  width: 100px;
+  height: 100px;
+  aspect-ratio: 1 / 1;
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* fondo gris oscuro para que no parpadee */
+  object-fit: cover;
+}
 
-  & .icon-placeholder {
-    font-size: 2rem;
-    color: #ccc;
-  }
+.widget-card small {
+  font-size: 0.7rem;
+}
+
+/* Solo aplica cuando es icono */
+.widget-card .icon-placeholder {
+  font-size: 2rem;
+  color: #ccc;
+}
+
+.widget-card .simil-btn {
+  position: absolute;
+  width: 100px;
+  line-height: 40px;
+  border-radius: 0 0 16px 16px;
+  color: var(--pistacho-color);
+  font-weight: bold;
+  text-align: center;
+  right: 0;
+  opacity: 0;
+  transition: all 0.2s;
+}
+
+.widget-card:hover {
+  background-color: #090e12;
+}
+
+.widget-card:hover strong {
+  color: var(--pistacho-color);
+}
+
+.widget-card:hover .simil-btn {
+  opacity: 1;
+  transition: all 0.2s;
 }
 
 /* misc */
@@ -911,6 +947,7 @@ h5 {
   background-color: var(--black-color);
   width: 100%;
   border-radius: 3px;
+  border-radius: var(--m-gap);
   padding: 12px;
   -moz-appearance: textfield;
 }
@@ -980,19 +1017,6 @@ input[type="number"] {
 
 .new-group-dialog label {
   color: var(--text-color);
-}
-
-.new-group-dialog input {
-  background-color: var(--bg-color);
-  border: 1px solid var(--line-color);
-  border-radius: var(--border-radius);
-  color: var(--white-color);
-  padding: 8px;
-}
-
-.new-group-dialog input:focus {
-  border-color: var(--pistacho-color);
-  outline: none;
 }
 
 .new-group-dialog .p-button {
@@ -1197,15 +1221,6 @@ input[type="number"] {
   to {
     box-shadow: 0 0 12px 6px var(--white-color);
   }
-}
-
-/* add widget */
-.widget-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.widget-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .btn-tag {

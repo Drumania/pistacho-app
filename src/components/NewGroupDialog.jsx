@@ -148,12 +148,13 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
         <div className="p-fluid">
           <div className="row">
             <div className="col-12 mb-3">
-              <InputText
+              <input
+                type="text"
+                className="custom-input mb-4"
+                autoFocus
+                placeholder="Search by name, description or category..."
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                autoFocus
-                className="input-text-custom w-100"
-                placeholder="Enter group name"
               />
             </div>
 

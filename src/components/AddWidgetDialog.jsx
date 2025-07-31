@@ -17,6 +17,7 @@ export default function AddWidgetDialog({
 }) {
   const [widgetTypes, setWidgetTypes] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const CATEGORIES = [
     { value: "productivity", label: "Productivity" },
@@ -90,87 +91,138 @@ export default function AddWidgetDialog({
       header="Add a Widget"
       visible={visible}
       onHide={onHide}
-      style={{ width: "1000px", maxWidth: "100%", height: "85%" }}
+      style={{ width: "1000px", maxWidth: "98%", height: "90%" }}
       className="p-fluid"
     >
-      <div style={{ height: "100%", overflow: "hidden" }}>
-        <div className="d-flex flex-row h-100">
-          {/* Sidebar */}
-          <div
-            className="border-end p-3"
-            style={{
-              width: "180px",
-              flexShrink: 0,
-              overflowY: "auto",
-              overflowX: "hidden",
-            }}
-          >
-            <div className="d-flex flex-column gap-2">
-              <button
-                className={`text-start cs-border-bottom pb-2 fs-5 ${
-                  selectedCategory === "all" ? "color-pistacho" : "text-white"
-                }`}
-                onClick={() => setSelectedCategory("all")}
-              >
-                All
-              </button>
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.value}
-                  className={`text-start ${
-                    selectedCategory === cat.value
-                      ? "color-pistacho"
-                      : "text-white"
-                  }`}
-                  onClick={() => setSelectedCategory(cat.value)}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-          </div>
+      <div className="h-100 d-flex flex-column">
+        {/* Search Input */}
+        <input
+          type="text"
+          className="custom-input mb-4"
+          placeholder="Search by name, description or category..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+        />
 
-          {/* Grid */}
-          <div
-            className="flex-grow-1 p-3"
-            style={{
-              overflowY: "auto",
-              overflowX: "hidden",
-            }}
+        {/* Badges de categorías */}
+        <div className="d-flex flex-wrap gap-2 mb-3">
+          <button
+            className={`btn btn-sm ${
+              selectedCategory === "all"
+                ? "btn-pistacho"
+                : "btn-pistacho-outline"
+            }`}
+            onClick={() => setSelectedCategory("all")}
           >
-            <div className="row">
-              {filteredWidgets.map((widget) => (
-                <div className="col-6 col-md-4  mb-3" key={widget.id}>
-                  <div className="widget-card">
-                    {widget.label}
+            All
+          </button>
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.value}
+              className={`btn btn-sm ${
+                selectedCategory === cat.value
+                  ? "btn-pistacho"
+                  : "btn-pistacho-outline"
+              }`}
+              onClick={() => setSelectedCategory(cat.value)}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
 
+        {/* Grilla */}
+        <div
+          className="flex-grow-1"
+          style={{ overflowY: "auto", overflowX: "hidden" }}
+        >
+          <div className="row">
+            {widgetTypes
+              .filter((w) =>
+                selectedCategory === "all"
+                  ? true
+                  : w.categories?.includes(selectedCategory)
+              )
+              .filter((w) => {
+                const q = searchTerm;
+                return (
+                  w.label?.toLowerCase().includes(q) ||
+                  w.description?.toLowerCase().includes(q) ||
+                  w.categories?.some((c) => c.toLowerCase().includes(q))
+                );
+              })
+              .sort((a, b) => a.label.localeCompare(b.label)) // 👈 ordena alfabéticamente
+              .map((widget) => (
+                <div className="col-6 col-md-4 mb-4" key={widget.id}>
+                  <div
+                    className="widget-card h-100"
+                    onClick={() => handleAdd(widget)}
+                  >
+                    {/* Imagen */}
                     {widget.image ? (
                       <img
                         src={widget.image}
                         alt={widget.label}
-                        className="img-fluid mb-2"
-                        style={{ maxHeight: "80px", objectFit: "contain" }}
+                        className="widget-img"
+                        loading="lazy"
                       />
                     ) : (
-                      <div className="icon-placeholder mb-2">
+                      <div className="widget-img icon-placeholder">
                         <i className={widget.icon || "bi bi-puzzle"} />
                       </div>
                     )}
 
-                    <Button
-                      label="Add"
-                      className="btn-pistacho-small"
-                      onClick={() => handleAdd(widget)}
-                    />
+                    <strong className="d-block mb-1 fs-4 px-3">
+                      {widget.label}
+                    </strong>
+                    {/* Description */}
+                    {widget.description && (
+                      <p className="text-muted d-block mb-2 px-3 ">
+                        {widget.description.length > 100
+                          ? widget.description.slice(0, 100) + "..."
+                          : widget.description}
+                      </p>
+                    )}
+                    {/*  Categorías */}
+                    {Array.isArray(widget.categories) &&
+                      widget.categories.length > 0 && (
+                        <small className="text-muted fst-italic d-block mb-2 px-3">
+                          (
+                          {widget.categories
+                            .map((cat) => {
+                              const match = CATEGORIES.find(
+                                (c) => c.value === cat
+                              );
+                              return match ? match.label : cat;
+                            })
+                            .join(", ")}
+                          )
+                        </small>
+                      )}
+
+                    {/* Botón */}
+                    <div className="simil-btn">+ Add</div>
                   </div>
                 </div>
               ))}
-            </div>
-
-            {!filteredWidgets.length && (
-              <p className="text-muted mt-3">No widgets in this category.</p>
-            )}
           </div>
+
+          {!widgetTypes
+            .filter((w) =>
+              selectedCategory === "all"
+                ? true
+                : w.categories?.includes(selectedCategory)
+            )
+            .filter((w) => {
+              const q = searchTerm;
+              return (
+                w.label?.toLowerCase().includes(q) ||
+                w.description?.toLowerCase().includes(q) ||
+                w.categories?.some((c) => c.toLowerCase().includes(q))
+              );
+            }).length && (
+            <p className="text-muted mt-3 text-center">No widgets found.</p>
+          )}
         </div>
       </div>
     </Dialog>
