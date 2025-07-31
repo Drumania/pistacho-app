@@ -235,18 +235,12 @@ export default function HeaderDashboard({
           news={news}
         />
 
-        <span
-          className="badge text-bg-info ms-3"
-          style={{
-            height: "28px",
-            lineHeight: "22px",
-            marginTop: "9px",
-            cursor: "pointer",
-          }}
+        <div
+          className="beta-feedback text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3"
           onClick={() => setShowFeedback(true)}
         >
-          Send our <strong>Beta</strong> Feedback
-        </span>
+          Send our Beta Feedback
+        </div>
         <FeedbackDialog
           visible={showFeedback}
           onHide={() => setShowFeedback(false)}
