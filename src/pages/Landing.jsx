@@ -83,67 +83,94 @@ export default function Landing() {
   const allWidgets = [
     {
       name: "To-do list",
-
+      description: "Create, organize and complete your daily tasks.",
       color: "#1a232f",
       img: "/imgs/widget_todos.png",
+      made: "focuspit",
+    },
+    {
+      name: "Bookmarks",
+      description: "Save and access your favorite websites easily.",
+      color: "#1a232f",
+      img: "/imgs/widget_bookmark.png",
+      made: "focuspit",
     },
     {
       name: "Calendar",
-
+      description: "Plan events and view your schedule by date.",
       color: "#141d29",
       img: "/imgs/widget_calendar.png",
+      made: "focuspit",
     },
     {
       name: "Notes",
-
+      description: "Write down quick thoughts, ideas or lists.",
       color: "#394b5e",
       img: "/imgs/widget_notas.png",
+      made: "focuspit",
     },
     {
       name: "Weather",
-
+      description: "Check the forecast for your current location.",
       color: "#394b5e71",
       img: "/imgs/widget_weather.png",
+      made: "focuspit",
     },
     {
       name: "Pomodoro",
+      description: "Stay focused using work/rest time blocks.",
       color: "#141d29",
       img: "/imgs/widget_pomodoro.png",
+      made: "focuspit",
     },
     {
       name: "Weight Tracker",
+      description: "Log your weight and see your progress over time.",
       color: "#1a232f",
       img: "/imgs/widget_weight.png",
+      made: "focuspit",
     },
     {
       name: "Chat",
+      description: "Send messages within your members group.",
       color: "#394b5e",
       img: "/imgs/widget_chat.png",
+      made: "focuspit",
     },
     {
       name: "Shared Rent",
+      description: "Split monthly expenses with your group.",
       color: "#1a232f",
       img: "/imgs/widget_split.png",
+      made: "focuspit",
     },
     {
       name: "Fuel Tracker",
+      description: "Track fuel consumption and car expenses.",
       color: "#394b5e71",
       img: "/imgs/widget_fuel.png",
+      made: "focuspit",
     },
     {
       name: "World Clocks",
+      description: "See current time in multiple cities.",
       color: "#394b5e",
       img: "/imgs/widget_watches.png",
+      made: "focuspit",
     },
     {
       name: "Image",
+      description: "Add an image or visual note to your dashboard.",
       color: "#1a232f",
       img: "/imgs/widget_imagen.png",
+      made: "focuspit",
     },
     {
       name: "Countdowns",
+      description: "Track days left until important events.",
       color: "#1a232f",
       img: "/imgs/widget_countdowns.png",
+      made: "focuspit",
     },
   ];
 
@@ -498,14 +525,19 @@ export default function Landing() {
         <div className="row g-4">
           {allWidgets.map((w, i) => (
             <div className="col-6 col-md-4" key={i}>
-              <Link
-                to={loginUrl}
-                className="category-box p-4 rounded text-white text-center fw-bold"
+              <article
+                className="category-box rounded"
                 style={{ backgroundColor: w.color }}
               >
-                {w.name}
                 <img width="200px" src={w.img} />
-              </Link>
+                <div>
+                  <h5>{w.name}</h5>
+                  <p>{w.description}</p>
+                  <span>
+                    Made by: <strong>{w.made}</strong>
+                  </span>
+                </div>
+              </article>
             </div>
           ))}
         </div>

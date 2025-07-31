@@ -1,4 +1,3 @@
-// 👇 estos imports suman storage
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -30,7 +29,7 @@ export default function WidgetManager() {
   const [formData, setFormData] = useState({
     key: "",
     label: "",
-    icon: "",
+    description: "",
     image: "",
     w: 1,
     h: 1,
@@ -105,7 +104,7 @@ export default function WidgetManager() {
     setFormData({
       key: widget.id,
       label: widget.label,
-      icon: widget.icon,
+      description: widget.description || "",
       image: widget.image || "",
       w: widget.defaultLayout?.w || 1,
       h: widget.defaultLayout?.h || 1,
@@ -140,7 +139,7 @@ export default function WidgetManager() {
 
   const handleSave = async () => {
     setError("");
-    const { key, label, icon, w, h, status, isEdit } = formData;
+    const { key, label, w, h, status, isEdit } = formData;
 
     if (!key || !label) {
       setError("All fields are required.");
@@ -153,7 +152,7 @@ export default function WidgetManager() {
     if (!existing.exists() || isEdit) {
       await setDoc(ref, {
         label,
-        icon,
+        description: formData.description || "",
         image: formData.image || "",
         enabled: status === "enabled",
         defaultLayout: { w: Number(w), h: Number(h) },
@@ -201,7 +200,7 @@ export default function WidgetManager() {
       <DataTable
         value={widgets}
         paginator
-        rows={20}
+        rows={40}
         stripedRows
         className="mt-3 custom-datatable"
       >
@@ -228,7 +227,15 @@ export default function WidgetManager() {
           style={{ width: "80px" }}
         />
         <Column field="label" header="Label" sortable className="fw-bold" />
-        <Column field="id" header="Key" sortable className="fw-light" />
+        <Column field="id" header="Folder" sortable className="fw-light" />
+        <Column
+          header="Description"
+          body={(row) => {
+            const desc = row.description || "-";
+            const short = desc.length > 20 ? desc.slice(0, 20) + "..." : desc;
+            return <span title={desc}>{short}</span>;
+          }}
+        />
         <Column field="defaultLayout.w" header="W" sortable />
         <Column field="defaultLayout.h" header="H" sortable />
         <Column
@@ -292,19 +299,58 @@ export default function WidgetManager() {
             </div>
           )}
 
-          <div className="col-12 border-bottom pe-4 ">
+          <div className="col-12 border-bottom pe-4">
             <label htmlFor="label">Label:</label>
             <InputText
               id="label"
               value={formData.label}
-              className="w-100 mb-3"
+              className="w-100 mb-2"
               onChange={(e) =>
                 setFormData({ ...formData, label: e.target.value })
               }
             />
+            <small className="text-muted">
+              Short name for the widget, e.g. “To-do List”
+            </small>
+            <br />
+            <label htmlFor="description" className="mt-3">
+              Description:
+            </label>
+            <InputText
+              id="description"
+              value={formData.description}
+              className="w-100"
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+            />
+            <small className="text-muted">
+              What this widget does (optional)
+            </small>
+            <br />
+            <br />
           </div>
 
-          <div className="col-6 py-4 pe-4 border-end">
+          <div className="col-3 py-4 border-end">
+            <label>Width (w)</label>
+            <br />
+            <InputText
+              value={formData.w}
+              onChange={(e) => setFormData({ ...formData, w: e.target.value })}
+              style={{ width: "80px" }}
+            />
+            <br />
+            <br />
+            <label>Height (h)</label>
+            <br />
+            <InputText
+              value={formData.h}
+              onChange={(e) => setFormData({ ...formData, h: e.target.value })}
+              style={{ width: "80px" }}
+            />
+          </div>
+
+          <div className="col-6 py-4 ps-4">
             <label>Image (optional)</label>
             <input
               type="file"
@@ -327,45 +373,7 @@ export default function WidgetManager() {
             )}
           </div>
 
-          <div className="col-6 py-4 ps-4 ">
-            <label htmlFor="icon">Icon: (Bootstrap class)</label>
-            <InputText
-              id="icon"
-              value={formData.icon}
-              onChange={(e) =>
-                setFormData({ ...formData, icon: e.target.value })
-              }
-            />
-            <br />
-            {formData.icon && (
-              <div className="ps-2 text-center">
-                <i className={`${formData.icon} me-2`} />
-                <br />
-                <code>{formData.icon}</code>
-              </div>
-            )}
-          </div>
-
-          <div className="col-3 py-4 border-top">
-            <label>Width (w)</label>
-            <br />
-            <InputText
-              value={formData.w}
-              onChange={(e) => setFormData({ ...formData, w: e.target.value })}
-              style={{ width: "80px" }}
-            />
-            <br />
-            <br />
-            <label>Height (h)</label>
-            <br />
-            <InputText
-              value={formData.h}
-              onChange={(e) => setFormData({ ...formData, h: e.target.value })}
-              style={{ width: "80px" }}
-            />
-          </div>
-
-          <div className="col-9 py-4 border-top border-start ps-4 ">
+          <div className="col-12 py-4 border-top ">
             <label className="mb-2 d-block">Categories</label>
             <div className="d-flex flex-column gap-1">
               {CATEGORIES.map((cat) => (

@@ -235,39 +235,43 @@
 }
 
 .category-box {
-  position: relative;
   min-height: 160px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 2rem;
+  justify-content: flex-start;
   overflow: hidden;
   transition: all 0.3s ease;
-  cursor: pointer;
-  text-decoration: none;
+  padding: 0 var(--gap) 0 0;
 }
 
 .category-box img {
-  margin-top: 10px;
-  max-width: 100%;
+  margin: 10px;
 }
 
-.category-box::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.15); /* opacidad leve */
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+.category-box div {
+  height: 160px;
+  /* background: red; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-.category-box:hover::after {
-  opacity: 1;
+.category-box div h5 {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+.category-box div p {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+.category-box div span {
+  font-size: 0.8rem;
+  opacity: 0.8;
 }
 
+/* plans */
 .plans > div ul {
   padding-bottom: 50px;
 }
