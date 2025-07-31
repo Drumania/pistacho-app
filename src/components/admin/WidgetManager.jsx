@@ -15,7 +15,7 @@ import {
   getDownloadURL,
   deleteObject,
 } from "firebase/storage";
-import app from "@/firebase/config";
+import { app } from "@/firebase/config";
 
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";

@@ -26,7 +26,7 @@ import {
 } from "firebase/storage";
 
 import db from "@/firebase/firestore";
-import app from "@/firebase/config";
+import { app } from "@/firebase/config";
 import { useAuth } from "@/firebase/AuthContext";
 
 export default function EditGroupDialog({

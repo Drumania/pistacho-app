@@ -30,7 +30,7 @@ import {
 } from "firebase/database";
 import slugify from "slugify";
 import db from "@/firebase/firestore";
-import app from "./config";
+import { app } from "@/firebase/config";
 
 const AuthContext = createContext();
 const auth = getAuth(app);

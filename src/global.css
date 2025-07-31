@@ -772,21 +772,28 @@ h5 {
   transition: all 0.2s;
 }
 
+.widget-added {
+  background-color: #0e1318;
+}
+
 .widget-card:hover {
   transition: all 0.2s;
   background-color: #090e12;
 }
 
+.widget-added,
 .widget-card:hover strong {
   transition: all 0.2s;
   color: var(--pistacho-color);
 }
 
+.widget-added .widget-img,
 .widget-card:hover .widget-img {
   transform: scale(1.3);
   transition: all 0.2s;
 }
 
+.widget-added .simil-btn,
 .widget-card:hover .simil-btn {
   opacity: 1;
   transition: all 0.2s;

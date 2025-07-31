@@ -17,7 +17,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useAuth } from "@/firebase/AuthContext";
 
 import { CSS } from "@dnd-kit/utilities";
-import app from "@/firebase/config";
+import { app } from "@/firebase/config";
 import { Skeleton } from "primereact/skeleton";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { InputText } from "primereact/inputtext";

@@ -6,6 +6,8 @@ import { es } from "date-fns/locale";
 import useNews from "@/hooks/useNews";
 import NewsDialog from "@/components/NewsDialog";
 import FeedbackDialog from "@/components/FeedbackDialog";
+import { logEvent } from "firebase/analytics";
+import { analytics } from "@/firebase/config";
 
 import {
   getNotificationIcon,
@@ -73,7 +75,12 @@ export default function HeaderDashboard({
                   className={`btn-pistacho position-relative btn-start-here ${
                     widgetInstances.length === 0 ? "shine" : ""
                   }`}
-                  onClick={() => setShowAddWidgetDialog(true)}
+                  onClick={() => {
+                    logEvent(analytics, "open_add_widget_dialog", {
+                      group_name: groupName,
+                    });
+                    setShowAddWidgetDialog(true);
+                  }}
                   id="add-widget"
                 >
                   Add Widget
@@ -87,7 +94,12 @@ export default function HeaderDashboard({
                     className={
                       editMode ? "btn-pistacho shine" : "btn-pistacho-outline"
                     }
-                    onClick={() => setEditMode((prev) => !prev)}
+                    onClick={() => {
+                      logEvent(analytics, "toggle_edit_mode", {
+                        edit_mode: !editMode,
+                      });
+                      setEditMode((prev) => !prev);
+                    }}
                   >
                     {editMode ? (
                       <i className="bi bi-check-lg " />
@@ -103,7 +115,12 @@ export default function HeaderDashboard({
                 <div className="tooltip-wrapper d-inline-block">
                   <button
                     className="btn-pistacho-outline"
-                    onClick={() => setShowInviteDialog(true)}
+                    onClick={() => {
+                      logEvent(analytics, "open_invite_dialog", {
+                        group_name: groupName,
+                      });
+                      setShowInviteDialog(true);
+                    }}
                     id="invite-members"
                   >
                     <i className="bi bi-person-plus" />
@@ -114,7 +131,12 @@ export default function HeaderDashboard({
                 <div className="tooltip-wrapper d-inline-block">
                   <button
                     className="btn-pistacho-outline"
-                    onClick={() => setShowEditDialog(true)}
+                    onClick={() => {
+                      logEvent(analytics, "open_group_settings", {
+                        group_name: groupName,
+                      });
+                      setShowEditDialog(true);
+                    }}
                     id="setting-group"
                   >
                     <i className="bi bi-gear" />
@@ -130,7 +152,12 @@ export default function HeaderDashboard({
         <div ref={notifDropdownRef} className="ms-auto mt-2  position-relative">
           <button
             className="position-relative"
-            onClick={() => setShowNotifications((prev) => !prev)}
+            onClick={() => {
+              logEvent(analytics, "toggle_notifications_panel", {
+                show: !showNotifications,
+              });
+              setShowNotifications((prev) => !prev);
+            }}
           >
             <i
               className="bi bi-bell-fill"
@@ -226,7 +253,13 @@ export default function HeaderDashboard({
           )}
         </div>
 
-        <button className="ms-3 text-muted" onClick={() => setShowNews(true)}>
+        <button
+          className="ms-3 text-muted"
+          onClick={() => {
+            logEvent(analytics, "open_news_dialog");
+            setShowNews(true);
+          }}
+        >
           <i className="bi bi-newspaper"></i> News
         </button>
         <NewsDialog
@@ -237,7 +270,10 @@ export default function HeaderDashboard({
 
         <div
           className="beta-feedback text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3"
-          onClick={() => setShowFeedback(true)}
+          onClick={() => {
+            logEvent(analytics, "open_feedback_dialog");
+            setShowFeedback(true);
+          }}
         >
           Send our Beta Feedback
         </div>

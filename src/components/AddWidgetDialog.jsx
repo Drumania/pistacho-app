@@ -7,7 +7,8 @@ import {
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import { Dialog } from "primereact/dialog";
-import { Button } from "primereact/button";
+import { logEvent } from "firebase/analytics";
+import { analytics } from "@/firebase/config";
 
 export default function AddWidgetDialog({
   groupId,
@@ -18,6 +19,8 @@ export default function AddWidgetDialog({
   const [widgetTypes, setWidgetTypes] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [addedWidgets, setAddedWidgets] = useState([]);
+  const [loadingWidgets, setLoadingWidgets] = useState([]);
 
   const CATEGORIES = [
     { value: "productivity", label: "Productivity" },
@@ -38,9 +41,17 @@ export default function AddWidgetDialog({
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter((w) => w.enabled);
       setWidgetTypes(data);
+
+      // Obtené los widgets ya agregados en el grupo
+      const addedSnapshot = await getDocs(
+        collection(db, `groups/${groupId}/widgets`)
+      );
+      const added = addedSnapshot.docs.map((doc) => doc.data().key);
+      setAddedWidgets(added);
     };
+
     fetchAvailableWidgets();
-  }, []);
+  }, [groupId]);
 
   const getNextAvailablePosition = (layout, cols = 4) => {
     const columnHeights = new Array(cols).fill(0);
@@ -56,35 +67,77 @@ export default function AddWidgetDialog({
   };
 
   const handleAdd = async (widgetMeta) => {
-    const snapshot = await getDocs(collection(db, `groups/${groupId}/widgets`));
-    const layout = snapshot.docs.map(
-      (doc) => doc.data().layout || { x: 0, y: 0, w: 1, h: 1 }
-    );
+    const widgetId = widgetMeta.id;
 
-    const pos = getNextAvailablePosition(layout, 4);
+    // Activar loading para ese widget
+    setLoadingWidgets((prev) => [...prev, widgetId]);
 
-    const newWidget = {
-      key: widgetMeta.id,
-      layout: {
-        x: pos.x,
-        y: pos.y,
-        w: widgetMeta.defaultLayout?.w || 1,
-        h: widgetMeta.defaultLayout?.h || 1,
-      },
-      settings: {},
-      createdAt: serverTimestamp(),
-      createdBy: "system",
-    };
+    try {
+      logEvent(analytics, "add_widget", {
+        widget_id: widgetMeta.id,
+        widget_name: widgetMeta.label || "unknown",
+        category: widgetMeta.categories?.[0] || "uncategorized",
+      });
 
-    await addDoc(collection(db, `groups/${groupId}/widgets`), newWidget);
-    onWidgetAdded();
-    onHide();
+      const snapshot = await getDocs(
+        collection(db, `groups/${groupId}/widgets`)
+      );
+      const layout = snapshot.docs.map(
+        (doc) => doc.data().layout || { x: 0, y: 0, w: 1, h: 1 }
+      );
+
+      const pos = getNextAvailablePosition(layout, 4);
+
+      const newWidget = {
+        key: widgetMeta.id,
+        layout: {
+          x: pos.x,
+          y: pos.y,
+          w: widgetMeta.defaultLayout?.w || 1,
+          h: widgetMeta.defaultLayout?.h || 1,
+        },
+        settings: {},
+        createdAt: serverTimestamp(),
+        createdBy: "system",
+      };
+
+      await addDoc(collection(db, `groups/${groupId}/widgets`), newWidget);
+
+      // Actualizar el estado para marcarlo como agregado
+      setAddedWidgets((prev) => [...prev, widgetMeta.id]);
+      onWidgetAdded?.(); // por si lo necesitás
+    } catch (err) {
+      console.error("Error adding widget", err);
+    } finally {
+      setLoadingWidgets((prev) => prev.filter((id) => id !== widgetId));
+    }
   };
 
-  const filteredWidgets =
-    selectedCategory === "all"
-      ? widgetTypes
-      : widgetTypes.filter((w) => w.categories?.includes(selectedCategory));
+  const handleWidgetClick = (widget) => {
+    const isAdded = addedWidgets.includes(widget.id);
+    const isLoading = loadingWidgets.includes(widget.id);
+
+    if (isLoading) return;
+
+    if (isAdded) {
+      // 🔒 Si en el futuro es premium, podrías hacer algo como:
+      // if (userHasPremium) duplicateWidget(widget);
+      // else showUpgradeModal();
+
+      console.log(
+        "This widget is already added. Only premium users can duplicate it."
+      );
+
+      return;
+    }
+
+    handleAdd(widget);
+  };
+
+  // const filteredWidgets =
+  //   selectedCategory === "all"
+  //     ? widgetTypes
+  //     : widgetTypes.filter((w) => w.categories?.includes(selectedCategory));
 
   return (
     <Dialog
@@ -155,8 +208,10 @@ export default function AddWidgetDialog({
               .map((widget) => (
                 <div className="col-6 col-md-4 mb-4" key={widget.id}>
                   <div
-                    className="widget-card h-100"
-                    onClick={() => handleAdd(widget)}
+                    className={`widget-card h-100 ${
+                      addedWidgets.includes(widget.id) ? "widget-added" : ""
+                    }`}
+                    onClick={() => handleWidgetClick(widget)}
                   >
                     {/* Imagen */}
                     {widget.image ? (
@@ -200,8 +255,15 @@ export default function AddWidgetDialog({
                         </small>
                       )}
 
-                    {/* Botón */}
-                    <div className="simil-btn">+ Add</div>
+                    <div className="simil-btn">
+                      {loadingWidgets.includes(widget.id) ? (
+                        <span className="spinner-border spinner-border-sm" />
+                      ) : addedWidgets.includes(widget.id) ? (
+                        "Added"
+                      ) : (
+                        "+ Add"
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

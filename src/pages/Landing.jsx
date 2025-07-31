@@ -57,6 +57,7 @@ export default function Landing() {
       badge: "Save 20%",
       features: [
         "All basic widgets + advanced widgets ",
+        "Duplicate widgets",
         "Widgets with storage",
         "Priority support",
         "Custom username badge",
@@ -70,6 +71,7 @@ export default function Landing() {
       badge: "Save 35%",
       features: [
         "Unlimited groups members",
+        "Duplicate widgets",
         "Public dashboards for open communities",
         "Role-based access (admins, editors, viewers)",
         "All widgets: basic, advanced, storage — no limits",

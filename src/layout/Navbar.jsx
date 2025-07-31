@@ -14,8 +14,10 @@ import {
 import { useGroups } from "@/context/GroupsProvider";
 import NewGroupDialog from "@/components/NewGroupDialog";
 import { useAuth } from "@/firebase/AuthContext";
-import { Skeleton } from "primereact/skeleton";
+import { logEvent } from "firebase/analytics";
+import { analytics } from "@/firebase/config";
 
+import { Skeleton } from "primereact/skeleton";
 import { getUserAvatar } from "@/utils/getUserAvatar";
 import useNotifications from "@/hooks/useNotifications";
 
@@ -163,9 +165,14 @@ export default function Groups({ onGroupClick }) {
                       group.slug === groupId ? "active" : ""
                     }`}
                     onClick={() => {
+                      logEvent(analytics, "change_group", {
+                        group_id: group.id,
+                        group_name: group.name,
+                      });
+
                       navigate(`/g/${group.slug}`);
                       if (isMobile && typeof onGroupClick === "function") {
-                        onGroupClick(); // ← colapsa el navbar
+                        onGroupClick();
                       }
                     }}
                     style={{
@@ -192,7 +199,10 @@ export default function Groups({ onGroupClick }) {
         <div className="tooltip-wrapper mb-3 d-flex justify-content-center">
           <div
             className="group-btn group-btn-new"
-            onClick={() => setShowDialog(true)}
+            onClick={() => {
+              logEvent(analytics, "open_new_group_dialog");
+              setShowDialog(true);
+            }}
           >
             <i className="bi bi-plus-lg"></i>
           </div>
@@ -237,7 +247,10 @@ export default function Groups({ onGroupClick }) {
                       <Link
                         to="/admintools"
                         className="dropdown-item d-flex align-items-center gap-2"
-                        onClick={() => setMenuOpen(false)}
+                        onClick={() => {
+                          logEvent(analytics, "open_admin_tools");
+                          setMenuOpen(false);
+                        }}
                       >
                         <i className="bi bi-shield-lock" /> Admin Tools
                       </Link>
@@ -248,7 +261,10 @@ export default function Groups({ onGroupClick }) {
                     <Link
                       to="/resume"
                       className="dropdown-item d-flex align-items-center gap-2"
-                      onClick={() => setMenuOpen(false)}
+                      onClick={() => {
+                        logEvent(analytics, "open_settings");
+                        setMenuOpen(false);
+                      }}
                     >
                       <i className="bi bi-list-task" /> Resume
                     </Link>
@@ -284,6 +300,7 @@ export default function Groups({ onGroupClick }) {
                     <button
                       className="dropdown-item color-red d-flex align-items-center gap-2"
                       onClick={() => {
+                        logEvent(analytics, "logout");
                         setMenuOpen(false);
                         logout();
                       }}

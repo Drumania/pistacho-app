@@ -3,7 +3,7 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
-import app from "@/firebase/config";
+import { app } from "@/firebase/config";
 import db from "@/firebase/firestore";
 
 export default function ImageWidgetDialog({
