@@ -16,12 +16,16 @@ import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { Editor } from "primereact/editor";
 import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog";
 
 export default function NewsAdminPanel() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [news, setNews] = useState([]);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
+  const [link, setLink] = useState("");
 
   useEffect(() => {
     fetchNews();
@@ -35,9 +39,7 @@ export default function NewsAdminPanel() {
     setNews(data);
   };
 
-  const handleCreateNews = async () => {
-    if (!title) return;
-
+  const preparePreview = async () => {
     let imageUrl = null;
 
     if (imageFile) {
@@ -47,12 +49,22 @@ export default function NewsAdminPanel() {
       imageUrl = await getDownloadURL(imageRef);
     }
 
-    const newDoc = await addDoc(collection(db, "news"), {
+    const preview = {
       title,
       content,
       image: imageUrl || null,
+      link: link || null,
       created_at: serverTimestamp(),
-    });
+    };
+
+    setPreviewData(preview);
+    setPreviewVisible(true);
+  };
+
+  const handlePublish = async () => {
+    if (!previewData?.title) return;
+
+    const newDoc = await addDoc(collection(db, "news"), previewData);
 
     const usersSnap = await getDocs(collection(db, "users"));
     for (const user of usersSnap.docs) {
@@ -65,8 +77,9 @@ export default function NewsAdminPanel() {
         status: "pending",
         data: {
           news_id: newDoc.id,
-          title,
-          short: content?.replace(/<[^>]+>/g, "").slice(0, 100) || "",
+          title: previewData.title,
+          short:
+            previewData.content?.replace(/<[^>]+>/g, "").slice(0, 100) || "",
         },
       });
     }
@@ -75,21 +88,8 @@ export default function NewsAdminPanel() {
     setTitle("");
     setContent("");
     setImageFile(null);
+    setPreviewVisible(false);
     fetchNews();
-  };
-
-  const onRowEditComplete = async (e) => {
-    const { newData, index } = e;
-    const docRef = doc(db, "news", newData.id);
-    await updateDoc(docRef, {
-      title: newData.title,
-      content: newData.content,
-      updated_at: serverTimestamp(),
-    });
-
-    const updated = [...news];
-    updated[index] = newData;
-    setNews(updated);
   };
 
   const handleDelete = async (rowData) => {
@@ -110,17 +110,13 @@ export default function NewsAdminPanel() {
       "-"
     );
 
-  const renderHeader = () => {
-    return (
-      <span className="ql-formats">
-        <button className="ql-bold" aria-label="Bold"></button>
-        <button className="ql-italic" aria-label="Italic"></button>
-        <button className="ql-underline" aria-label="Underline"></button>
-      </span>
-    );
-  };
-
-  const header = renderHeader();
+  const renderHeader = () => (
+    <span className="ql-formats">
+      <button className="ql-bold" aria-label="Bold"></button>
+      <button className="ql-italic" aria-label="Italic"></button>
+      <button className="ql-underline" aria-label="Underline"></button>
+    </span>
+  );
 
   const actionsBodyTemplate = (rowData) => (
     <Button
@@ -129,6 +125,8 @@ export default function NewsAdminPanel() {
       onClick={() => handleDelete(rowData)}
     />
   );
+
+  const header = renderHeader();
 
   return (
     <div className="container">
@@ -168,12 +166,55 @@ export default function NewsAdminPanel() {
               />
             </div>
 
-            <Button className="btn btn-primary mb-4" onClick={handleCreateNews}>
-              Publish News
+            <div className="mb-3">
+              <label>Link (optional)</label>
+              <input
+                type="text"
+                className="form-control"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+
+            <Button
+              className="btn btn-outline-secondary"
+              onClick={preparePreview}
+            >
+              Preview News
             </Button>
           </div>
         </div>
       </details>
+
+      <Dialog
+        header="Preview News"
+        visible={previewVisible}
+        style={{ width: "600px" }}
+        onHide={() => setPreviewVisible(false)}
+        footer={
+          <Button
+            label="Publish"
+            className="btn btn-success"
+            onClick={handlePublish}
+          />
+        }
+      >
+        {previewData && (
+          <div>
+            {previewData.image && (
+              <img
+                src={previewData.image}
+                alt="preview"
+                style={{ width: "100%", borderRadius: "8px" }}
+                className="mb-3"
+              />
+            )}
+            <h5>{previewData.title}</h5>
+            <div dangerouslySetInnerHTML={{ __html: previewData.content }} />
+          </div>
+        )}
+      </Dialog>
 
       <hr />
       <h5 className="mb-3">Manage Existing News</h5>
@@ -181,7 +222,6 @@ export default function NewsAdminPanel() {
         value={news}
         editMode="row"
         dataKey="id"
-        onRowEditComplete={onRowEditComplete}
         responsiveLayout="scroll"
         className="p-datatable-sm"
       >
@@ -205,28 +245,18 @@ export default function NewsAdminPanel() {
         <Column
           field="content"
           header="Content"
-          editor={(options) => (
-            <InputText
-              type="text"
-              value={options.rowData.content}
-              onChange={(e) =>
-                options.editorCallback({
-                  ...options.rowData,
-                  content: e.target.value,
-                })
-              }
-            />
-          )}
+          body={(rowData) =>
+            rowData.content
+              ? rowData.content.replace(/<[^>]+>/g, "").slice(0, 100) + "..."
+              : "-"
+          }
         />
-
         <Column
           field="image"
           header="Image"
           body={imageBodyTemplate}
           style={{ width: "80px" }}
         />
-
-        <Column rowEditor header="Edit" style={{ width: "100px" }} />
 
         <Column
           header="Delete"
