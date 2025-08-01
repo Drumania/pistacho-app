@@ -154,6 +154,17 @@ function setupPresence(uid) {
   });
 }
 
+async function updateLastLogin(uid) {
+  const refUser = doc(db, "users", uid);
+  await setDoc(
+    refUser,
+    {
+      last_login: serverTimestamp(),
+    },
+    { merge: true } // 👈 no pisa el resto del documento
+  );
+}
+
 // ✅ Datos de usuario + grupo
 async function ensureUserData(fbUser, fallbackName = "") {
   const refUser = doc(db, "users", fbUser.uid);
@@ -214,21 +225,8 @@ export function AuthProvider({ children }) {
       provider
     );
 
-    // const isNewUser = _tokenResponse?.isNewUser;
-
-    // if (isNewUser) {
-    //   // 🔐 Verificamos si está aprobado
-    //   const betaRef = doc(db, "beta_requests", fbUser.email);
-    //   const betaSnap = await getDoc(betaRef);
-
-    //   if (!betaSnap.exists() || betaSnap.data().approved !== true) {
-    //     // Eliminamos el usuario recién creado de Firebase Auth
-    //     await fbUser.delete();
-    //     throw new Error("You are not approved for the beta yet.");
-    //   }
-    // }
-
     setupPresence(fbUser.uid);
+    await updateLastLogin(fbUser.uid);
     return fbUser;
   };
 
@@ -257,6 +255,7 @@ export function AuthProvider({ children }) {
         pass
       );
       setupPresence(fbUser.uid);
+      await updateLastLogin(fbUser.uid);
       return fbUser;
     } catch (err) {
       console.error("Login error:", err.code);
@@ -286,6 +285,7 @@ export function AuthProvider({ children }) {
     );
 
     setupPresence(fbUser.uid);
+    await updateLastLogin(fbUser.uid);
     return fbUser;
   };
 

@@ -20,7 +20,7 @@ export default function NewsDialog({ visible, onHide, news }) {
       modal
       className="long-content-dialog"
     >
-      <div className="p-2" style={{ maxHeight: "60vh", overflowY: "auto" }}>
+      <div className="p-2" style={{ maxHeight: "90vh", overflowY: "auto" }}>
         {latest ? (
           <>
             {cachedImage.current && (

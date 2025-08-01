@@ -36,6 +36,7 @@ export default function AdminTools() {
         id: doc.id,
         ...d,
         createdAtMillis: d.createdAt?.toMillis?.() || 0,
+        lastLoginMillis: d.last_login?.toMillis?.() || 0,
       };
     });
     setUsers(data);
@@ -107,12 +108,6 @@ export default function AdminTools() {
   const userActionsTemplate = (row) => (
     <div className="d-flex gap-2">
       <Button
-        icon={row.admin ? "bi bi-person-dash" : "bi bi-shield-check"}
-        className="p-button-sm p-button-text"
-        onClick={() => toggleAdmin(row)}
-        title={row.admin ? "Remove admin" : "Make admin"}
-      />
-      <Button
         icon="bi bi-trash"
         className="p-button-sm p-button-text text-danger"
         onClick={() => deleteUser(row)}
@@ -149,7 +144,7 @@ export default function AdminTools() {
             className="mt-3 custom-datatable"
           >
             <Column field="id" header="ID" />
-            <Column field="displayName" header="Name" />
+            <Column field="name" header="Name" />
             <Column
               field="createdAtMillis"
               header="Registered"
@@ -165,6 +160,33 @@ export default function AdminTools() {
                     })
                   : "-"
               }
+            />
+            <Column
+              field="lastLoginMillis"
+              header="Last Login"
+              sortable
+              body={(row) =>
+                row.last_login?.toDate
+                  ? row.last_login.toDate().toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "-"
+              }
+            />
+            <Column
+              header="Last Seen"
+              body={(row) => {
+                if (!row.lastLoginMillis) return "-";
+                const diff = Date.now() - row.lastLoginMillis;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                if (days === 0) return "Today";
+                if (days === 1) return "1 day ago";
+                return `${days} days ago`;
+              }}
             />
             <Column field="email" header="Email" />
             <Column
