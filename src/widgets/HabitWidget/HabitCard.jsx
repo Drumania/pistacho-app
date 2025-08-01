@@ -37,6 +37,17 @@ export default function HabitCard({ habit, groupId, widgetId, onRefresh }) {
   }, []);
 
   const toggleDay = async (dateStr, currentValue) => {
+    // Update localmente primero
+    habit.history = {
+      ...habit.history,
+      [dateStr]: !currentValue,
+    };
+
+    // Fuerza re-render inmediato
+    setWeekDays([...weekDays]);
+    setMonthDays([...monthDays]);
+
+    // Luego actualizás Firestore
     const groupWidgetId = `${groupId}_${widgetId}`;
     const habitRef = doc(
       db,
@@ -45,12 +56,7 @@ export default function HabitCard({ habit, groupId, widgetId, onRefresh }) {
       "habits",
       habit.id
     );
-    const updatedHistory = {
-      ...habit.history,
-      [dateStr]: !currentValue,
-    };
-    await updateDoc(habitRef, { history: updatedHistory });
-    onRefresh();
+    await updateDoc(habitRef, { history: habit.history });
   };
 
   const renderDay = (day, showDayLabel = true) => {
