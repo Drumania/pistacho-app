@@ -1,31 +1,103 @@
 /* HabitWidget.css */
 
-.habit-widget {
-  color: var(--text-color);
-  font-size: 0.95rem;
+.habit-card {
+  padding: var(--m-gap);
+  min-height: 100px;
 }
 
-.habit-widget h5 {
-  font-size: 1.1rem;
-  color: var(--white-color);
-}
-
-.habit-widget .form-check {
+.habit-days {
   display: flex;
-  align-items: center;
   gap: 0.5rem;
 }
 
-.habit-widget .form-check-input {
-  transform: scale(1.2);
+.day-label,
+.date-label {
+  font-size: 0.8rem;
+}
+
+.day-circle {
+  width: 22px;
+  border-radius: 3px;
+  height: 22px;
   cursor: pointer;
 }
 
-.habit-widget .form-check-label {
+.color-swatch {
+  width: 22px;
+  height: 22px;
   cursor: pointer;
 }
 
-.habit-widget .text-success {
-  font-weight: 500;
-  margin-bottom: 1rem;
+.color-swatch.selected {
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px var(--pistacho-color);
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.empty-day {
+  height: 50px;
+}
+
+.habit-month {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--line-color);
+}
+
+.month-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+}
+
+.habit-month-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.habit-month-label {
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.habit-month-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #0e141a;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.habit-month-circle.checked {
+  background-color: var(--pistacho-color); /* o el color del hábito inline */
+}
+
+.today {
+  border: 2px solid var(--pistacho-color);
+}
+
+.btn-word {
+  background-color: transparent;
+  color: #959595;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.8rem;
+  border-radius: 15px;
+}
+
+.btn-word:hover {
+  text-decoration: underline;
 }
