@@ -81,7 +81,7 @@ export default function CountdownWidget({ widgetId, editMode, groupId }) {
   return (
     <div className="countdown-widget widget-container">
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <h5 className="m-0">{config.title}</h5>
+        <h5 className="m-0">Countdown</h5>
         <Button
           label="+ Countdown"
           className="btn-transp-small"
@@ -95,21 +95,24 @@ export default function CountdownWidget({ widgetId, editMode, groupId }) {
             <div className="countdown-finished">¡Time's up!</div>
           ) : (
             <div className="countdown-digital">
-              {timeLeft.days > 0 && (
-                <>
-                  {String(timeLeft.days).padStart(2, "0")}
-                  <span className="colon">:</span>
-                </>
-              )}
-              {String(timeLeft.hours).padStart(2, "0")}
-              <span className="colon">:</span>
-              {String(timeLeft.minutes).padStart(2, "0")}
-              {config.showSeconds && (
-                <>
-                  <span className="colon">:</span>
-                  {String(timeLeft.seconds).padStart(2, "0")}
-                </>
-              )}
+              <h3 className="m-0">{config.title}</h3>
+              <div>
+                {timeLeft.days > 0 && (
+                  <>
+                    {String(timeLeft.days).padStart(2, "0")}
+                    <span className="colon">:</span>
+                  </>
+                )}
+                {String(timeLeft.hours).padStart(2, "0")}
+                <span className="colon">:</span>
+                {String(timeLeft.minutes).padStart(2, "0")}
+                {config.showSeconds && (
+                  <>
+                    <span className="colon">:</span>
+                    {String(timeLeft.seconds).padStart(2, "0")}
+                  </>
+                )}
+              </div>
             </div>
           )
         ) : (

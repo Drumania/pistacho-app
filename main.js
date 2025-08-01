@@ -27,6 +27,12 @@ function createWindow() {
 
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL("http://www.focuspit.com");
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    const { shell } = require("electron");
+    shell.openExternal(url);
+    return { action: "deny" };
+  });
 }
 
 // ipcMain.on("window:minimize", () => {

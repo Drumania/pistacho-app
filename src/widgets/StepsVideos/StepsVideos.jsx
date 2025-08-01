@@ -35,7 +35,12 @@ export default function StepsVideos({ groupId, widgetId, editMode }) {
         const data = docSnap.data();
         const contenido = data.contenido || {};
         setTitle(contenido.title || "Steps Videos");
-        setVideos(contenido.videos || []);
+
+        const vids = contenido.videos || [];
+        setVideos(vids);
+
+        const firstUnseenIndex = vids.findIndex((v) => !v.seen);
+        setCurrentIndex(firstUnseenIndex !== -1 ? firstUnseenIndex : 0);
       }
       setLoading(false);
     });
