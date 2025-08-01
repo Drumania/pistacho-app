@@ -179,16 +179,17 @@ async function ensureUserData(fbUser, fallbackName = "") {
     await setDoc(refUser, {
       uid: fbUser.uid,
       email: fbUser.email,
-      name, // ✅ guarda el nombre correcto en Firestore
+      name,
       slug,
       photoURL: fbUser.photoURL || "",
       createdAt: serverTimestamp(),
     });
 
     await createPersonalGroup(slug, fbUser);
-
-    localStorage.removeItem("pendingName"); // 🧹 limpiar
+    localStorage.removeItem("pendingName");
   }
+
+  await updateLastLogin(fbUser.uid); // ✅ move acá
 
   const profile = (await getDoc(refUser)).data();
   return { ...fbUser, ...profile };
@@ -226,7 +227,7 @@ export function AuthProvider({ children }) {
     );
 
     setupPresence(fbUser.uid);
-    await updateLastLogin(fbUser.uid);
+    // await updateLastLogin(fbUser.uid);
     return fbUser;
   };
 
@@ -255,7 +256,7 @@ export function AuthProvider({ children }) {
         pass
       );
       setupPresence(fbUser.uid);
-      await updateLastLogin(fbUser.uid);
+      // await updateLastLogin(fbUser.uid);
       return fbUser;
     } catch (err) {
       console.error("Login error:", err.code);
@@ -285,7 +286,7 @@ export function AuthProvider({ children }) {
     );
 
     setupPresence(fbUser.uid);
-    await updateLastLogin(fbUser.uid);
+    // await updateLastLogin(fbUser.uid);
     return fbUser;
   };
 
