@@ -54,7 +54,7 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
       visible={visible}
       onHide={closeDialog}
       header="Create New Dashboard"
-      style={{ width: "70vw", maxWidth: "1000px", height: "70vh" }}
+      style={{ width: "70vw", maxWidth: "1000px", height: "90vh" }}
       className="new-group-dialog"
       modal
     >
@@ -93,7 +93,13 @@ export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
                     disabled={isSoon}
                     style={{ cursor: isSoon ? "not-allowed" : "pointer" }}
                   >
-                    <img src={tab.img} alt={tab.label} width="60px" />
+                    <img
+                      src={tab.img}
+                      alt={tab.label}
+                      width="60px"
+                      height="62px"
+                      style={{ aspectRatio: "40 / 41" }}
+                    />
 
                     <strong className="d-block fs-4 mt-4 mb-1">
                       {tab.label}
