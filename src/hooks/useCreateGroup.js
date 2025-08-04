@@ -1,7 +1,9 @@
+// src/hooks/useCreateGroup.js
 import {
   doc,
   setDoc,
   serverTimestamp,
+  getDoc,
   getDocs,
   collection,
   addDoc,
@@ -14,8 +16,21 @@ import slugify from "slugify";
  */
 const generateGroupSlug = async (name) => {
   const base = slugify(name, { lower: true, strict: true });
-  const random = Math.floor(1000 + Math.random() * 9000);
-  return `${base}-${random}`;
+  let slug = base;
+  let exists = true;
+  let attempts = 0;
+
+  while (exists && attempts < 5) {
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    slug = `${base}-${suffix}`;
+    const groupDoc = await getDoc(doc(db, "groups", slug));
+    exists = groupDoc.exists();
+    attempts++;
+  }
+
+  if (exists) throw new Error("Could not generate unique slug");
+
+  return slug;
 };
 
 export const useCreateGroup = () => {
@@ -26,13 +41,13 @@ export const useCreateGroup = () => {
     const groupRef = doc(db, "groups", slug);
     const memberRef = doc(db, "groups", slug, "members", currentUser.uid);
 
-    // buscar el mayor order actual
+    // calcular nuevo order (⚠️ trae todos los grupos)
     const snapshot = await getDocs(collection(db, "groups"));
     const orders = snapshot.docs.map((doc) => doc.data().order || 0);
     const maxOrder = orders.length ? Math.max(...orders) : 0;
     const newOrder = maxOrder + 1;
 
-    // 1. Crear grupo
+    // crear grupo
     await setDoc(groupRef, {
       name,
       slug,
@@ -42,14 +57,14 @@ export const useCreateGroup = () => {
       created_at: serverTimestamp(),
     });
 
-    // 2. Miembro con owner/admin
+    // asignar miembro owner/admin
     await setDoc(memberRef, {
       uid: currentUser.uid,
       owner: true,
       admin: true,
     });
 
-    // 3. Si hay un template, clonar los widgets
+    // ⚠️ (deprecated) clonado de widgets desde template → ya se hace en los componentes
     if (template?.widgets?.length) {
       for (const w of template.widgets) {
         if (!w.widgetId) continue;
@@ -63,7 +78,7 @@ export const useCreateGroup = () => {
       }
     }
 
-    return { slug, id: slug };
+    return { slug, id: slug, ref: groupRef };
   };
 
   return { createGroup };

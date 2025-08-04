@@ -132,7 +132,7 @@ export default function CalendarWidget({ groupId, widgetId }) {
     <div>
       <Toast ref={toast} />
 
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex justify-content-between align-items-center">
         <h5 className="mb-0">Calendar</h5>
         <Button
           label="+ Event"

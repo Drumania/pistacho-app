@@ -206,7 +206,7 @@ export default function Groups({ onGroupClick }) {
           >
             <i className="bi bi-plus-lg"></i>
           </div>
-          <div className="tooltip">New Group</div>
+          <div className="tooltip">New Dashboard</div>
         </div>
 
         {user && (

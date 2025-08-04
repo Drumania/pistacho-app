@@ -592,12 +592,20 @@ h5 {
   }
 }
 
+.btn-nw-dashboard {
+  background-color: var(--panel);
+}
+
+.btn-nw-dashboard:hover {
+  background-color: var(--panel-inside);
+}
+
 /* widget-zone */
 .widget-content {
   height: 100%;
   background: var(--panel, #fff);
   border-radius: 0.5rem;
-  padding: var(--gap);
+  padding: var(--m-gap) var(--gap);
   box-shadow: var(--shadow, 0 0 10px rgba(0, 0, 0, 0.1));
   overflow-y: auto;
   transition: all 0.2s ease;
@@ -923,6 +931,11 @@ h5 {
   background-color: #ccc;
 }
 
+.acc-new-group .p-accordion-tab {
+  height: 30px;
+  line-height: 30px;
+}
+
 .cs-list-group,
 .cs-list-notifications {
   background-color: var(--panel-inside);
@@ -1041,18 +1054,6 @@ input[type="number"] {
 
 .new-group-dialog label {
   color: var(--text-color);
-}
-
-.new-group-dialog .p-button {
-  background-color: var(--pistacho-color);
-  border: none;
-  border-radius: var(--border-radius);
-  font-weight: 600;
-  color: #fff;
-}
-
-.new-group-dialog .p-button:hover {
-  background-color: var(--dark-pistacho-color);
 }
 
 .p-dialog .p-dialog-header {

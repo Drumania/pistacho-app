@@ -172,7 +172,10 @@ export default function EditGroupDialog({
           // 🔥 3. Borrar grupo
           await deleteDoc(doc(db, "groups", groupId));
 
-          // 🔁 4. Redirigir
+          // ✅ 4. Refrescar contexto de grupos
+          refreshGroups();
+
+          // 🔁 5. Redirigir
           navigate("/home");
         } catch (err) {
           console.error("❌ Error deleting group and related data:", err);

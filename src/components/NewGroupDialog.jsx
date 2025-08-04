@@ -1,255 +1,138 @@
-import { useState, useEffect } from "react";
-import { useCreateGroup } from "@/hooks/useCreateGroup";
-import {
-  getDocs,
-  collection,
-  addDoc,
-  serverTimestamp,
-} from "firebase/firestore";
-import db from "@/firebase/firestore";
+// src/components/groups/NewGroupDialog.jsx
+import { useState } from "react";
 import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
-import { Button } from "primereact/button";
-import { Image } from "primereact/image";
+import EmptyGroupStep from "./NewGroupSteps/EmptyGroupStep";
+import TemplateGroupStep from "./NewGroupSteps/TemplateGroupStep";
+import ChallengeGroupStep from "./NewGroupSteps/ChallengeGroupStep";
+import CommunityGroupStep from "./NewGroupSteps/CommunityGroupStep";
 
-const WIDGET_TYPES = [
-  "BlockTextWidget",
-  "FuelTrackerWidget",
-  "ImageWidget",
-  "ImportantDatesWidget",
-  "TodoWidget",
-  "UsefulContactsWidget",
+const TABS = [
+  {
+    label: "Create empty dashboard",
+    key: "empty",
+    tip: "Start with a blank dashboard, no widgets added.",
+    img: "/imgs/nw-dash/nt_img1.png",
+    soon: false,
+  },
+  {
+    label: "Use a dashboard template",
+    key: "template",
+    tip: "Start with a pre-designed layout and widgets.",
+    img: "/imgs/nw-dash/nt_img2.png",
+    soon: false,
+  },
+  {
+    label: "21-day challenge",
+    key: "challenge",
+    tip: "Track a daily habit for 21 days.",
+    img: "/imgs/nw-dash/nt_img3.png",
+    soon: true,
+  },
+  {
+    label: "Community templates",
+    key: "community",
+    tip: "Browse templates and challenges from other users.",
+    img: "/imgs/nw-dash/nt_img4.png",
+    soon: true,
+  },
 ];
 
 export default function NewGroupDialog({ visible, onHide, user, onCreate }) {
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [templates, setTemplates] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const { createGroup } = useCreateGroup();
-
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      const snapshot = await getDocs(collection(db, "templates"));
-      const options = snapshot.docs
-        .filter((doc) => doc.data().ngshow === true)
-        .map((doc) => ({
-          label: doc.data().name,
-          value: {
-            id: doc.id,
-            image: doc.data().image ?? null,
-            widgets: doc.data().widgets || [],
-          },
-        }));
-      setTemplates(options);
-    };
-
-    fetchTemplates();
-  }, []);
-
-  const getWidgetsForGroup = async (groupId) => {
-    const widgets = [];
-
-    for (const widgetId of WIDGET_TYPES) {
-      const ref = collection(
-        db,
-        "widget_data",
-        widgetId,
-        "groups",
-        groupId,
-        "items"
-      );
-      const snap = await getDocs(ref);
-
-      snap.forEach((doc) => {
-        widgets.push({
-          ...doc.data(),
-          widgetId,
-          docId: doc.id,
-        });
-      });
-    }
-
-    return widgets;
-  };
-
-  const handleCreateGroup = async () => {
-    if (!name || !user?.uid) return;
-    setLoading(true);
-
-    try {
-      const group = await createGroup(name, user);
-      const groupId = group.id || group?.groupId || group?.ref?.id;
-      if (!groupId) throw new Error("Group ID not found");
-
-      if (selectedTemplate?.widgets?.length) {
-        for (const w of selectedTemplate.widgets) {
-          if (!w.widgetId) continue;
-
-          const widgetData = {
-            groupId,
-            key: w.widgetId,
-            layout: w.layout ?? {},
-            settings: w.settings ?? {},
-            createdAt: serverTimestamp(),
-          };
-
-          // 1. Guardar en widget_data/{widgetId}/groups/{groupId}/items
-          const widgetRef = collection(
-            db,
-            "widget_data",
-            w.widgetId,
-            "groups",
-            groupId,
-            "items"
-          );
-          await addDoc(widgetRef, {
-            ...widgetData,
-            widgetId: w.widgetId, // solo en widget_data
-          });
-
-          // 2. Guardar también en groups/{groupId}/widgets
-          const groupWidgetRef = collection(db, "groups", groupId, "widgets");
-          await addDoc(groupWidgetRef, widgetData);
-        }
-      }
-
-      const widgets = await getWidgetsForGroup(groupId);
-      if (onCreate) onCreate(group, widgets);
-      resetDialog();
-    } catch (error) {
-      console.error("❌ Error creando grupo o copiando widgets:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [step, setStep] = useState(null);
 
   const resetDialog = () => {
-    setName("");
-    setSelectedTemplate(null);
-    setLoading(false);
-    onHide();
+    setStep(null); // volver a paso inicial
+  };
+
+  const closeDialog = () => {
+    setStep(null);
+    onHide(); // cerrar modal
   };
 
   return (
     <Dialog
       visible={visible}
-      onHide={resetDialog}
-      header="New Group"
-      style={{ width: "70%", maxWidth: "1000px" }}
+      onHide={closeDialog}
+      header="Create New Dashboard"
+      style={{ width: "70vw", maxWidth: "1000px", height: "70vh" }}
       className="new-group-dialog"
+      modal
     >
-      {loading ? (
-        <div className="text-center py-5">
-          <i className="pi pi-spinner pi-spin" style={{ fontSize: "2rem" }} />
-          <p className="mt-3">Creating group, please wait...</p>
-        </div>
-      ) : (
-        <div className="p-fluid">
-          <div className="row">
-            <div className="col-12 mb-3">
-              <input
-                type="text"
-                className="custom-input mb-4"
-                autoFocus
-                placeholder="Search by name, description or category..."
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
+      {/* Header custom */}
+      {/* <div className="text-center mb-4">
+        <p className="text-muted small">
+          Organize your life with templates, challenges or start from scratch.
+        </p>
+      </div> */}
 
-            <div className="col-12">
-              <div className="row g-2 mb-4">
-                <div className="col-4">
-                  <div
-                    className={`p-3 panel-in-panels ${
-                      selectedTemplate === null ? "bg-pistacho" : ""
+      {/* Botones grandes de selección */}
+      {step === null && (
+        <div className="row px-2 pb-3 g-3">
+          {TABS.map((tab) => {
+            const isSoon = tab.soon;
+
+            return (
+              <div className="col-6" key={tab.key}>
+                <div className="position-relative">
+                  {isSoon && (
+                    <span
+                      className="badge bg-secondary position-absolute"
+                      style={{ top: "10px", right: "10px", fontSize: "0.7rem" }}
+                    >
+                      Coming soon
+                    </span>
+                  )}
+
+                  <button
+                    className={`btn-nw-dashboard w-100 text-start p-5 ${
+                      isSoon ? "disabled opacity-50" : ""
                     }`}
-                    onClick={() => setSelectedTemplate(null)}
-                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      if (!isSoon) setStep(tab.key);
+                    }}
+                    disabled={isSoon}
+                    style={{ cursor: isSoon ? "not-allowed" : "pointer" }}
                   >
-                    <h5>Empty</h5>
-                    <div className="text-muted small mt-2">No widgets</div>
-                  </div>
+                    <img src={tab.img} alt={tab.label} width="60px" />
+
+                    <strong className="d-block fs-4 mt-4 mb-1">
+                      {tab.label}
+                    </strong>
+                    <span className="small text-muted d-block">{tab.tip}</span>
+                  </button>
                 </div>
               </div>
-
-              <p className="text-muted small mb-2">
-                These templates are just a starting point – you can fully
-                customize them.
-              </p>
-
-              <div className="row g-2">
-                {templates.slice(0, 6).map((t, i) => {
-                  const isSelected =
-                    selectedTemplate?.id &&
-                    selectedTemplate?.id === t.value?.id;
-
-                  return (
-                    <div className="col-4" key={i}>
-                      <div
-                        className={`p-3 panel-in-panels ${
-                          isSelected ? "bg-pistacho" : ""
-                        }`}
-                        onClick={() => setSelectedTemplate(t.value)}
-                        style={{ cursor: "pointer", height: "300px" }}
-                      >
-                        <h5>{t.label}</h5>
-
-                        {t.value?.image && (
-                          <Image
-                            src={
-                              t.value.image.startsWith("/")
-                                ? t.value.image
-                                : `/${t.value.image}`
-                            }
-                            alt="Preview"
-                            preview
-                            width="100%"
-                            className="mt-2"
-                            imageStyle={{
-                              maxHeight: "180px",
-                              objectFit: "contain",
-                            }}
-                          />
-                        )}
-
-                        {t.value?.widgets?.length > 0 ? (
-                          <div className="d-flex flex-wrap gap-1 mt-2 pt-2">
-                            {t.value.widgets.map((w, j) => (
-                              <span
-                                key={j}
-                                className="badge text-bg-dark"
-                                style={{ fontSize: "0.7rem" }}
-                              >
-                                {w.widgetId.replace("Widget", "")}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-muted small mt-2">
-                            No widgets
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="col-12 mt-4">
-              <Button
-                label="Create Group"
-                onClick={handleCreateGroup}
-                className="btn-pistacho w-100"
-                disabled={!name}
-                loading={loading}
-              />
-            </div>
-          </div>
+            );
+          })}
         </div>
       )}
+
+      {/* Content */}
+      {step === "empty" && (
+        <EmptyGroupStep
+          user={user}
+          onCreate={(group) => {
+            onCreate?.(group);
+            closeDialog();
+          }}
+          onBack={resetDialog}
+        />
+      )}
+
+      {step === "template" && (
+        <TemplateGroupStep
+          user={user}
+          onCreate={(group) => {
+            onCreate?.(group);
+            closeDialog();
+          }}
+          onBack={resetDialog}
+        />
+      )}
+
+      {step === "challenge" && <ChallengeGroupStep onBack={resetDialog} />}
+
+      {step === "community" && <CommunityGroupStep onBack={resetDialog} />}
     </Dialog>
   );
 }
