@@ -617,6 +617,10 @@ h5 {
   padding: 0;
 }
 
+.widget-content:has(.profile-user) {
+  background-color: #0e141ad1;
+}
+
 .widget-content:has(.widget-content-atention) {
   background-color: #2f1a1a;
 }
