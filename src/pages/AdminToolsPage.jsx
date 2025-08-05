@@ -14,7 +14,6 @@ import db from "@/firebase/firestore";
 import WidgetManager from "@/components/admin/WidgetManager";
 import NewsAdminPanel from "@/components/admin/NewsAdminPanel";
 import StampsAdmin from "@/components/admin/StampsAdmin";
-import AddProfileGroupFlag from "./AddProfileGroupFlag";
 
 export default function AdminTools() {
   const [users, setUsers] = useState([]);
