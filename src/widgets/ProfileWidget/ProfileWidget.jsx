@@ -49,7 +49,7 @@ export default function ProfileWidget() {
     <div className="profile-user">
       <div className="d-flex">
         <img
-          src={photoURL || "/default-avatar.png"}
+          src={photoURL || "/avatar_placeholder.png"}
           alt={name || ""}
           className="rounded-circle"
           style={{
