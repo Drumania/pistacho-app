@@ -120,7 +120,11 @@ export default function SettingsPage() {
     const fetchProfile = async () => {
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
-        setProfile(snap.exists() ? snap.data() : { name: "", photoURL: "" });
+        setProfile(
+          snap.exists()
+            ? { bio: "", ...snap.data() }
+            : { name: "", photoURL: "", bio: "" }
+        );
       } catch (err) {
         console.error("Error fetching profile", err);
         setError("Failed to load profile.");
@@ -188,6 +192,7 @@ export default function SettingsPage() {
         email: user.email,
         name: profile.name.trim(),
         photoURL,
+        bio: profile.bio || "",
       };
 
       await setDoc(doc(db, "users", user.uid), updatedData, { merge: true });
@@ -310,7 +315,7 @@ export default function SettingsPage() {
               />
               <label htmlFor="upload-avatar" className="cursor-pointer">
                 <div
-                  className="rounded-circle border"
+                  className="rounded-circle"
                   style={{
                     width: 100,
                     height: 100,
@@ -355,6 +360,16 @@ export default function SettingsPage() {
               className="input-field mb-3 w-100"
               value={profile.name || ""}
               onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+            />
+          </div>
+
+          {/* Bio */}
+          <div className="offset-3 col-7 mb-3">
+            <label className="form-label text-light">Bio</label>
+            <InputText
+              className="input-field mb-3 w-100"
+              value={profile.bio || ""}
+              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
             />
           </div>
 

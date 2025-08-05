@@ -636,14 +636,16 @@ h5 {
 .widget-full-height {
   height: calc(100% - 40px);
 }
+
 /* dialog news */
 .img-news {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  background-color: var(--panel-inside); /* fondo negro */
+  /* aspect-ratio: 16 / 9; */
+  object-fit: contain;
+  background-color: var(--panel-inside);
   border-radius: 8px;
   display: block;
+  height: auto;
 }
 .news-content p {
   margin: 0;

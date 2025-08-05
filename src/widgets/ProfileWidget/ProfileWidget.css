@@ -1,0 +1,46 @@
+.profile-user {
+  height: 100%;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* stamps */
+.cs-stamps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap);
+  margin-top: var(--gap);
+  padding: var(--gap);
+}
+
+.stamp {
+  height: 75px;
+  width: 60px;
+  background-color: #262f3b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.stamp:hover {
+  transform: scale(1.5);
+  transition: all 0.2s;
+}
+
+.locked-badge {
+  width: 75%;
+  height: 75%;
+  border: 2px dashed #444;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: contrast(0);
+}

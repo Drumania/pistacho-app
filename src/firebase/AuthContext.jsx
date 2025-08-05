@@ -31,6 +31,7 @@ import {
 import slugify from "slugify";
 import db from "@/firebase/firestore";
 import { app } from "@/firebase/config";
+import { unlockOpenBetaStamp } from "@/utils/stampUnlockers";
 
 const AuthContext = createContext();
 const auth = getAuth(app);
@@ -83,6 +84,7 @@ async function createPersonalGroup(slug, user) {
     order: 0,
     created_at: serverTimestamp(),
     template_used: templateId,
+    isProfileGroup: true,
   });
 
   // Crear widgets del template
@@ -286,7 +288,13 @@ export function AuthProvider({ children }) {
     );
 
     setupPresence(fbUser.uid);
-    // await updateLastLogin(fbUser.uid);
+    // 🟢 Desbloquear el sello de open beta
+    try {
+      await unlockOpenBetaStamp(fbUser);
+    } catch (err) {
+      console.warn("No se pudo desbloquear el sello Open Beta", err);
+    }
+
     return fbUser;
   };
 

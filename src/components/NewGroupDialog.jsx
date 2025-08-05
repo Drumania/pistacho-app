@@ -8,19 +8,20 @@ import CommunityGroupStep from "./NewGroupSteps/CommunityGroupStep";
 
 const TABS = [
   {
-    label: "Create empty dashboard",
-    key: "empty",
-    tip: "Start with a blank dashboard, no widgets added.",
-    img: "/imgs/nw-dash/nt_img1.png",
-    soon: false,
-  },
-  {
     label: "Use a dashboard template",
     key: "template",
     tip: "Start with a pre-designed layout and widgets.",
     img: "/imgs/nw-dash/nt_img2.png",
     soon: false,
   },
+  {
+    label: "Create empty dashboard",
+    key: "empty",
+    tip: "Start with a blank dashboard, no widgets added.",
+    img: "/imgs/nw-dash/nt_img1.png",
+    soon: false,
+  },
+
   {
     label: "21-day challenge",
     key: "challenge",

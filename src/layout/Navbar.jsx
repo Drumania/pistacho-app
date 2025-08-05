@@ -219,7 +219,7 @@ export default function Groups({ onGroupClick }) {
               {/*  */}
               <div className="avatar-wrapper position-relative">
                 <div
-                  className="rounded-circle border"
+                  className="rounded-circle"
                   style={{
                     width: 48,
                     height: 48,

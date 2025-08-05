@@ -8,15 +8,13 @@ import {
   collection,
   updateDoc,
   deleteDoc,
-  addDoc,
-  setDoc,
   doc,
 } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import WidgetManager from "@/components/admin/WidgetManager";
-import GlobalHabitsAdmin from "@/components/admin/GlobalHabitsAdmin";
 import NewsAdminPanel from "@/components/admin/NewsAdminPanel";
-import { getAuth } from "firebase/auth";
+import StampsAdmin from "@/components/admin/StampsAdmin";
+import AddProfileGroupFlag from "./AddProfileGroupFlag";
 
 export default function AdminTools() {
   const [users, setUsers] = useState([]);
@@ -85,12 +83,6 @@ export default function AdminTools() {
     fetchMemberCounts(data);
   };
 
-  const toggleAdmin = async (user) => {
-    const ref = doc(db, "users", user.id);
-    await updateDoc(ref, { admin: !user.admin });
-    fetchUsers();
-  };
-
   const deleteUser = async (user) => {
     if (confirm(`Delete user ${user.displayName || user.email}?`)) {
       await deleteDoc(doc(db, "users", user.id));
@@ -128,6 +120,7 @@ export default function AdminTools() {
   return (
     <div className="admin-panel container">
       <h4 className="mb-4 ps-2 pt-3">Admin Panel</h4>
+
       <TabView>
         <TabPanel header="News" className="m-3">
           <NewsAdminPanel />
@@ -243,8 +236,8 @@ export default function AdminTools() {
           <WidgetManager />
         </TabPanel>
 
-        <TabPanel header="Habits" className="m-3">
-          <GlobalHabitsAdmin />
+        <TabPanel header="Stamps" className="m-3">
+          <StampsAdmin />
         </TabPanel>
       </TabView>
     </div>

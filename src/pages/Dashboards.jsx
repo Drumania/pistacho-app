@@ -11,6 +11,8 @@ import InviteMemberDialog from "@/components/InviteMemberDialog";
 import EditGroupDialog from "@/components/EditGroupDialog";
 import AddWidgetDialog from "@/components/AddWidgetDialog";
 
+import ProfileWidget from "@/widgets/ProfileWidget/ProfileWidget";
+
 import db from "@/firebase/firestore";
 import {
   collection,
@@ -35,7 +37,7 @@ export default function Dashboards() {
     groupData,
   } = useGroupAccessGuard(groupId);
 
-  const { user, showToast } = useAuth();
+  const { user } = useAuth();
   const [, setDocumentTitle] = useDocTitle("Dashboard");
 
   const containerRef = useRef();
@@ -50,15 +52,13 @@ export default function Dashboards() {
   const [layouts, setLayouts] = useState({ lg: [] });
   const [widgetInstances, setWidgetInstances] = useState([]);
   const [components, setComponents] = useState({});
+  const [isProfileGroup, setIsProfileGroup] = useState(false);
 
+  const PROFILE_WIDGET_KEY = "Profile";
+  const PROFILE_WIDGET_ID = "autogen-profile";
   const isAdmin = user?.admin;
 
-  useEffect(() => {
-    if (groupData?.name) {
-      setDocumentTitle(groupData.name);
-    }
-  }, [groupData?.name]);
-
+  // 📏 Resize listener
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
@@ -70,30 +70,66 @@ export default function Dashboards() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // 🧹 Limpia estados cuando cambia de grupo
   useEffect(() => {
-    const checkGroupAdmin = async () => {
-      if (!groupId || !user?.uid) return;
-      const memberRef = doc(db, "groups", groupId, "members", user.uid);
-      const memberSnap = await getDoc(memberRef); // ← FIXED acá
+    setWidgetInstances([]);
+    setLayouts({ lg: [] });
+    setComponents({});
+    setIsGroupAdmin(false);
+    setIsProfileGroup(false);
+  }, [groupId]);
 
-      if (memberSnap.exists()) {
-        const memberData = memberSnap.data();
-        setIsGroupAdmin(memberData.admin === true);
-      } else {
+  // 📄 Setea título del documento
+  useEffect(() => {
+    if (groupData?.name) {
+      setDocumentTitle(groupData.name);
+    }
+  }, [groupData?.name]);
+
+  // 🧠 Detecta si el grupo es de tipo Profile
+  useEffect(() => {
+    setIsProfileGroup(groupData?.isProfileGroup === true);
+  }, [groupData]);
+
+  // 🔐 Checkea si el usuario es admin y carga los widgets
+  useEffect(() => {
+    const initGroup = async () => {
+      if (!groupId || groupLoading || !groupData || !user?.uid) return;
+
+      try {
+        const memberRef = doc(db, "groups", groupId, "members", user.uid);
+        const memberSnap = await getDoc(memberRef);
+        if (memberSnap.exists()) {
+          setIsGroupAdmin(memberSnap.data()?.admin === true);
+        }
+      } catch (err) {
+        console.warn("Error checking group admin:", err);
         setIsGroupAdmin(false);
       }
-    };
-    checkGroupAdmin();
-  }, [groupId, user?.uid]);
 
-  useEffect(() => {
-    fetchWidgets();
-  }, [groupId]);
+      fetchWidgets();
+    };
+
+    initGroup();
+  }, [groupId, groupLoading, groupData, user?.uid]);
 
   const fetchWidgets = async () => {
     setIsLoading(true);
+
     const snapshot = await getDocs(collection(db, `groups/${groupId}/widgets`));
     const widgets = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    const hasProfile = widgets.some((w) => w.key === PROFILE_WIDGET_KEY);
+    if (isProfileGroup && !hasProfile) {
+      widgets.unshift({
+        id: PROFILE_WIDGET_ID,
+        key: PROFILE_WIDGET_KEY,
+        layout: { x: 0, y: 0, w: 1, h: 2 },
+        settings: {},
+        autoInjected: true,
+      });
+    }
+
     setWidgetInstances(widgets);
 
     const layoutLg = widgets.map((w) => ({
@@ -103,17 +139,22 @@ export default function Dashboards() {
       w: w.layout?.w || 1,
       h: w.layout?.h || 1,
     }));
-
     setLayouts({ lg: layoutLg });
 
     const componentsMap = {};
     for (const widget of widgets) {
-      const path = `/src/widgets/${widget.key}/${widget.key}.jsx`;
-      const mod = widgetModules[path];
+      let mod;
+      if (widget.id === PROFILE_WIDGET_ID) {
+        mod = { default: ProfileWidget };
+      } else {
+        const path = `/src/widgets/${widget.key}/${widget.key}.jsx`;
+        mod = widgetModules[path];
+      }
+
       if (mod) {
         componentsMap[widget.id] = mod.default;
       } else {
-        console.warn("No module found for:", path);
+        console.warn("No module found for:", widget.key);
       }
     }
 
@@ -238,13 +279,15 @@ export default function Dashboards() {
                         <div className="widget-handle">
                           <i className="bi bi-grip-vertical"></i>
                         </div>
-                        <div
-                          className="widget-delete"
-                          onClick={handleDelete}
-                          title="Delete widget"
-                        >
-                          <i className="bi bi-trash" />
-                        </div>
+                        {widget?.id !== PROFILE_WIDGET_ID && (
+                          <div
+                            className="widget-delete"
+                            onClick={handleDelete}
+                            title="Delete widget"
+                          >
+                            <i className="bi bi-trash" />
+                          </div>
+                        )}
                       </div>
                     )}
                     {WidgetComponent ? (
