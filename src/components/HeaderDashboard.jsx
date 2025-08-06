@@ -58,7 +58,7 @@ export default function HeaderDashboard({
 
         {(isAdmin || isGroupAdmin) && (
           <div className="ps-1 ms-1 ps-lg-3 ms-lg-3 d-flex align-items-center flex-wrap gap-2">
-            {/* {isAdmin && widgetInstances.length > 0 && (
+            {isAdmin && widgetInstances.length > 0 && (
               <button
                 className="btn-pistacho-outline"
                 onClick={handleSaveTemplate}
@@ -67,7 +67,7 @@ export default function HeaderDashboard({
                 <i className="bi bi-save me-1" />
                 Save as Template
               </button>
-            )} */}
+            )}
 
             {isGroupAdmin && (
               <div className="gruop-admin-menu">

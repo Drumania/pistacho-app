@@ -11,8 +11,6 @@ import InviteMemberDialog from "@/components/InviteMemberDialog";
 import EditGroupDialog from "@/components/EditGroupDialog";
 import AddWidgetDialog from "@/components/AddWidgetDialog";
 
-import ProfileWidget from "@/widgets/ProfileWidget/ProfileWidget";
-
 import db from "@/firebase/firestore";
 import {
   collection,
@@ -119,17 +117,6 @@ export default function Dashboards() {
     const snapshot = await getDocs(collection(db, `groups/${groupId}/widgets`));
     const widgets = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-    const hasProfile = widgets.some((w) => w.key === PROFILE_WIDGET_KEY);
-    if (isProfileGroup && !hasProfile) {
-      widgets.unshift({
-        id: PROFILE_WIDGET_ID,
-        key: PROFILE_WIDGET_KEY,
-        layout: { x: 0, y: 0, w: 1, h: 2 },
-        settings: {},
-        autoInjected: true,
-      });
-    }
-
     setWidgetInstances(widgets);
 
     const layoutLg = widgets.map((w) => ({
@@ -144,12 +131,9 @@ export default function Dashboards() {
     const componentsMap = {};
     for (const widget of widgets) {
       let mod;
-      if (widget.id === PROFILE_WIDGET_ID) {
-        mod = { default: ProfileWidget };
-      } else {
-        const path = `/src/widgets/${widget.key}/${widget.key}.jsx`;
-        mod = widgetModules[path];
-      }
+
+      const path = `/src/widgets/${widget.key}/${widget.key}.jsx`;
+      mod = widgetModules[path];
 
       if (mod) {
         componentsMap[widget.id] = mod.default;

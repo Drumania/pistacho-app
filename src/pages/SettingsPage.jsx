@@ -322,7 +322,7 @@ export default function SettingsPage() {
                     backgroundImage: `url(${
                       photoFile
                         ? URL.createObjectURL(photoFile)
-                        : profile.photoURL || "/default-avatar.png"
+                        : profile.photoURL || "/avatar_placeholder.png"
                     })`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
