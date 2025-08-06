@@ -1,5 +1,4 @@
-// src/widgets/WeightTrackerWidget/WeightTrackerWidget.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   collection,
   query,
@@ -23,7 +22,7 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
     if (!user || !groupId || !widgetId) return;
 
     const q = query(
-      collection(db, "weight_entries"),
+      collection(db, "widget_data", "weight_tracker", "entries"),
       where("user_id", "==", user.uid),
       where("group_id", "==", groupId),
       where("widget_id", "==", widgetId),
@@ -34,54 +33,57 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
       const data = snapshot.docs.map((doc) => doc.data());
       setWeights(data);
 
-      const latest = data[data.length - 1];
-      if (latest?.date) {
-        const lastDate = latest.date.toDate?.() || new Date(latest.date);
-        const now = new Date();
-        const diffDays = (now - lastDate) / (1000 * 60 * 60 * 24);
-        setShowReminder(diffDays > 3);
+      if (data.length > 0) {
+        const last = data[data.length - 1];
+        const lastDate = last.date?.toDate?.() || new Date(last.date);
+        const diff = (new Date() - lastDate) / (1000 * 60 * 60 * 24);
+        setShowReminder(diff > 3);
+      } else {
+        setShowReminder(false);
       }
     });
 
     return () => unsub();
   }, [user, groupId, widgetId]);
 
-  const weightsOnly = weights.map((w) => w.weight);
-  const minY = weightsOnly.length
-    ? Math.floor(Math.min(...weightsOnly) - 10)
-    : 50;
-  const maxY = weightsOnly.length
-    ? Math.ceil(Math.max(...weightsOnly) + 10)
-    : 130;
+  const weightsOnly = useMemo(() => weights.map((w) => w.weight), [weights]);
 
-  const chartData = {
-    labels: weights.map((w) => w.date),
-    datasets: [
-      {
-        label: "Weight (kg)",
-        data: weights.map((w) => w.weight),
-        fill: false,
-        borderColor: "#90b083",
-        tension: 0.3,
-      },
-    ],
-  };
+  const chartData = useMemo(
+    () => ({
+      labels: weights.map(
+        (w) => w.date?.toDate?.().toLocaleDateString?.() || w.date
+      ),
+      datasets: [
+        {
+          label: "Weight (kg)",
+          data: weightsOnly,
+          fill: false,
+          borderColor: "#90b083",
+          tension: 0.3,
+        },
+      ],
+    }),
+    [weights, weightsOnly]
+  );
 
-  const chartOptions = {
-    plugins: {
-      legend: { display: false },
-    },
-    scales: {
-      y: {
-        beginAtZero: false,
-        min: minY,
-        max: maxY,
-        ticks: {
-          stepSize: 5,
+  const chartOptions = useMemo(
+    () => ({
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: false,
+          min: weightsOnly.length
+            ? Math.floor(Math.min(...weightsOnly) - 5)
+            : 50,
+          max: weightsOnly.length
+            ? Math.ceil(Math.max(...weightsOnly) + 5)
+            : 130,
+          ticks: { stepSize: 5 },
         },
       },
-    },
-  };
+    }),
+    [weightsOnly]
+  );
 
   return (
     <div
@@ -97,9 +99,10 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
           onClick={() => setShowDialog(true)}
         />
       </div>
+
       {showReminder && (
         <small className="showReminder">
-          You haven't updated your weight in many days.
+          You haven't updated your weight in a few days.
         </small>
       )}
 

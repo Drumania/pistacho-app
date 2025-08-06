@@ -1,4 +1,3 @@
-// src/widgets/WeightTrackerWidget/WeightTrackerDialog.jsx
 import { useEffect, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Calendar } from "primereact/calendar";
@@ -35,7 +34,7 @@ export default function WeightTrackerDialog({
     if (!user || !groupId || !widgetId || !visible) return;
 
     const q = query(
-      collection(db, "weight_entries"),
+      collection(db, "widget_data", "weight_tracker", "entries"),
       where("user_id", "==", user.uid),
       where("group_id", "==", groupId),
       where("widget_id", "==", widgetId),
@@ -64,16 +63,18 @@ export default function WeightTrackerDialog({
         user_id: user.uid,
         group_id: groupId,
         widget_id: widgetId,
-        date: date.toISOString().split("T")[0],
+        date,
         weight,
         updated_at: serverTimestamp(),
       };
 
+      const colRef = collection(db, "widget_data", "weight_tracker", "entries");
+
       if (selectedId) {
-        const docRef = doc(db, "weight_entries", selectedId);
+        const docRef = doc(colRef, selectedId);
         await updateDoc(docRef, payload);
       } else {
-        await addDoc(collection(db, "weight_entries"), {
+        await addDoc(colRef, {
           ...payload,
           created_at: serverTimestamp(),
         });
@@ -88,7 +89,7 @@ export default function WeightTrackerDialog({
 
   const handleEdit = (entry) => {
     setSelectedId(entry.id);
-    setDate(new Date(entry.date));
+    setDate(new Date(entry.date?.toDate?.() || entry.date));
     setWeight(entry.weight);
   };
 
@@ -150,7 +151,10 @@ export default function WeightTrackerDialog({
                   className="d-flex justify-content-between align-items-center mb-2"
                 >
                   <div>
-                    <strong>{w.date}</strong>: {w.weight} kg
+                    <strong>
+                      {w.date?.toDate?.().toLocaleDateString?.() || w.date}
+                    </strong>
+                    : {w.weight} kg
                   </div>
                   <Button
                     icon="pi pi-pencil"
