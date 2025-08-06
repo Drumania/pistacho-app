@@ -86,7 +86,8 @@ export default function ProfileWidget() {
         {[...stamps]
           .sort((a, b) => a.order - b.order)
           .map((s, i) => {
-            const unlocked = profile?.stamps?.includes(s.id);
+            const unlocked = profile?.unlockedStamps?.includes(s.id);
+
             return (
               <div
                 key={s.id || i}
