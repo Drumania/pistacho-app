@@ -22,3 +22,19 @@
   color: var(--pistacho-color);
   font-weight: bold;
 }
+
+.badge {
+  border: 2px solid transparent;
+  background-color: transparent;
+  opacity: 0.8;
+  color: #fff !important;
+  font-size: 0.75rem;
+  padding: 2px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.badge-active {
+  opacity: 1;
+  color: #fff;
+}

@@ -52,8 +52,6 @@ export default function Dashboards() {
   const [components, setComponents] = useState({});
   const [isProfileGroup, setIsProfileGroup] = useState(false);
 
-  const PROFILE_WIDGET_KEY = "Profile";
-  const PROFILE_WIDGET_ID = "autogen-profile";
   const isAdmin = user?.admin;
 
   // 📏 Resize listener
@@ -263,15 +261,13 @@ export default function Dashboards() {
                         <div className="widget-handle">
                           <i className="bi bi-grip-vertical"></i>
                         </div>
-                        {widget?.id !== PROFILE_WIDGET_ID && (
-                          <div
-                            className="widget-delete"
-                            onClick={handleDelete}
-                            title="Delete widget"
-                          >
-                            <i className="bi bi-trash" />
-                          </div>
-                        )}
+                        <div
+                          className="widget-delete"
+                          onClick={handleDelete}
+                          title="Delete widget"
+                        >
+                          <i className="bi bi-trash" />
+                        </div>
                       </div>
                     )}
                     {WidgetComponent ? (

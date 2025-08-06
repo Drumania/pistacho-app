@@ -4,7 +4,6 @@ import {
   addDoc,
   onSnapshot,
   query,
-  where,
   orderBy,
   doc,
   updateDoc,
@@ -18,11 +17,9 @@ import db from "@/firebase/firestore";
 import TodoForm from "./TodoForm";
 import TodoItem from "./TodoItem";
 import { isToday, isYesterday, parseISO } from "date-fns";
-
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Skeleton } from "primereact/skeleton";
-
 import "./TodoWidget.css";
 
 export default function TodoWidget({ groupId }) {
@@ -33,13 +30,13 @@ export default function TodoWidget({ groupId }) {
   const [showDialog, setShowDialog] = useState(false);
   const [usersMap, setUsersMap] = useState({});
   const [showOldCompleted, setShowOldCompleted] = useState(false);
+  const [activeTags, setActiveTags] = useState([]);
 
-  if (!user || !user.uid || !groupId) return null;
+  if (!user?.uid || !groupId) return null;
 
   const colRef = collection(db, `widget_data_todos/${groupId}/items`);
 
   useEffect(() => {
-    // 🔄 Escucha en tiempo real
     const q = query(colRef, orderBy("created_at", "desc"));
     const unsubscribe = onSnapshot(q, (snap) => {
       const data = snap.docs.map((doc) => ({
@@ -49,7 +46,6 @@ export default function TodoWidget({ groupId }) {
       setTodos(data);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, [groupId]);
 
@@ -57,7 +53,6 @@ export default function TodoWidget({ groupId }) {
     const fetchMembers = async () => {
       const snap = await getDocs(collection(db, `groups/${groupId}/members`));
       const map = {};
-
       for (const docRef of snap.docs) {
         const { uid } = docRef.data();
         const userSnap = await getDoc(doc(db, "users", uid));
@@ -69,26 +64,37 @@ export default function TodoWidget({ groupId }) {
           };
         }
       }
-
       setUsersMap(map);
     };
-
     fetchMembers();
   }, [groupId]);
 
-  const incompleteTodos = todos.filter((t) => !t.completed);
+  const allTags = Array.from(
+    new Set(
+      todos
+        .flatMap((t) => (t.label?.name ? [t.label.name] : []))
+        .filter((tag) => tag && tag.trim() !== "")
+    )
+  );
 
-  const completedToday = todos.filter(
+  const filteredTodos =
+    activeTags.length > 0
+      ? todos.filter((t) => t.label?.name && activeTags.includes(t.label.name))
+      : todos;
+
+  const incompleteTodos = filteredTodos.filter((t) => !t.completed);
+  const completedToday = filteredTodos.filter(
     (t) => t.completed && isToday(parseISO(t.completed_at))
   );
-
-  const completedOld = todos.filter(
-    (t) =>
-      t.completed &&
-      t.completed_at &&
-      !isToday(parseISO(t.completed_at)) &&
-      !isYesterday(parseISO(t.completed_at)) === false // incluye solo ayer
+  const completedOld = filteredTodos.filter(
+    (t) => t.completed && isYesterday(parseISO(t.completed_at))
   );
+
+  const toggleTag = (tag) => {
+    setActiveTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
 
   const handleAddOrUpdate = async (data) => {
     if (editingTodo) {
@@ -131,36 +137,52 @@ export default function TodoWidget({ groupId }) {
         />
       </div>
 
-      <ul className="cs-list-group small mt-2">
-        {loading ? (
-          <>
-            <li className="mb-2">
-              <Skeleton width="100%" height="2rem" />
-            </li>
-            <li className="mb-2">
-              <Skeleton width="100%" height="2rem" />
-            </li>
-            <li className="mb-2">
-              <Skeleton width="100%" height="2rem" />
-            </li>
-          </>
-        ) : (
-          <>
-            {incompleteTodos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                usersMap={usersMap}
-                onToggle={handleToggle}
-                onDelete={handleDelete}
-                onEdit={() => {
-                  setEditingTodo(todo);
-                  setShowDialog(true);
+      {allTags.length > 0 && (
+        <div className="d-flex flex-wrap gap-2 mb-3">
+          <Button
+            label="All"
+            className={`badge ${activeTags.length === 0 ? "badge-active" : ""}`}
+            onClick={() => setActiveTags([])}
+            style={{
+              borderColor: "#60a19d",
+              backgroundColor:
+                activeTags.length === 0 ? "#60a19d" : "transparent",
+              color: activeTags.length === 0 ? "#fff" : "#60a19d",
+            }}
+          />
+          {allTags.map((tag) => {
+            const isActive = activeTags.includes(tag);
+            const color =
+              todos.find((t) => t.label?.name === tag)?.label?.color ||
+              "#394b5e";
+
+            return (
+              <Button
+                key={tag}
+                label={tag}
+                className={`badge ${isActive ? "badge-active" : ""}`}
+                onClick={() => toggleTag(tag)}
+                style={{
+                  borderColor: color,
+                  backgroundColor: isActive ? color : "transparent",
+                  color: isActive ? "#fff" : color,
                 }}
               />
-            ))}
+            );
+          })}
+        </div>
+      )}
 
-            {completedToday.map((todo) => (
+      <ul className="cs-list-group small mt-2">
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <li key={i} className="mb-2">
+              <Skeleton width="100%" height="2rem" />
+            </li>
+          ))
+        ) : (
+          <>
+            {[...incompleteTodos, ...completedToday].map((todo) => (
               <TodoItem
                 key={todo.id}
                 todo={todo}
@@ -183,40 +205,33 @@ export default function TodoWidget({ groupId }) {
                     showOldCompleted ? (
                       <>
                         <i className="bi bi-caret-up-fill"></i> Hide completed
-                        tasks
                       </>
                     ) : (
                       <>
                         <i className="bi bi-caret-down-fill"></i> Show completed
-                        tasks
                       </>
                     )
                   }
                 />
-
-                {showOldCompleted && (
-                  <>
-                    {completedOld.map((todo) => (
-                      <TodoItem
-                        key={todo.id}
-                        todo={todo}
-                        usersMap={usersMap}
-                        onToggle={handleToggle}
-                        onDelete={handleDelete}
-                        onEdit={() => {
-                          setEditingTodo(todo);
-                          setShowDialog(true);
-                        }}
-                      />
-                    ))}
-                  </>
-                )}
+                {showOldCompleted &&
+                  completedOld.map((todo) => (
+                    <TodoItem
+                      key={todo.id}
+                      todo={todo}
+                      usersMap={usersMap}
+                      onToggle={handleToggle}
+                      onDelete={handleDelete}
+                      onEdit={() => {
+                        setEditingTodo(todo);
+                        setShowDialog(true);
+                      }}
+                    />
+                  ))}
               </>
             )}
           </>
         )}
       </ul>
-
       <Dialog
         header={editingTodo ? "Edit Task" : "New Task"}
         visible={showDialog}
