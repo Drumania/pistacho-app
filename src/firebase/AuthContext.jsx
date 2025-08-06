@@ -168,6 +168,7 @@ async function updateLastLogin(uid) {
 }
 
 // ✅ Datos de usuario + grupo
+
 async function ensureUserData(fbUser, fallbackName = "") {
   const refUser = doc(db, "users", fbUser.uid);
   const snap = await getDoc(refUser);
@@ -189,9 +190,16 @@ async function ensureUserData(fbUser, fallbackName = "") {
 
     await createPersonalGroup(slug, fbUser);
     localStorage.removeItem("pendingName");
+
+    // ✅ Agregá esto después de crear el documento
+    try {
+      await unlockOpenBetaStamp(fbUser);
+    } catch (err) {
+      console.warn("No se pudo desbloquear el sello Open Beta", err);
+    }
   }
 
-  await updateLastLogin(fbUser.uid); // ✅ move acá
+  await updateLastLogin(fbUser.uid);
 
   const profile = (await getDoc(refUser)).data();
   return { ...fbUser, ...profile };
@@ -267,17 +275,6 @@ export function AuthProvider({ children }) {
   };
 
   const registerWithEmail = async (email, pass, name) => {
-    // // 🔓 Para beta pública, simplemente comentá esta sección
-    // // 🔐 Verificamos si el email fue aprobado
-    // const betaRef = doc(db, "beta_requests", email);
-    // const betaSnap = await getDoc(betaRef);
-
-    // if (!betaSnap.exists() || betaSnap.data().approved !== true) {
-    //   throw new Error("You are not approved for the beta yet.");
-    // }
-    // // -----------
-
-    // ⚠️ Guardar nombre para usar luego en ensureUserData
     localStorage.setItem("pendingName", name);
 
     // Crear usuario
@@ -288,12 +285,6 @@ export function AuthProvider({ children }) {
     );
 
     setupPresence(fbUser.uid);
-    // 🟢 Desbloquear el sello de open beta
-    try {
-      await unlockOpenBetaStamp(fbUser);
-    } catch (err) {
-      console.warn("No se pudo desbloquear el sello Open Beta", err);
-    }
 
     return fbUser;
   };

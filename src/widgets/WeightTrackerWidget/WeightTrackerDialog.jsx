@@ -31,14 +31,14 @@ export default function WeightTrackerDialog({
   const [weight, setWeight] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const colPath = `widget_data/weight/${groupId}_${widgetId}`;
-
   useEffect(() => {
     if (!user || !groupId || !widgetId || !visible) return;
 
     const q = query(
-      collection(db, colPath),
+      collection(db, "weight_entries"),
       where("user_id", "==", user.uid),
+      where("group_id", "==", groupId),
+      where("widget_id", "==", widgetId),
       orderBy("date", "desc")
     );
 
@@ -52,7 +52,7 @@ export default function WeightTrackerDialog({
 
   useEffect(() => {
     if (visible && !selectedId) {
-      setDate(new Date()); // setea fecha de hoy por default
+      setDate(new Date());
     }
   }, [visible, selectedId]);
 
@@ -60,17 +60,21 @@ export default function WeightTrackerDialog({
     if (!user || !date || !weight) return;
     setLoading(true);
     try {
+      const payload = {
+        user_id: user.uid,
+        group_id: groupId,
+        widget_id: widgetId,
+        date: date.toISOString().split("T")[0],
+        weight,
+        updated_at: serverTimestamp(),
+      };
+
       if (selectedId) {
-        const docRef = doc(db, colPath, selectedId);
-        await updateDoc(docRef, {
-          date: date.toISOString().split("T")[0],
-          weight,
-        });
+        const docRef = doc(db, "weight_entries", selectedId);
+        await updateDoc(docRef, payload);
       } else {
-        await addDoc(collection(db, colPath), {
-          user_id: user.uid,
-          date: date.toISOString().split("T")[0],
-          weight,
+        await addDoc(collection(db, "weight_entries"), {
+          ...payload,
           created_at: serverTimestamp(),
         });
       }

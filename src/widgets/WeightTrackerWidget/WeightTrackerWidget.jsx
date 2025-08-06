@@ -6,8 +6,6 @@ import {
   where,
   orderBy,
   onSnapshot,
-  addDoc,
-  serverTimestamp,
 } from "firebase/firestore";
 import { Chart } from "primereact/chart";
 import { Button } from "primereact/button";
@@ -25,8 +23,10 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
     if (!user || !groupId || !widgetId) return;
 
     const q = query(
-      collection(db, `widget_data/weight/${groupId}_${widgetId}`),
+      collection(db, "weight_entries"),
       where("user_id", "==", user.uid),
+      where("group_id", "==", groupId),
+      where("widget_id", "==", widgetId),
       orderBy("date", "asc")
     );
 
@@ -36,7 +36,7 @@ export default function WeightTrackerWidget({ groupId, widgetId }) {
 
       const latest = data[data.length - 1];
       if (latest?.date) {
-        const lastDate = latest.date.toDate?.() || new Date(latest.date); // soporte para Timestamp o string
+        const lastDate = latest.date.toDate?.() || new Date(latest.date);
         const now = new Date();
         const diffDays = (now - lastDate) / (1000 * 60 * 60 * 24);
         setShowReminder(diffDays > 3);
