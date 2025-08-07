@@ -48,7 +48,15 @@ export default function TodoItem({
           {(priority === "high" || label) && (
             <div>
               {priority === "high" && (
-                <span className="me-1 badge bg-danger">High priority</span>
+                <span
+                  className="me-1 badge bg-danger"
+                  style={{
+                    padding: "2px 4px",
+                    borderRadius: "4px",
+                  }}
+                >
+                  High priority
+                </span>
               )}
               {label && (
                 <span
@@ -56,6 +64,8 @@ export default function TodoItem({
                   style={{
                     backgroundColor: label.color,
                     color: "#fff",
+                    padding: "2px 4px",
+                    borderRadius: "4px",
                   }}
                 >
                   {label.name}

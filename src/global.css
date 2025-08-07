@@ -638,7 +638,7 @@ h5 {
 }
 
 .widget-full-height {
-  height: calc(100% - 40px);
+  height: calc(100% - 50px);
 }
 
 /* dialog news */
