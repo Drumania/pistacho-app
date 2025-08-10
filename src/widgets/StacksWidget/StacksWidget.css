@@ -1,0 +1,32 @@
+.stacks-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+.stack-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--panel-inside, #1c1d1e);
+  border: 1px solid var(--line-color, #394b5e);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+.stack-tag:hover {
+  transform: translateY(-1px);
+}
+
+.stacks-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  height: 80%;
+  overflow-y: scroll;
+}
+
+.stacks-list > div {
+  height: 40px;
+  line-height: 40px;
+}
