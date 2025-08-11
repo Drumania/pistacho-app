@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { Dialog } from "primereact/dialog";
-import { Button } from "primereact/button";
+
 import db from "@/firebase/firestore";
 import ImageWidgetDialog from "./ImageWidgetDialog";
 import "./ImageWidget.css";
+import { Dialog } from "primereact/dialog";
+import { Button } from "primereact/button";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 export default function ImageWidget({ widgetId, groupId }) {
   const [imageUrl, setImageUrl] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(true);
 
   const loadImage = async () => {
     try {
@@ -28,6 +31,10 @@ export default function ImageWidget({ widgetId, groupId }) {
   }, [groupId, widgetId]);
 
   const displayUrl = imageUrl || "/placeholder-600x400.png";
+
+  useEffect(() => {
+    if (showPreview) setPreviewLoading(true);
+  }, [displayUrl, showPreview]);
 
   return (
     <div
@@ -68,24 +75,40 @@ export default function ImageWidget({ widgetId, groupId }) {
       />
 
       {/* Dialog: preview grande */}
-      <Dialog
-        visible={showPreview}
-        onHide={() => setShowPreview(false)}
-        header="Preview"
-        style={{ width: "70vw", maxWidth: 900 }}
-        dismissableMask
-        className="image-preview-dialog"
-      >
-        <div className="preview-wrap">
-          {/* Si preferís <img>, ver nota abajo */}
-          <div
-            className="preview-bg"
-            style={{ backgroundImage: `url(${displayUrl})` }}
-            role="img"
-            aria-label="Full size image"
-          />
-        </div>
-      </Dialog>
+      {showPreview && (
+        <Dialog
+          visible
+          onHide={() => setShowPreview(false)}
+          onShow={() => setPreviewLoading(true)}
+          header="Preview"
+          style={{ width: "70vw", maxWidth: 900 }}
+          dismissableMask
+          className="image-preview-dialog"
+        >
+          <div className="preview-wrap">
+            {previewLoading && (
+              <div className="preview-loader">
+                <ProgressSpinner strokeWidth="4" />
+              </div>
+            )}
+            <img
+              key={displayUrl}
+              src={displayUrl}
+              alt="Full size"
+              className="w-100 h-auto"
+              onLoad={() => setPreviewLoading(false)}
+              onError={() => setPreviewLoading(false)}
+              style={{
+                display: "block",
+                maxHeight: "80vh",
+                objectFit: "contain",
+                background: "#111",
+                margin: "0 auto",
+              }}
+            />
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }

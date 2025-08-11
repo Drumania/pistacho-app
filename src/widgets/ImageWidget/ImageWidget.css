@@ -59,3 +59,19 @@
   background-repeat: no-repeat;
   background-color: #111;
 }
+
+.preview-wrap {
+  position: relative;
+  width: 100%;
+  height: 70vh; /* reserva espacio, sin salto */
+  max-height: 80vh;
+  background: #111; /* mismo fondo que la imagen */
+}
+
+.preview-loader {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none; /* no tapa el cierre del dialog */
+}
