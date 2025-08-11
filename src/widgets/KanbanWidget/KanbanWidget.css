@@ -173,6 +173,10 @@ body,
   color: #000;
 }
 
+.kanban-column-body {
+  overflow-y: scroll;
+}
+
 @media (max-width: 768px) {
   .kanban-board {
     flex-direction: column;
