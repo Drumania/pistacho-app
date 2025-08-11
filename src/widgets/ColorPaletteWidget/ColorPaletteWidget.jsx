@@ -81,6 +81,7 @@ export default function ColorPaletteWidget({ groupId, widgetId }) {
               style={{
                 flex: 1,
                 background: hex,
+                cursor: "copy",
                 borderRight:
                   i < colors.length - 1 ? "6px solid transparent" : "none",
               }}
