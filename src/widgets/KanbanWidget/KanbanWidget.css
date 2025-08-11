@@ -174,7 +174,8 @@ body,
 }
 
 .kanban-column-body {
-  overflow-y: scroll;
+  overflow-y: auto;
+  height: 100%;
 }
 
 @media (max-width: 768px) {
