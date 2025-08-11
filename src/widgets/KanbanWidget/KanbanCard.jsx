@@ -1,10 +1,13 @@
-import { useState } from "react";
+// KanbanCard.jsx
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-export default function KanbanCard({ task, onClick, onSettingsClick }) {
-  const [hovered, setHovered] = useState(false);
-
+export default function KanbanCard({
+  task,
+  columnKey,
+  onClick,
+  onSettingsClick,
+}) {
   const {
     attributes,
     listeners,
@@ -12,53 +15,86 @@ export default function KanbanCard({ task, onClick, onSettingsClick }) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+    isSorting,
+  } = useSortable({
+    id: task.id,
+    data: { type: "card", columnKey, taskId: task.id },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
-    cursor: isDragging ? "grabbing" : "grab",
-    position: "relative",
-    paddingRight: "24px",
   };
 
   return (
     <div
       ref={setNodeRef}
+      style={style}
+      className={`kanban-card ${isDragging ? "dragging" : ""} ${
+        isSorting ? "sorting" : ""
+      }`}
       {...attributes}
       {...listeners}
-      className="kanban-card"
-      style={style}
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") onClick?.(e);
+      }}
+      aria-label={`Task: ${task.title || task.id}`}
     >
-      <strong>
-        {task.importance === "high" && (
-          <span className="me-1 badge bg-danger">!</span>
-        )}
-        {task.title}
-      </strong>
+      <div className="kanban-card-head">
+        <span className="kanban-card-title">
+          {task.title || "(Untitled)"}
+          {task.importance === "high" && (
+            <span className="badge-high" title="High priority">
+              •
+            </span>
+          )}
+        </span>
 
-      {hovered && (
-        <div
-          className="kanban-card-settings"
+        <button
+          type="button"
+          className="btn-icon"
+          aria-label="Edit task"
           onClick={(e) => {
             e.stopPropagation();
-            onSettingsClick(task);
+            onSettingsClick?.(e);
           }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-          style={{
-            position: "absolute",
-            top: "8px",
-            right: "8px",
-            cursor: "pointer",
-            opacity: 0.6,
-          }}
+          title="Edit"
         >
-          <i className="bi bi-gear"></i>
+          <i className="pi pi-pencil" />
+        </button>
+      </div>
+
+      {task.description && (
+        <div className="kanban-card-desc">{task.description}</div>
+      )}
+
+      {/* Tags simples si existen */}
+      {Array.isArray(task.tags) && task.tags.length > 0 && (
+        <div className="kanban-card-tags">
+          {task.tags.map((t) => (
+            <span key={t} className="tag">
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Footer opcional: asignado, etc. */}
+      {(task.assignee || task.dueDate) && (
+        <div className="kanban-card-footer">
+          {task.assignee && (
+            <span className="assignee" title={`Assignee: ${task.assignee}`}>
+              @{task.assignee}
+            </span>
+          )}
+          {task.dueDate && (
+            <span className="due" title={`Due: ${task.dueDate}`}>
+              {task.dueDate}
+            </span>
+          )}
         </div>
       )}
     </div>

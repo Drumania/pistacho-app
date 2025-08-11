@@ -1,20 +1,31 @@
-// ✅ KanbanWidget.jsx
-import { useState, useEffect } from "react";
+// ✅ KanbanWidget.jsx (optimizado)
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
-import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCenter,
+  DragOverlay,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
+  arrayMove,
+  sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { KanbanColumn } from "./KanbanColumn";
 import KanbanCardPreview from "./KanbanCardPreview";
 import KanbanModal from "./KanbanModal";
 import { Button } from "primereact/button";
-import { doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import db from "@/firebase/firestore";
 import "./KanbanWidget.css";
 
 const initialTasks = { todo: [], inprogress: [], done: [] };
+const COLS = ["todo", "inprogress", "done"];
 
 export default function KanbanWidget({ groupId, widgetId }) {
   const [tasks, setTasks] = useState(initialTasks);
@@ -22,106 +33,169 @@ export default function KanbanWidget({ groupId, widgetId }) {
   const [editingTask, setEditingTask] = useState(null);
   const [activeId, setActiveId] = useState(null);
 
-  const activeTask = (() => {
-    for (const col of Object.values(tasks)) {
-      const found = col.find((t) => t.id === activeId);
-      if (found) return found;
-    }
-    return null;
-  })();
+  // 🔒 docRef estable
+  const docRef = useMemo(
+    () => doc(db, "widget_data", "kanban", `${groupId}_${widgetId}`, "config"),
+    [groupId, widgetId]
+  );
 
-  const getDocRef = () =>
-    doc(db, "widget_data", "kanban", `${groupId}_${widgetId}`, "config");
+  // 🧠 sensors con activación por distancia + teclado
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
+  // 🧮 buscar card por id
+  const findCard = useCallback(
+    (id) => {
+      for (const [col, arr] of Object.entries(tasks)) {
+        const index = arr.findIndex((t) => t.id === id);
+        if (index !== -1) return { col, index, task: arr[index] };
+      }
+      return null;
+    },
+    [tasks]
+  );
+
+  // 🧠 task activa memoizada
+  const activeTask = useMemo(() => {
+    if (!activeId) return null;
+    const info = findCard(activeId);
+    return info?.task || null;
+  }, [activeId, findCard]);
+
+  // 🔎 resolver columna destino (soporta soltar sobre card o columna vacía)
+  const getDropColumnId = useCallback(
+    (over) => {
+      if (!over) return null;
+      const data = over.data?.current;
+      if (data?.type === "column") return data.columnKey;
+      if (data?.type === "card") return data.columnKey;
+      // fallback: si over.id coincide con alguna card
+      for (const [col, arr] of Object.entries(tasks)) {
+        if (arr.some((t) => t.id === over.id)) return col;
+      }
+      return null;
+    },
+    [tasks]
+  );
+
+  // 🗄️ init + suscripción
   useEffect(() => {
     if (!groupId || !widgetId) return;
+    let mounted = true;
+    let unsub = () => {};
 
-    const unsubscribe = onSnapshot(getDocRef(), async (docSnap) => {
-      if (!docSnap.exists()) {
-        await setDoc(getDocRef(), { title: "Kanban", tasks: [] });
-        setTasks(initialTasks);
-      } else {
-        const data = docSnap.data();
+    (async () => {
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) {
+        await setDoc(docRef, {
+          title: "Kanban",
+          tasks: [],
+          created_at: Date.now(),
+        });
+      }
+      if (!mounted) return;
+      unsub = onSnapshot(docRef, (docSnap) => {
+        const data = docSnap.data() || {};
         const grouped = { todo: [], inprogress: [], done: [] };
         for (const task of data.tasks || []) {
           if (grouped[task.status]) grouped[task.status].push(task);
         }
         setTasks(grouped);
+      });
+    })();
+
+    return () => {
+      mounted = false;
+      unsub && unsub();
+    };
+  }, [docRef, groupId, widgetId]);
+
+  // 💾 guardado compacto
+  const saveTasks = useCallback(
+    async (next) => {
+      await updateDoc(docRef, {
+        tasks: [...next.todo, ...next.inprogress, ...next.done],
+        updated_at: Date.now(),
+      });
+    },
+    [docRef]
+  );
+
+  // 🎯 drag end con reorder + move cross-column
+  const handleDragEnd = useCallback(
+    async (event) => {
+      const { active, over } = event;
+      setActiveId(null);
+      if (!over) return;
+
+      const from = findCard(active.id);
+      const toCol = getDropColumnId(over);
+      if (!from || !toCol || !COLS.includes(toCol)) return;
+
+      // índice destino
+      const overInfo = findCard(over.id);
+      const toIndex =
+        overInfo && overInfo.col === toCol
+          ? overInfo.index
+          : tasks[toCol].length;
+
+      let next = { ...tasks };
+
+      if (from.col === toCol) {
+        // mismo col: reorder
+        next[toCol] = arrayMove(next[toCol], from.index, toIndex);
+      } else {
+        // mover entre columnas con posición
+        const moving = { ...from.task, status: toCol };
+        next[from.col] = next[from.col].filter((t) => t.id !== moving.id);
+        next[toCol] = [
+          ...next[toCol].slice(0, toIndex),
+          moving,
+          ...next[toCol].slice(toIndex),
+        ];
       }
-    });
 
-    return () => unsubscribe();
-  }, [groupId, widgetId]);
+      setTasks(next);
+      await saveTasks(next);
+    },
+    [tasks, findCard, getDropColumnId, saveTasks]
+  );
 
-  const getColumnByTaskId = (id) => {
-    for (let key of Object.keys(tasks)) {
-      if (tasks[key].find((t) => t.id === id)) return key;
-    }
-    return null;
-  };
+  // ✍️ crear/editar
+  const handleSaveTask = useCallback(
+    async (task) => {
+      const col = task.status;
+      const next = {
+        ...tasks,
+        [col]: tasks[col].filter((t) => t.id !== task.id).concat(task),
+      };
+      setTasks(next);
+      await saveTasks(next);
+    },
+    [tasks, saveTasks]
+  );
 
-  const handleDragEnd = async (event) => {
-    const { active, over } = event;
+  // 🗑️ borrar
+  const handleDeleteTask = useCallback(
+    async (taskId) => {
+      const info = findCard(taskId);
+      if (!info) return;
+      const next = {
+        ...tasks,
+        [info.col]: tasks[info.col].filter((t) => t.id !== taskId),
+      };
+      setTasks(next);
+      await saveTasks(next);
+    },
+    [tasks, findCard, saveTasks]
+  );
 
-    // 🛑 Si no hay destino o se soltó sobre sí mismo, cancelamos
-    if (!over || active.id === over.id) return;
-
-    const taskId = active.id;
-    const fromCol = getColumnByTaskId(taskId);
-    const toCol = over.id;
-
-    // 🛑 Validar si el destino es una columna real
-    const validColumns = ["todo", "inprogress", "done"];
-    if (!fromCol || !validColumns.includes(toCol)) return;
-
-    // 🛑 Si soltó en la misma columna, no hacemos nada
-    if (fromCol === toCol) return;
-
-    const task = tasks[fromCol].find((t) => t.id === taskId);
-    const updatedTask = { ...task, status: toCol };
-
-    const updated = {
-      ...tasks,
-      [fromCol]: tasks[fromCol].filter((t) => t.id !== taskId),
-      [toCol]: [...tasks[toCol], updatedTask],
-    };
-
-    setTasks(updated);
-    await updateDoc(getDocRef(), {
-      tasks: [...updated.todo, ...updated.inprogress, ...updated.done],
-    });
-  };
-
-  const handleSaveTask = async (task) => {
-    const currentCol = task.status;
-    const updated = {
-      ...tasks,
-      [currentCol]: tasks[currentCol]
-        .filter((t) => t.id !== task.id)
-        .concat(task),
-    };
-
-    setTasks(updated);
-    await updateDoc(getDocRef(), {
-      tasks: [...updated.todo, ...updated.inprogress, ...updated.done],
-    });
-  };
-
-  const handleDeleteTask = async (taskId) => {
-    const columnKey = getColumnByTaskId(taskId);
-    if (!columnKey) return;
-
-    const updated = {
-      ...tasks,
-      [columnKey]: tasks[columnKey].filter((t) => t.id !== taskId),
-    };
-
-    setTasks(updated);
-
-    await updateDoc(getDocRef(), {
-      tasks: [...updated.todo, ...updated.inprogress, ...updated.done],
-    });
-  };
+  const overlayRoot =
+    typeof document !== "undefined"
+      ? document.getElementById("drag-overlay-root") || document.body
+      : undefined;
 
   return (
     <div className="kanban-widget widget-container">
@@ -138,16 +212,14 @@ export default function KanbanWidget({ groupId, widgetId }) {
       </div>
 
       <DndContext
+        sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={(e) => setActiveId(e.active.id)}
-        onDragEnd={(e) => {
-          handleDragEnd(e);
-          setActiveId(null);
-        }}
+        onDragEnd={handleDragEnd}
         modifiers={[]}
       >
         <div className="kanban-board">
-          {["todo", "inprogress", "done"].map((colKey) => (
+          {COLS.map((colKey) => (
             <SortableContext
               key={colKey}
               items={tasks[colKey].map((t) => t.id)}
@@ -172,12 +244,14 @@ export default function KanbanWidget({ groupId, widgetId }) {
             </SortableContext>
           ))}
         </div>
-        {createPortal(
-          <DragOverlay>
-            {activeTask ? <KanbanCardPreview task={activeTask} /> : null}
-          </DragOverlay>,
-          document.getElementById("drag-overlay-root")
-        )}
+
+        {overlayRoot &&
+          createPortal(
+            <DragOverlay>
+              {activeTask ? <KanbanCardPreview task={activeTask} /> : null}
+            </DragOverlay>,
+            overlayRoot
+          )}
       </DndContext>
 
       <KanbanModal
