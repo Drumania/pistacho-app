@@ -1,0 +1,16 @@
+/* ColorPaletteWidget.css */
+.copied-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #60a19d; /* verde acento de tu app */
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.copied-badge.show {
+  opacity: 1;
+  transform: translateY(0);
+}
