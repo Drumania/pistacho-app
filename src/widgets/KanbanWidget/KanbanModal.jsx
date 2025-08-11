@@ -166,9 +166,9 @@ export default function KanbanModal({
         </div>
 
         {/* Importance */}
-        <div className="field mb-3">
-          <label htmlFor="importance" className="mb-1">
-            Importance
+        <div className="field mb-3 cs-border-bottom pb-3 mb-3">
+          <label htmlFor="importance" className="mb-1 pe-3">
+            Importance:
           </label>
           <div className="d-flex gap-3">
             <div>
@@ -180,7 +180,9 @@ export default function KanbanModal({
                 checked={importance === "normal"}
                 onChange={() => setImportance("normal")}
               />
-              <label htmlFor="normal">Normal</label>
+              <label className="ps-2" htmlFor="normal">
+                Normal
+              </label>
             </div>
             <div>
               <input
@@ -191,7 +193,9 @@ export default function KanbanModal({
                 checked={importance === "high"}
                 onChange={() => setImportance("high")}
               />
-              <label htmlFor="high">High</label>
+              <label className="ps-2" htmlFor="high">
+                High
+              </label>
             </div>
           </div>
         </div>

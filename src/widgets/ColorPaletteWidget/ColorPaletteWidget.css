@@ -14,3 +14,14 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+/* dentro de tu tema oscuro */
+.kanban-modal input[type="radio"] {
+  accent-color: var(--pistacho-color); /* #90b083 */
+}
+
+/* opcional: resaltá el label del seleccionado */
+.kanban-modal input[type="radio"]:checked + label {
+  color: var(--pistacho-color);
+  font-weight: 600;
+}
